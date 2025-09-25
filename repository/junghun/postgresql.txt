@@ -1,0 +1,62 @@
+postgresql 첨 가입후 왼쪽 끝 2번째 드럼통 클릭후 conncect하기
+
+
+
+login/group roles에서
+general에서 이름 짓고
+definition에서 비번만 짓고
+privileges에서 팀원 전체다 슈퍼계정이면 다 체크하고  save
+
+
+postgresql.conf
+```bash
+listen_addresses = '*'
+port = 5432
+```
+
+pg_hba.conf
+```bash
+# IPv4 local connections:
+host    all             all             127.0.0.1/32            scram-sha-256
+
+# IPv6 local connections:
+host    all             all             ::1/128                 scram-sha-256
+
+# 팀원들 접속 허용 (172.168.10.* 대역)
+host    all             all             172.168.10.0/24         scram-sha-256
+
+```
+수정
+
+
+
+슈퍼계정 연동
+
+-- ① 슈퍼계정 6개 생성 (LOGIN + SUPERUSER)
+DO $$
+DECLARE u text;
+BEGIN
+  FOREACH u IN ARRAY ARRAY['admin1','admin2','admin3','admin4','admin5','admin6']
+  LOOP
+    EXECUTE format($f$
+      DO $x$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = '%1$s') THEN
+          CREATE ROLE "%1$s" WITH
+            LOGIN
+            SUPERUSER
+            INHERIT
+            BYPASSRLS
+            CONNECTION LIMIT -1
+            PASSWORD '%1$s_strong_pw!'; -- 👉 비밀번호 바꾸기
+        ELSE
+          ALTER ROLE "%1$s" WITH
+            LOGIN SUPERUSER INHERIT BYPASSRLS CONNECTION LIMIT -1
+            PASSWORD '%1$s_strong_pw!'; -- 👉 비밀번호 바꾸기
+        END IF;
+      END $x$;
+    $f$, u);
+  END LOOP;
+END$$;
+
+-- ② 확인
+\du

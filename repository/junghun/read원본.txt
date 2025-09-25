@@ -1,0 +1,35 @@
+readme작성, 실행방법, 개발할떄 필요한 파일들을 정리하고 싶은데 내가 생각나는 것들은 이거고 더 필요한게 있다면 말해줘
+1. npm i 하기
+2. xml 켜주기 
+3. 드라이브에서 .env 받기
+4. eclipse 에서 프로젝트구성 -hiera어쩌구로 바꾸기
+5. 프론트 모듈화 방식 test/test.js파일 보고 export/import 터득하기
+
+
+---------------
+
+7. api명세 작성하기
+
+localhost:8080/api/서브주소
+
+8. 파일구조 기본적으로 프런트 모듈화, 백은 도메인방식으로 기능별로 구분
+src
+ ㄴ-1번 기능
+ ㄴ-2번 기능
+ ㄴ-3번 기능
+ ㄴ-4번 기능
+
+기능에 대한 설명
+9. 프로젝트 개요
+ 동네 곳곳에 존재하는 공공예술과 예술가를 발굴하고 홍보해 
+   예술가들에게는 본인의 소개, 전시, 상품 판매 등의 브랜딩기회를 제공, 
+   일반인들에게는 쉽게 예술을 접하게 하고 일상 속에서 문화 예술을 경험할 수 있도록 지원하는 서비스
+10. 사용한 프로그램들
+디자인 협업도구figma, canva, 
+IDE 툴 eclipse, intellij, visualstudiocode
+프론트vue3, metronic, nodejs, pinia,axios
+백 springboot3.5.6., mybatis 3.0.5, maven, java17버전
+디비 pgadmin4, postgresql 
+설정파일 env, 
+
+postgresql 설정

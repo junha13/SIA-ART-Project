@@ -20,7 +20,6 @@ public class SpringConfig {
     @Autowired
     private org.springframework.core.env.Environment env;
 
-    /*
     @Bean
     DataSource dataSource() {
         BasicDataSource dataSource = new BasicDataSource();
@@ -30,7 +29,6 @@ public class SpringConfig {
         dataSource.setPassword(env.getProperty("db.password"));
         return dataSource;
     }
-    */
 
     @Bean
     public SqlSessionFactoryBean sqlSessionFactory(DataSource dataSource, ApplicationContext context) throws Exception {

@@ -1,0 +1,7 @@
+pinia
+
+
+productRegistartion 어쨋든 작품 추가페이지 코드내용으로 피그마 수정하기
+
+
+BoardDetailView, BoardListView, BoardWriteView, index,ProductRegistrationView, ClassDetailView, ClassListView

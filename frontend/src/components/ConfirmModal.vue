@@ -1,9 +1,9 @@
 <template>
   <!-- Modal Backdrop -->
-  <div v-if="isVisible" class="modal-backdrop fade show d-flex align-items-center justify-content-center" style="z-index: 1050;">
+  <div v-if="isVisible" class="modal-backdrop d-flex align-items-center justify-content-center" style="z-index: 1050;">
     <!-- Modal Container -->
     <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content shadow-xl rounded-lg border-0" :class="modalClasses">
+      <div class="modal-content shadow-xl rounded-lg border-0 bg-white" :class="modalClasses">
         <div class="modal-body p-5 p-md-8 text-center">
 
           <!-- ICON AREA (Enhanced) -->
@@ -161,7 +161,7 @@ watch(() => props.isVisible, (newVal) => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.8); /* 투명도를 0.5에서 0.8로 상향 조정 */
+  background-color: rgba(0, 0, 0, 0);
   transition: opacity 0.3s ease;
 }
 .modal-content {

@@ -1,68 +1,65 @@
 <template>
-  <div class="d-flex flex-column flex-root" id="kt_login">
-    <div class="d-flex flex-column flex-column-fluid flex-center p-10 bg-white">
-      <div class="mb-10 text-start w-100 w-lg-400px">
-        <h1 class="text-dark fw-bolder mb-3" style="font-size: 2.8rem !important; line-height: 1.2;">
-          예술을 찾는<br>사람들
-        </h1>
-      </div>
+  <div class="d-flex flex-column min-vh-100 bg-white" id="kt_login">
+    <div class="container d-flex flex-column justify-content-center py-5 flex-grow-1">
+      <div class="mx-auto w-100" style="max-width: 420px;">
+        <!-- 헤드라인: 첫 글자만 진하게/진한색 -->
+        <div class="mb-5 text-start">
+          <h1 class="mb-0 lh-sm">
+            <span class="d-block fw-bolder display-5 fs-5x">
+              <span class="text-dark">예</span><span class="text-secondary-emphasis">술을</span>
+            </span>
+            <span class="d-block fw-bolder display-5 fs-5x">
+              <span class="text-dark">찾</span><span class="text-secondary-emphasis">는</span>
+            </span>
+            <span class="d-block fw-bolder display-5 fs-5x">
+              <span class="text-dark">사</span><span class="text-secondary-emphasis">람들</span>
+            </span>
+          </h1>
+        </div>
 
-      <div class="w-100 w-lg-400px p-0">
-        <form @submit.prevent="submitLogin" class="py-2">
-          <div class="fv-row mb-4">
-            <input
-                type="text"
-                v-model="email"
-                class="form-control form-control-lg border-2 rounded-3"
-                placeholder="아이디 or 이메일"
-                required
-            />
+        <!-- 폼 -->
+        <form @submit.prevent="submitLogin" class="pt-2">
+          <div class="mb-3">
+            <input type="text" v-model="email"
+                   class="form-control form-control-lg rounded-3 border-2 shadow-none"
+                   placeholder="아이디 or 이메일" required />
           </div>
 
-          <div class="fv-row mb-4">
-            <input
-                type="password"
-                v-model="password"
-                class="form-control form-control-lg border-2 rounded-3"
-                placeholder="비밀번호"
-                required
-            />
+          <div class="mb-3">
+            <input type="password" v-model="password"
+                   class="form-control form-control-lg rounded-3 border-2 shadow-none"
+                   placeholder="비밀번호" required />
           </div>
 
-          <div class="fv-row mb-12">
-            <label class="form-check form-check-custom form-check-solid">
-              <input
-                  class="form-check-input"
-                  type="checkbox"
-                  id="rememberMe"
-                  value="1"
-              />
-              <span class="form-check-label text-muted small" for="rememberMe">
-                로그인 정보 저장
-              </span>
+          <div class="form-check mb-4">
+            <input class="form-check-input" type="checkbox" id="rememberMe" value="1" />
+            <label class="form-check-label small text-muted" for="rememberMe">
+              로그인 정보 저장
             </label>
           </div>
 
-          <div class="d-flex flex-column gap-2 mb-5">
-            <a href="#" class="text-dark fw-bolder fs-5 text-end" @click.prevent="submitLogin">
-              로그인 <i class="fas fa-chevron-right text-dark ms-1"></i>
-            </a>
-            <router-link to="/register" class="text-dark fw-bolder fs-5 text-end">
-              회원가입 <i class="fas fa-chevron-right text-dark ms-1"></i>
+          <div class="d-flex flex-column gap-2">
+            <button type="submit"
+                    class="btn btn-link p-0 text-end text-dark fw-bold fs-5 text-decoration-none">
+              로그인 <span class="ms-1">&gt;</span>
+            </button>
+
+            <router-link to="/register"
+                         class="btn btn-link p-0 text-end text-secondary fw-bold fs-5 text-decoration-none">
+              회원가입 <span class="ms-1">&gt;</span>
             </router-link>
           </div>
-
         </form>
       </div>
     </div>
 
     <ConfirmModal
-        v-model:isVisible="isModalVisible"
-        :title="modalTitle"
-        :message="modalMessage"
-        :type="modalType"
-        :autoHide="modalAutoHide"
-        @confirm="handleModalConfirm"
+      v-model:isVisible="isModalVisible"
+      :title="modalTitle"
+      :message="modalMessage"
+      :type="modalType"
+      :autoHide="modalAutoHide"
+      @confirm="handleModalConfirm"
     />
   </div>
 </template>
@@ -71,14 +68,13 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import ConfirmModal from '../components/ConfirmModal.vue'
-import { useAuthStore } from '@/stores/useAuthStore' // Pinia Store Import
+import { useAuthStore } from '@/stores/useAuthStore'
 
 const router = useRouter()
 const email = ref('')
 const password = ref('')
-const authStore = useAuthStore() // AuthStore 사용
+const authStore = useAuthStore()
 
-// Modal State
 const isModalVisible = ref(false)
 const modalTitle = ref('')
 const modalMessage = ref('')
@@ -96,14 +92,11 @@ const showModal = (title, message, type = 'info', action = null, autoHide = true
 }
 
 const submitLogin = () => {
-  if (email.value === 'test' && password.value === '1234') { // 더미 성공 조건
-    // 로그인 성공 시 AuthStore 액션 호출 및 더미 데이터 전달
-    authStore.login({
-      name: '테스트 사용자',
-      role: '예술가님',
-      profileImage: 'assets/media/avatars/300-1.jpg'
-    }, 'sample-jwt-token')
-
+  if (email.value === 'test' && password.value === '1234') {
+    authStore.login(
+      { name: '테스트 사용자', role: '예술가님', profileImage: 'assets/media/avatars/300-1.jpg' },
+      'sample-jwt-token'
+    )
     showModal('로그인 성공', `${email.value}님, 환영합니다!`, 'success', 'loginSuccess')
   } else if (email.value && password.value) {
     showModal('로그인 실패', '아이디 또는 비밀번호가 올바르지 않습니다.', 'error')
@@ -113,24 +106,12 @@ const submitLogin = () => {
 }
 
 const handleModalConfirm = () => {
-  isModalVisible.value = false;
-  if (modalAction.value === 'loginSuccess') {
-    router.push('/')
-  }
+  isModalVisible.value = false
+  if (modalAction.value === 'loginSuccess') router.push('/')
 }
 
-const login = submitLogin;
+const login = submitLogin
 </script>
 
 <style scoped>
-#kt_login {
-  min-height: 100vh;
-}
-.bg-white {
-  background-color: #ffffff !important;
-}
-.form-control-lg {
-  border-radius: 0.5rem !important;
-  border: 1px solid #ced4da;
-}
 </style>

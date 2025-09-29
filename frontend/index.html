@@ -1,13 +1,41 @@
 <!DOCTYPE html>
-<html lang="">
-  <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite App</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
-  </body>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="예술을 찾는 사람들 - 지역 예술 지도와 작품 공유 플랫폼" />
+    <meta name="keywords" content="art, map, local, community, Vue, Metronic, Bootstrap, Naver Maps" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="예술을 찾는 사람들 - 지역 예술 지도" />
+    <meta property="og:site_name" content="예술을 찾는 사람들" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+
+    <!-- Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Inter:300,400,500,600,700" />
+
+    <!-- Naver Maps SDK (ncpKeyId 사용) -->
+    <script
+            type="text/javascript"
+            src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=396dhhf140"
+            defer>
+    </script>
+    <script
+            type="text/javascript"
+            src="https://apis.map.naver.com/naver-map-api/v3/maps/cluster/cluster.js"
+            defer>
+    </script>
+    <!-- Metronic Local CSS -->
+    <link href="/assets/css/style.bundle.css" rel="stylesheet" type="text/css" />
+
+    <title>예술을 찾는 사람들</title>
+</head>
+<body id="kt_body" class="app-blank">
+<div id="app"></div>
+<script type="module" src="/src/main.js"></script>
+
+<!-- Metronic Local JS -->
+<script src="/assets/js/scripts.bundle.js"></script>
+<script src="/assets/js/widgets.bundle.js"></script>
+</body>
 </html>

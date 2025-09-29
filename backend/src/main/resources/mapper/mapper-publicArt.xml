@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper-publicArt">
+	<insert id="insertPublicArtDB" parameterType="lx.team2.backend.feature.publicart.PublicArtVO">
+		INSERT INTO 
+			public_art ( title, content, image, category_no, location )
+		values
+			( #{title}, #{content}, #{image}, #{categoryNo}, ST_SetSRID(ST_MakePoint(#{longitude}, #{latitude}), 4326)::geography)
+	</insert>
+</mapper>

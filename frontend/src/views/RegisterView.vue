@@ -2,10 +2,21 @@
   <div class="d-flex flex-column flex-root" id="kt_register">
     <div class="d-flex flex-column flex-column-fluid flex-center p-10 bg-white">
 
-      <div class="mb-8 text-start w-100 w-lg-400px">
-        <h1 class="text-dark fw-bolder mb-3" style="font-size: 2.8rem !important; line-height: 1.2;">
-          예술을 찾는<br>사람들
-        </h1>
+      <div class="mb-3 text-start w-100 w-lg-400px">
+        <!-- 헤드라인: 첫 글자만 진하게/진한색 -->
+        <div class="mb-3 text-start">
+          <h1 class="lh-sm">
+            <span class="d-block fw-bolder display-5 fs-4x">
+              <span class="text-dark">예</span><span class="text-secondary-emphasis">술을</span>
+            </span>
+            <span class="d-block fw-bolder display-5 fs-4x">
+              <span class="text-dark">찾</span><span class="text-secondary-emphasis">는</span>
+            </span>
+            <span class="d-block fw-bolder display-5 fs-4x">
+              <span class="text-dark">사</span><span class="text-secondary-emphasis">람들</span>
+            </span>
+          </h1>
+        </div>
       </div>
 
       <div class="w-100 w-lg-400px p-0">
@@ -82,7 +93,7 @@
             />
           </div>
 
-          <div class="fv-row mb-6">
+          <div class="fv-row mb-4">
             <div class="input-group">
               <input
                   type="password"
@@ -126,10 +137,10 @@
 
           <div class="d-flex flex-column gap-2 mb-5">
             <a href="#" class="text-dark fw-bolder fs-5 text-end" @click.prevent="register">
-              회원가입 <i class="fas fa-chevron-right text-primary ms-1"></i>
+              회원가입 <span class="ms-1">&gt;</span>
             </a>
             <router-link to="/login" class="text-muted fw-semibold fs-6 text-end">
-              로그인으로 돌아가기 <i class="fas fa-chevron-right text-muted ms-1"></i>
+              로그인으로 돌아가기 <span class="ms-1">&gt;</span>
             </router-link>
           </div>
 

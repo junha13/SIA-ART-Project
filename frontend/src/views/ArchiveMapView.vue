@@ -347,7 +347,6 @@ main {
 /* ▼ 카드 스크롤 래퍼를 상대배치로, 버튼은 절대배치로 */
 .cards-wrap {
   position: relative;
-  background-color: #fff;
 }
 
 /* 플로팅 추가 버튼(FAB) – 카드 위 우하단에 겹침 */
@@ -366,7 +365,6 @@ main {
 /* 마지막 카드가 버튼에 가리지 않도록 스크롤 패딩 확보 */
 .card-scroll {
   padding-right: 80px; /* 버튼 폭 + 여유 */
-  background-color: #fff;
 }
 
 </style>

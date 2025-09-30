@@ -44,7 +44,7 @@
       <div class="px-1 pb-5 cards-wrap">
         <div class="d-flex overflow-auto gap-3 card-scroll" style="border-radius: 1rem;">
           <div v-for="item in currentDetailList" :key="item.id + item.type"
-              class="card shadow-lg flex-shrink-0" style="width: 200px; cursor: pointer;"
+              class="card flex-shrink-0" style="width: 200px; cursor: pointer;"
               @click="viewDetail(item)">
             <img :src="item.image" class="card-img-top" height="120" style="object-fit: cover;" :alt="item.title || item.name"/>
             <div class="card-body p-3">
@@ -68,11 +68,11 @@
         <!-- ★ 여기로 버튼 이동: 카드 영역 우하단에 겹친다 -->
         <button
           class="btn btn-lg btn-light rounded-circle shadow-lg fab-add"
-          @click="showModal('추가', '새로운 정보 등록 기능입니다.', 'info')"
+          @click="goTo('추가', '새로운 정보 등록 기능입니다.', 'info')"
           aria-label="새 항목 추가"
           title="새 항목 추가"
         >
-          <i class="fas fa-plus fa-2x text-primary"></i>
+          <i class="ki-duotone ki-plus"></i>
         </button>
       </div>
     </main>
@@ -147,11 +147,6 @@ const allData = ref([
 ])
 // --- 더미 데이터 확장 끝 ---
 
-// 1. 현재 선택된 필터에 따른 리스트 (하단 카드 뷰)
-const currentDetailList = computed(() => {
-  return allData.value.filter(item => item.type === activeFilter.value)
-})
-
 // --- Map & Clustering Logic ---
 
 const createMarkers = () => {
@@ -161,8 +156,8 @@ const createMarkers = () => {
   }
   markers.value = []
 
-  // 2. 현재 활성 필터에 맞는 데이터만 선택
-  const dataToMap = allData.value.filter(item => item.type === activeFilter.value)
+  // 2. 현재 활성 필터 + 검색 키워드에 맞는 데이터만 선택
+  const dataToMap = filteredList.value
 
   dataToMap.forEach(item => {
     const marker = new window.naver.maps.Marker({
@@ -245,13 +240,26 @@ const initMap = () => {
 }
 
 // 필터 변경 시 지도 업데이트
-watch(activeFilter, () => {
+watch(searchQuery, () => {
   createMarkers()
 })
 
 const performSearch = () => {
-  showModal('검색 실행', `'${searchQuery.value}' 위치로 지도를 이동하고 해당 위치의 정보를 필터에 맞게 검색합니다.`, 'info')
-  // 실제 로직: 검색어를 기반으로 지도의 중심을 이동하고 createMarkers()를 다시 호출
+  // 1) 필터 반영된 리스트
+  const list = filteredList.value
+
+  // 2) 마커/클러스터 갱신
+  createMarkers()
+
+  // 3) 결과가 있으면 해당 핀들을 모두 담는 bounds로 화면 이동
+  if (naverMap.value && list.length > 0) {
+    const bounds = new window.naver.maps.LatLngBounds()
+    list.forEach(it => bounds.extend(new window.naver.maps.LatLng(it.lat, it.lng)))
+    naverMap.value.fitBounds(bounds)
+  } else {
+    // 결과 없으면 간단 안내
+    showModal('검색 결과 없음', `'${searchQuery.value}'에 해당하는 위치를 찾지 못했어요. 다른 지역명을 입력해보세요.`, 'warning')
+  }
 }
 
 const goBack = () => {
@@ -280,6 +288,44 @@ onMounted(() => {
     });
   }
 })
+
+///
+/// 지도 검색 필터
+///
+
+// --- 검색어에서 지역 키워드(구/군/시 일부) 추출 ---
+const extractAreaKeyword = (raw) => {
+  if (!raw) return ''
+  const s = String(raw).trim()
+  // 한글 + 숫자/영문 혼합 대비, 공백 기준으로 토큰화 후 '구/군/시'로 끝나는 단어 우선
+  const tokens = s.split(/\s+/)
+  const bySuffix = tokens.find(t => /[가-힣A-Za-z0-9]+(구|군|시)$/.test(t))
+  if (bySuffix) return bySuffix.replace(/[^가-힣A-Za-z0-9]/g, '')
+
+  // 못 찾으면 첫 토큰 사용 (예: '구로'만 쳐도 '구로' 매칭되게)
+  return tokens[0].replace(/[^가-힣A-Za-z0-9]/g, '')
+}
+
+// 현재 검색어에서 키워드 추출 (ex: '구로구 구로동' -> '구로구')
+const areaKeyword = computed(() => extractAreaKeyword(searchQuery.value))
+
+// 1) 타입 필터 + 2) 지역 키워드(부분 일치)까지 반영된 최종 리스트
+const filteredList = computed(() => {
+  const kw = areaKeyword.value
+  return allData.value.filter(item => {
+    const typeOk = item.type === activeFilter.value
+    if (!kw) return typeOk
+    // loc이 '구로구', '종로구' 처럼 들어있으니 부분 일치 허용
+    return typeOk && String(item.loc).includes(kw)
+  })
+})
+
+// 하단 카드 뷰는 filteredList 사용
+const currentDetailList = computed(() => filteredList.value)
+
+
+
+
 </script>
 
 <style scoped>
@@ -301,7 +347,6 @@ main {
 /* ▼ 카드 스크롤 래퍼를 상대배치로, 버튼은 절대배치로 */
 .cards-wrap {
   position: relative;
-  background-color: #fff;
 }
 
 /* 플로팅 추가 버튼(FAB) – 카드 위 우하단에 겹침 */
@@ -320,7 +365,6 @@ main {
 /* 마지막 카드가 버튼에 가리지 않도록 스크롤 패딩 확보 */
 .card-scroll {
   padding-right: 80px; /* 버튼 폭 + 여유 */
-  background-color: #fff;
 }
 
 </style>

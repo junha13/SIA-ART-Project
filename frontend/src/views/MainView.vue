@@ -21,12 +21,12 @@
     </div>
   </div>
 
-  <div v-else class="main-content-page container-fluid">
+  <div v-else class="main-content-page container-fluid px-0">
 
-    <div class="custom-header-container position-relative overflow-hidden">
-      <div class="custom-header-bg-gradient"></div>
+    <div class="custom-header-container position-relative overflow-hidden ">
+      <div class="custom-header-bg-gradient "></div>
 
-      <div class="header-overlay px-4 py-3 d-flex align-items-center justify-content-between">
+      <div class="header-overlay px-4 py-3 mt-n5 d-flex align-items-center justify-content-between">
 
         <div class="header-title-container mb-0">
           <div class="line">
@@ -56,20 +56,20 @@
 
     </div>
 
-    <div class="main-cards-section container-fluid px-0 py-3">
+    <div class="main-cards-section container-fluid px-0 mb-20 ">
       <div class="row g-3">
 
         <div class="col-7 d-flex flex-column">
-          <div class="card-item archive-card flex-fill mb-3" @click="goTo('/archive')">
+          <div class="card-item archive-card flex-fill mb-3" @click="goTo('/archive-map')">
             <span class="card-text">지역예술<br>아카이브</span>
           </div>
-          <div class="card-item store-card flex-fill" @click="goTo('/store')">
+          <div class="card-item store-card flex-fill" @click="goTo('/artworks')">
             <span class="card-text">상점</span>
           </div>
         </div>
 
         <div class="col-5 d-flex flex-column">
-          <div class="card-item artist-card mb-3" style="height: 180px;" @click="goTo('/artists')">
+          <div class="card-item artist-card mb-3" style="height: 180px;" @click="goTo('/artist/list')">
             <span class="card-text">예술가</span>
           </div>
           <div class="card-item class-card mb-3" style="height: 180px;" @click="goTo('/classes')">
@@ -205,8 +205,7 @@ const handleLocationSelect = () => {
   background-color: #ffffff;
   min-height: 100%;
   /* [추가]: 모바일 앱 느낌을 위해 양옆에 여백(p-4)이 있다고 가정하고 그 여백을 메꾸도록 margin-x를 음수로 설정합니다. */
-  margin-left: -1rem;
-  margin-right: -1rem;
+
 }
 
 .custom-header-container {
@@ -235,7 +234,7 @@ const handleLocationSelect = () => {
   left: 0;
   width: 100%;
   height: 55px;
-  z-index: 1002;
+  z-index: 990;
 }
 .header-title-container {
   font-size: 34px;

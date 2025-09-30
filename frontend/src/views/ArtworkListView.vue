@@ -68,7 +68,7 @@
 
         <!-- 작품 카드 -->
         <div v-if="filteredArtworks.length > 0" class="list-group list-group-flush g-3 pb-5">
-          <div v-for="artwork in filteredArtworks" :key="artwork.id" 
+          <div v-for="artwork in filteredArtworks" :key="artwork.id"
                class="list-group-item card-flush p-0 mb-4"
                @click="router.push(`/artwork/${artwork.id}`)">
             <div class="d-flex shadow-sm rounded-lg overflow-hidden border border-gray-200 cursor-pointer transition-300">

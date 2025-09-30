@@ -1,19 +1,19 @@
 <template>
   <div class="app-content flex-column-fluid">
     <div class="app-container-fluid">
-      
+
       <!-- 상단 헤더: 통일된 디자인 -->
       <div class="d-flex align-items-center justify-content-between pt-5 pb-3 mb-5 border-bottom px-3">
-        
-        <button class="btn btn-icon btn-active-light-primary w-30px h-30px" @click="$router.back()">
+
+        <button class="btn btn-icon btn-active-light-primary w-30px h-30px" @click="router.back()">
           <i class="ki-duotone ki-arrow-left fs-2 text-gray-800"></i>
         </button>
-        
+
         <!-- ⭐ H1 태그의 제목 중앙 정렬 및 안전 영역 확보 -->
         <h1 class="page-heading d-flex flex-column justify-content-center text-dark fw-bold fs-3 m-0 position-absolute start-50 translate-middle-x header-title-safe">
           게시글 상세
         </h1>
-        
+
         <i class="ki-duotone ki-dots-vertical fs-2 text-gray-800" style="cursor: pointer;"></i>
       </div>
 
@@ -58,31 +58,31 @@
           </span>
         </div>
 
-        <!-- ⭐ 버튼: 크기 축소, 정렬 우측 유지, 순서 변경 -->
+        <!-- 버튼: 크기 축소, 정렬 우측 유지, 순서 변경 -->
         <div class="d-flex justify-content-end gap-2 pt-3 border-top">
-          <!-- ⭐ 1. 추천 버튼 (크기: btn-sm) -->
-          <button class="btn btn-dark btn-sm fw-bold shadow-sm d-flex align-items-center" @click="likePost">
-            <i class="ki-duotone ki-heart fs-6 me-1 text-danger"></i> <span class="text-white">추천 ({{ post.likes }})</span>
+          <!-- 1. 추천 버튼 (크기: btn-sm, 텍스트 크기: fs-6) -->
+          <button class="btn btn-dark btn-sm fw-bold shadow-sm d-flex align-items-center justify-content-start ps-3 pe-4" @click="likePost">
+            <i class="ki-duotone ki-heart fs-6 me-1 text-danger"></i> <span class="text-white fs-6">추천 ({{ post.likes }})</span>
           </button>
-          <!-- ⭐ 2. 수정 버튼 (크기: btn-sm) -->
-          <button class="btn btn-dark btn-sm fw-bold d-flex align-items-center" @click="editPost">
-            <i class="ki-duotone ki-pencil fs-6 me-1"></i> <span class="text-white">수정</span>
+          <!-- 2. 수정 버튼 (크기: btn-sm, 텍스트 크기: fs-6) -->
+          <button class="btn btn-dark btn-sm fw-bold d-flex align-items-center justify-content-start ps-3 pe-4" @click="editPost">
+            <i class="ki-duotone ki-pencil fs-6 me-1"></i> <span class="text-white fs-6">수정</span>
           </button>
-          <!-- ⭐ 3. 삭제 버튼 (크기: btn-sm) -->
-          <button class="btn btn-dark btn-sm fw-bold d-flex align-items-center" @click="confirmDelete">
-            <i class="ki-duotone ki-trash fs-6 me-1 text-danger"></i> <span class="text-white">삭제</span>
+          <!-- 3. 삭제 버튼 (크기: btn-sm, 텍스트 크기: fs-6) -->
+          <button class="btn btn-dark btn-sm fw-bold d-flex align-items-center justify-content-start ps-3 pe-4" @click="confirmDelete">
+            <i class="ki-duotone ki-trash fs-6 me-1 text-danger"></i> <span class="text-white fs-6">삭제</span>
           </button>
         </div>
       </div>
 
-      <!-- ⭐ 댓글 영역: 쉐도우 비율 낮추기 -->
+      <!-- 댓글 영역: 쉐도우 비율 낮추기 -->
       <div class="card card-flush shadow-xs mx-3">
         <div class="card-body p-5">
           <!-- 댓글 헤더: text-gray-900로 변경하여 다크 톤 유지 -->
           <h5 class="fw-bolder text-gray-900 mb-4">댓글 (<span class="text-gray-900">{{ comments.length }}</span>)</h5>
 
           <!-- 댓글 입력 -->
-          <div class="mb-6 d-flex">
+          <div class="mb-6 d-flex align-items-center">
             <input
                 v-model="newComment"
                 type="text"
@@ -150,9 +150,9 @@ const showModal = (title, message, type = 'info', autoHide = true) => {
   isModalVisible.value = true
 }
 
-// 임시 데이터 
+// 임시 데이터
 const post = ref({
-  id: route.params.id || 123, 
+  id: route.params.id || 123,
   category: "미술",
   title: "최종 디자인이 적용된 게시글 상세 페이지입니다.",
   author: "김작가",
@@ -161,7 +161,7 @@ const post = ref({
   views: 123,
   date: "2025.09.29",
   tags: ["미술", "UX개선", "Metronic", "Dark"],
-  image: "https://via.placeholder.com/600x300/6963FF/fff?text=UX+OPTIMIZED+IMAGE"
+  image: "https://placehold.co/600x300/F5A9A9/fff?text=ATTACHED+IMAGE" // 더미 이미지
 })
 
 const comments = ref([
@@ -177,7 +177,7 @@ onMounted(() => {
 const addComment = () => {
   if (newComment.value.trim() !== "") {
     comments.value.push({
-      author: "나", 
+      author: "나",
       text: newComment.value.trim(),
       date: "방금"
     })
@@ -237,8 +237,8 @@ const handleDelete = () => {
 
 /* 추천 버튼의 배경색 (Dark 스타일 통일) */
 .btn-primary {
-    background-color: var(--bs-dark) !important; 
-    border-color: var(--bs-dark) !important;     
+    background-color: var(--bs-dark) !important;
+    border-color: var(--bs-dark) !important;
     color: #fff !important;
 }
 

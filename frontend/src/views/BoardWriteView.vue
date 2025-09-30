@@ -60,19 +60,32 @@
           <!-- 파일 첨부 -->
           <div class="mb-8">
             <label class="form-label fw-bold text-gray-800">사진 및 파일 첨부</label>
-            <!-- ⭐ 배경색을 bg-light-primary에서 bg-gray-100으로 변경 -->
+            <!-- 배경색을 bg-light-primary에서 bg-gray-100으로 변경 -->
             <div class="d-flex flex-column border border-dashed border-gray-300 rounded-2 p-5 text-center bg-gray-100">
                 <label for="file-upload" class="d-flex flex-column align-items-center justify-content-center" style="cursor: pointer;">
                     <i class="ki-duotone ki-cloud-download fs-2tx text-primary mb-3"></i>
                     <div class="fw-semibold text-gray-600">
                         여기에 파일을 끌어놓거나 <span class="text-primary fw-bolder">왼쪽의 첨부 버튼</span>을 클릭하세요
-                        <!-- 기존 파일 표시 기능 추가 -->
-                        <div v-if="postData.files.length > 0" class="text-success mt-2 fs-7">
-                          * 기존 파일 {{ postData.files.length }}개가 첨부되어 있습니다. 재업로드 시 교체됩니다.
+                        <!-- 기존 파일 표시 기능 추가 (수정 모드 시) -->
+                        <div v-if="postData.files.length > 0 && !uploadedFiles.length" class="text-success mt-2 fs-7">
+                          * 기존 파일 {{ postData.files.length }}개가 첨부되어 있습니다.
                         </div>
                     </div>
                 </label>
-                <input type="file" id="file-upload" class="d-none" multiple />
+                <!-- ⭐ 파일 입력 필드에 handleFileUpload 연결 -->
+                <input type="file" id="file-upload" class="d-none" multiple @change="handleFileUpload" />
+            </div>
+            
+            <!-- ⭐ 업로드된 파일 목록 표시 -->
+            <div v-if="uploadedFiles.length > 0" class="mt-4">
+                <h6 class="fs-7 fw-bold text-gray-700 mb-2">업로드 대기 목록 ({{ uploadedFiles.length }}개):</h6>
+                <div class="d-flex flex-wrap gap-2">
+                    <span v-for="(file, index) in uploadedFiles" :key="index"
+                          class="badge bg-light-primary text-primary p-2 rounded-pill fs-7 fw-semibold">
+                        {{ file.name }}
+                        <i class="ki-duotone ki-cross-circle fs-6 ms-1" style="cursor: pointer;" @click="removeFile(index)"></i>
+                    </span>
+                </div>
             </div>
           </div>
 
@@ -86,7 +99,7 @@
                   class="badge bg-secondary text-white p-2 rounded-pill fs-7 fw-semibold"
               >
                 #{{ tag }}
-                <!-- ⭐ 태그 삭제 아이콘 색상을 text-danger로 변경하여 시인성 확보 -->
+                <!-- 태그 삭제 아이콘 색상을 text-danger로 변경하여 시인성 확보 -->
                 <i class="ki-duotone ki-cross-circle fs-5 ms-1 text-danger" style="cursor: pointer;" @click="removeTag(index)"></i>
               </span>
             </div>
@@ -130,6 +143,7 @@ import ConfirmModal from '../components/ConfirmModal.vue'
 
 const router = useRouter()
 const route = useRoute() 
+const DRAFT_STORAGE_KEY = 'board_post_draft'; // localStorage 키 정의
 
 const categories = ["미술", "음악", "공예", "정보"]
 const newTag = ref("")
@@ -141,8 +155,11 @@ const postData = ref({
     title: "",
     content: "",
     tags: [],
-    files: []
+    files: [] // 기존 파일 정보 (수정 모드 로드시 사용)
 })
+
+// 새로 업로드된 파일 객체를 저장하는 상태 (발표를 위한 핵심)
+const uploadedFiles = ref([])
 
 // isEditMode computed 속성: URL에 ID가 있으면 수정 모드
 const isEditMode = computed(() => !!route.query.id)
@@ -156,22 +173,43 @@ const modalAutoHide = ref(true)
 const modalAction = ref(null)
 const modalConfirmText = ref('확인')
 
-// onMounted: 수정 모드일 때 데이터 로드
+// ⭐ 로드된 임시 저장 데이터를 postData에 적용하는 함수
+const loadDraftData = (draft) => {
+    postData.value.category = draft.category || '미술';
+    postData.value.title = draft.title || '';
+    postData.value.content = draft.content || '';
+    postData.value.tags = draft.tags || [];
+}
+
+// ⭐ onMounted: 수정 모드일 때 데이터 로드, 아니면 임시 저장 데이터 로드 여부 질문
 onMounted(() => {
     if (isEditMode.value) {
         const postId = route.query.id
         
-        // ⭐ API에서 불러온다고 가정한 임시 데이터 (실제 로직으로 대체 필요)
+        // 수정 모드: 기존 게시글 데이터 로드 (API 호출 시뮬레이션)
         const mockPost = {
             id: postId,
             category: "음악",
             title: `[ID ${postId}] 기존 제목이 로드되었습니다.`,
             content: "여기에 기존 게시글 내용이 로드됩니다. 이 내용을 지우거나 바꿔서 수정할 수 있습니다.",
             tags: ["음악", "작곡", "수정됨"],
-            files: [{ name: "file1.jpg" }, { name: "file2.pdf" }]
+            files: [{ name: "기존_작품1.jpg" }, { name: "참고_자료.pdf" }]
         }
-        
         postData.value = mockPost
+    } else {
+        // ⭐ 작성 모드: 임시 저장 데이터 로드 여부 질문
+        const savedDraft = localStorage.getItem(DRAFT_STORAGE_KEY);
+        if (savedDraft) {
+            // 임시 저장된 내용이 있으면 모달 띄우기
+            showModal(
+                '임시저장 확인', 
+                '작성 중이던 글이 있습니다. 이 내용을 불러오시겠습니까?', 
+                'confirm', 
+                'load_draft', // 새로운 액션 정의
+                '불러오기', 
+                false
+            );
+        }
     }
 })
 
@@ -187,12 +225,28 @@ const showModal = (title, message, type = 'info', action = null, confirmText = '
 
 const handleModalConfirm = () => {
   isModalVisible.value = false;
+  
   if (modalAction.value === 'submit') {
+    // 등록 확인 모달 -> 등록 로직 실행
     submitPost()
   } else if (modalAction.value === 'submitSuccess') {
-    // 등록이면 게시판 목록으로, 수정이면 상세 페이지로 이동
+    // 등록/수정 완료 모달 -> 리스트로 이동
     const targetPath = isEditMode.value ? `/board/${postData.value.id}` : "/board"
+    // 등록/수정 완료 시에만 임시 저장 데이터 삭제
+    localStorage.removeItem(DRAFT_STORAGE_KEY); 
     router.push(targetPath)
+  } else if (modalAction.value === 'load_draft') {
+    // ⭐ 임시 저장 불러오기 선택 시
+    const savedDraft = localStorage.getItem(DRAFT_STORAGE_KEY);
+    if (savedDraft) {
+        try {
+            const draft = JSON.parse(savedDraft);
+            loadDraftData(draft); // 데이터 로드 함수 호출
+        } catch (e) {
+            console.error("Failed to parse draft from localStorage", e);
+            localStorage.removeItem(DRAFT_STORAGE_KEY);
+        }
+    }
   }
 }
 
@@ -210,22 +264,45 @@ const removeTag = (index) => {
   postData.value.tags.splice(index, 1)
 }
 
+// 파일 처리 핸들러: 파일 상태 업데이트 (발표를 위한 핵심)
+const handleFileUpload = (event) => {
+    const files = Array.from(event.target.files);
+    uploadedFiles.value = files;
+    event.target.value = null; 
+}
+
+// 파일 삭제 함수
+const removeFile = (index) => {
+    uploadedFiles.value.splice(index, 1);
+}
+
+// saveDraft 함수: 현재 글의 내용과 카테고리, 태그를 localStorage에 저장
 const saveDraft = () => {
-  showModal('임시저장 완료', '게시글이 브라우저에 임시 저장되었습니다.', 'success')
+  try {
+    const draftContent = {
+        category: postData.value.category,
+        title: postData.value.title,
+        content: postData.value.content,
+        tags: postData.value.tags
+    };
+    localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draftContent));
+    // 임시 저장 후에는 페이지를 이동하지 않고 저장 완료 모달만 표시
+    showModal('임시저장 완료', '작성 중인 내용이 저장되었습니다. 페이지 이동 시에도 유지됩니다.', 'success', 'none', '확인', true);
+  } catch (e) {
+    console.error("Error saving draft to localStorage", e);
+    showModal('저장 실패', '브라우저 저장 공간 문제로 임시 저장에 실패했습니다.', 'error');
+  }
 }
 
 const confirmSubmit = () => {
   if (!postData.value.title || !postData.value.content) {
-    // 유효성 검사 실패 시 에러 모달 표시
     showModal('등록 오류', '제목과 내용을 모두 입력해주세요.', 'error')
     return
   }
   
-  // ⭐ [핵심 수정] 수정 모드일 때는 확인 모달 없이 바로 submitPost 실행
   if (isEditMode.value) {
     submitPost();
   } else {
-    // 등록 모드일 때만 확인 모달 표시
     const actionText = '등록'
     const confirmMessage = '게시글을 등록하시겠습니까?'
     showModal(actionText, confirmMessage, 'confirm', 'submit', actionText, false)
@@ -233,14 +310,20 @@ const confirmSubmit = () => {
 }
 
 const submitPost = () => {
+  const finalData = {
+      ...postData.value,
+      newFiles: uploadedFiles.value.map(file => file.name) 
+  }
+
   if (isEditMode.value) {
-    // ⭐ 수정 로직 (PUT/PATCH API 호출) 실행
-    console.log('게시글 수정 완료 (ID: ' + postData.value.id + '):', postData.value)
-    // 수정 완료 후에는 결과 모달을 띄우고 상세 페이지로 이동 준비
+    console.log('게시글 수정 완료 (ID: ' + finalData.id + '):', finalData)
     showModal('수정 완료', "게시글이 성공적으로 수정되었습니다!", 'success', 'submitSuccess')
   } else {
-    // 등록 로직 (POST API 호출)
-    console.log('게시글 등록:', postData.value)
+    // ⭐ 등록 로직: 게시글 목록 데이터에 새 글 추가 (시연용)
+    if (window.appData && window.appData.addPost) {
+        window.appData.addPost(finalData);
+    }
+    console.log('게시글 등록:', finalData)
     showModal('등록 완료', "게시글이 성공적으로 등록되었습니다!", 'success', 'submitSuccess')
   }
 }
@@ -249,28 +332,28 @@ const submitPost = () => {
 <style scoped>
 /* (스타일은 이전과 동일하게 유지) */
 .btn-outline-secondary {
-    border-color: #d1d1d1 !important;
-    color: var(--bs-gray-700) !important;
+ border-color: #d1d1d1 !important;
+ color: var(--bs-gray-700) !important;
 }
 
 .btn-dark {
-    background-color: var(--bs-dark) !important;
-    border-color: var(--bs-dark) !important;
-    color: #fff !important;
+ background-color: var(--bs-dark) !important;
+ border-color: var(--bs-dark) !important;
+ color: #fff !important;
 }
 
 .d-flex.align-items-center.justify-content-between {
-    position: relative; 
+ position: relative; 
 }
 .page-heading.position-absolute {
-    z-index: 10;
-    max-width: 70%; 
-    text-align: center;
+ z-index: 10;
+ max-width: 70%; 
+ text-align: center;
 }
 
 .form-control.bg-white {
-    background-color: #fff !important;
-    color: var(--bs-dark) !important;
-    border-color: var(--bs-gray-400) !important; 
+ background-color: #fff !important;
+ color: var(--bs-dark) !important;
+ border-color: var(--bs-gray-400) !important; 
 }
 </style>

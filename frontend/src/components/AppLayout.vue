@@ -10,7 +10,10 @@
         예술을 찾는 사람들
       </h1>
       <button class="btn btn-icon btn-light p-3" @click="isDrawerOpen = true">
-        <i class="fas fa-bars fs-3"></i>
+        <i class="ki-duotone ki-abstract-14 fs-2 text-gray-700">
+          <span class="path1"></span>
+          <span class="path2"></span>
+        </i>
       </button>
     </header>
 
@@ -35,46 +38,58 @@
     </div>
 
     <div v-if="isDrawerOpen" class="drawer-backdrop" @click="isDrawerOpen = false"></div>
-    <div :class="['drawer', { 'open': isDrawerOpen }]">
+
+    <div :class="['drawer drawer-custom', { 'open': isDrawerOpen }]">
       <div class="p-4 d-flex flex-column h-100">
-        <div class="d-flex justify-content-between align-items-center mb-5">
-          <h5 class="fw-bold mb-0">메뉴</h5>
-          <button class="btn btn-icon btn-light p-3" @click="isDrawerOpen = false">
-            <i class="fas fa-times fs-4"></i>
+
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+          <h5 class="fw-bolder fs-3 mb-0 text-dark">메뉴</h5>
+          <button class="btn btn-icon btn-active-light-primary p-3" @click="isDrawerOpen = false">
+            <i class="fas fa-times fs-4 text-gray-700"></i>
           </button>
         </div>
 
-        <div v-if="authStore.isLoggedIn" class="d-flex align-items-center mb-5 p-3 bg-light rounded-3">
-          <img :src="authStore.user.profileImage" alt="user avatar" class="rounded-circle me-3" width="50" height="50" />
-          <div>
-            <h6 class="fw-bold mb-0 fs-5">{{ authStore.user.name }}</h6> <p class="text-muted mb-0">{{ authStore.user.role }}</p> </div>
+        <div class="mb-6 p-0 user-info-card">
+          <div v-if="authStore.isAuthenticated" class="d-flex align-items-center p-3 user-info-box">
+            <img :src="authStore.user.profileImage" alt="user avatar" class="rounded-circle me-3" width="45" height="45" />
+            <div>
+              <h6 class="fw-bolder mb-0 fs-6 text-dark">{{ authStore.user.name }}</h6>
+              <p class="text-primary fw-semibold mb-0 fs-8">{{ authStore.user.role }}</p>
+            </div>
+          </div>
+
+          <div v-else class-="p-3 bg-light-warning border border-warning rounded-3">
+            <h6 class="fw-bolder fs-6 text-dark mb-1">로그인이 필요합니다.</h6>
+            <p class="text-warning fw-semibold mb-0 fs-7">기능 사용을 위해 로그인하세요.</p>
+          </div>
         </div>
 
-        <ul class="list-group list-group-flush flex-grow-1">
-          <li class="list-group-item cursor-pointer" @click="goTo('/mypage')">
-            <i class="fas fa-user-circle me-3"></i> 마이페이지
+
+        <ul class="list-group list-group-flush flex-grow-1 menu-list-custom">
+          <li class="list-group-item cursor-pointer nav-item-minimal" @click="goTo('/mypage')">
+            마이페이지
           </li>
-          <li class="list-group-item cursor-pointer" @click="goTo('/artworks')">
-            <i class="fas fa-palette me-3"></i> 전체 작품 목록
+          <li class="list-group-item cursor-pointer nav-item-minimal" @click="goTo('/artworks')">
+            전체 작품 목록
           </li>
-          <li class="list-group-item cursor-pointer" @click="goTo('/board')">
-            <i class="fas fa-comments me-3"></i> 커뮤니티 게시판
+          <li class="list-group-item cursor-pointer nav-item-minimal" @click="goTo('/board')">
+            커뮤니티 게시판
           </li>
-          <li class="list-group-item cursor-pointer" @click="goTo('/classes')">
-            <i class="fas fa-chalkboard-teacher me-3"></i> 예술 클래스
+          <li class="list-group-item cursor-pointer nav-item-minimal" @click="goTo('/classes')">
+            예술 클래스
           </li>
-          <li v-if="authStore.user.role === '예술가님'" class="list-group-item cursor-pointer" @click="goTo('/register-product')">
-            <i class="fas fa-feather-alt me-3"></i> 작품 등록
+          <li v-if="authStore.user.role === '예술가님'" class="list-group-item cursor-pointer nav-item-minimal" @click="goTo('/product/register')">
+            작품 등록 (작가 전용)
           </li>
         </ul>
 
-        <div class="mt-auto pt-3 border-top">
-          <button v-if="authStore.isLoggedIn" class="btn btn-sm btn-outline-danger w-100" @click="handleLogout">
-            <i class="fas fa-sign-out-alt me-2"></i> 로그아웃
+        <div class="mt-auto pt-3 border-top d-flex justify-content-end">
+          <button v-if="authStore.isAuthenticated" class="btn btn-link text-muted fw-bold p-0" @click="handleLogout">
+            로그아웃
           </button>
           <div v-else class="d-flex gap-2">
-            <button class="btn btn-sm btn-primary w-50" @click="goTo('/login')">로그인</button>
-            <button class="btn btn-sm btn-outline-primary w-50" @click="goTo('/register')">회원가입</button>
+            <button class="btn btn-sm btn-primary w-50 fw-bold" @click="goTo('/login')">로그인</button>
+            <button class="btn btn-sm btn-outline-primary w-50 fw-bold" @click="goTo('/register')">회원가입</button>
           </div>
         </div>
       </div>
@@ -85,7 +100,6 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-// Pinia 스토어가 '@/stores/useAuthStore'와 '@/stores/useAppStore' 경로에 있다고 가정합니다.
 import { useAuthStore } from '@/stores/useAuthStore'
 import { useAppStore } from '@/stores/useAppStore'
 
@@ -96,18 +110,16 @@ const appStore = useAppStore()
 
 const isDrawerOpen = ref(false)
 
-// 하단 내비게이션 아이템 정의
 const navItems = ref([
-  { path: '/artworks', label: '작품', iconClass: 'fas fa-palette' },
-  { path: '/board', label: '커뮤니티', iconClass: 'fas fa-comments' },
   { path: '/', label: '홈', iconClass: 'fas fa-home' },
   { path: '/archive-map', label: '지도', iconClass: 'fas fa-map-marked-alt' },
+  { path: '/artworks', label: '작품', iconClass: 'fas fa-palette' },
+  { path: '/board', label: '커뮤니티', iconClass: 'fas fa-comments' },
   { path: '/mypage', label: '마이', iconClass: 'fas fa-user' },
 ])
 
 const currentRoute = computed(() => route.path)
 
-// 헤더(55px)와 하단 내비게이션(60px)의 높이만큼 콘텐츠 영역에 패딩 적용
 const contentPaddingStyle = computed(() => {
   if (appStore.getShowLayout) {
     return {
@@ -123,13 +135,11 @@ const contentPaddingStyle = computed(() => {
   }
 })
 
-// Drawer 메뉴 클릭 핸들러: 드로어를 닫고 페이지 이동
 const goTo = (path) => {
   isDrawerOpen.value = false;
   router.push(path);
 };
 
-// 로그아웃 핸들러
 const handleLogout = () => {
   authStore.logout()
   isDrawerOpen.value = false
@@ -138,13 +148,11 @@ const handleLogout = () => {
 </script>
 
 <style scoped>
-/* AppLayout 스타일은 최소화하여 full-screen 레이아웃을 보장합니다. */
 .app-content {
   padding: 0 !important;
-  /* 자식 뷰의 패딩은 상위 contentPaddingStyle에서 관리됩니다. */
 }
 
-/* Drawer/Sidebar Styles */
+/* --- Drawer/Sidebar Styles --- */
 .drawer-backdrop {
   position: fixed;
   top: 0;
@@ -156,33 +164,52 @@ const handleLogout = () => {
   transition: opacity 0.3s ease;
 }
 
-.drawer {
+.drawer-custom {
   position: fixed;
   top: 0;
   right: 0;
-  width: 200px;
+  /* ⭐ 핵심: 폭을 좁게 240px로 설정 */
+  width: 180px;
   max-width: 80%;
   height: 100%;
   background-color: white;
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+  box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
   transform: translateX(100%);
-  transition: transform 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   z-index: 1001;
 }
 
-.drawer.open {
+.drawer-custom.open {
   transform: translateX(0);
 }
 
-/* 유틸리티 */
-.cursor-pointer {
-  cursor: pointer;
+/* ⭐ 사용자 정보 카드 스타일링 (시안의 파란색 박스/글씨 반영) */
+.user-info-box {
+  border: 2px solid var(--bs-primary); /* 파란색 외곽선 */
+  border-radius: 10px;
+  /* 폰트 크기 조정으로 인해 내부 패딩 조정 */
+  padding: 10px !important;
 }
 
-/* 글씨 크기 및 터치 영역 확장 스타일 */
-.list-group-item {
-  padding-top: 1rem !important;
-  padding-bottom: 1rem !important;
-  font-size: 1.05rem; /* 글씨 크기 확대 */
+/* ⭐ 메뉴 항목 디자인 (아이콘 제거 후 텍스트만) */
+.menu-list-custom {
+  padding-left: 0 !important;
+}
+
+.nav-item-minimal {
+  padding-top: 0.8rem !important;
+  padding-bottom: 0.8rem !important;
+  font-size: 1.05rem;
+  color: var(--bs-dark);
+  border-bottom: 1px solid var(--bs-gray-200);
+  padding-left: 0 !important; /* 좌측 패딩 제거 */
+}
+
+.nav-item-minimal:last-child {
+  border-bottom: none;
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }
 </style>

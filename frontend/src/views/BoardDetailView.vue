@@ -1,18 +1,19 @@
 <template>
   <div class="app-content flex-column-fluid">
     <div class="app-container-fluid">
-
+      
       <!-- 상단 헤더: 통일된 디자인 -->
       <div class="d-flex align-items-center justify-content-between pt-5 pb-3 mb-5 border-bottom px-3">
-
-        <button class="btn btn-icon btn-active-light-primary w-30px h-30px" @click="$router.back()">
+        
+        <button class="btn btn-icon btn-active-light-primary w-30px h-30px" @click="router.back()">
           <i class="ki-duotone ki-arrow-left fs-2 text-gray-800"></i>
         </button>
-
-        <h1 class="page-heading d-flex flex-column justify-content-center text-dark fw-bold fs-3 m-0 position-absolute start-50 translate-middle-x">
+        
+        <!-- ⭐ H1 태그의 제목 중앙 정렬 및 안전 영역 확보 -->
+        <h1 class="page-heading d-flex flex-column justify-content-center text-dark fw-bold fs-3 m-0 position-absolute start-50 translate-middle-x header-title-safe">
           게시글 상세
         </h1>
-
+        
         <i class="ki-duotone ki-dots-vertical fs-2 text-gray-800" style="cursor: pointer;"></i>
       </div>
 
@@ -45,6 +46,7 @@
         <div class="mb-5">
           <p class="text-gray-800 fs-4 lh-lg">{{ post.content }}</p>
           <div v-if="post.image" class="mt-5 text-center">
+            <!-- ⭐ 더미 사진 추가 -->
             <img :src="post.image" alt="첨부 이미지" class="img-fluid rounded shadow-lg border border-gray-300" />
           </div>
         </div>
@@ -56,39 +58,42 @@
           </span>
         </div>
 
-        <!-- 버튼: 삭제 버튼 Dark 스타일 적용 -->
-        <div class="d-flex justify-content-end gap-3 pt-3 border-top">
-          <!-- ⭐ 삭제 버튼: btn-light-danger -> btn-dark로 변경, 아이콘 색상 유지 -->
-          <button class="btn btn-dark fw-bold" @click="confirmDelete">
-            <i class="ki-duotone ki-trash fs-4 me-1 text-danger"></i> 삭제
+        <!-- 버튼: 크기 축소, 정렬 우측 유지, 순서 변경 -->
+        <div class="d-flex justify-content-end gap-2 pt-3 border-top">
+          <!-- 1. 추천 버튼 (크기: btn-sm, 텍스트 크기: fs-6) -->
+          <button class="btn btn-dark btn-sm fw-bold shadow-sm d-flex align-items-center justify-content-start ps-3 pe-4" @click="likePost">
+            <i class="ki-duotone ki-heart fs-6 me-1 text-danger"></i> <span class="text-white fs-6">추천 ({{ post.likes }})</span>
           </button>
-          <!-- 수정 버튼 -->
-          <button class="btn btn-dark fw-bold" @click="editPost">
-            <i class="ki-duotone ki-pencil fs-4 me-1"></i> 수정
+          <!-- 2. 수정 버튼 (크기: btn-sm, 텍스트 크기: fs-6) -->
+          <button class="btn btn-dark btn-sm fw-bold d-flex align-items-center justify-content-start ps-3 pe-4" @click="editPost">
+            <i class="ki-duotone ki-pencil fs-6 me-1"></i> <span class="text-white fs-6">수정</span>
           </button>
-          <!-- 추천 버튼 -->
-          <button class="btn btn-dark fw-bold shadow-lg" @click="likePost">
-            <i class="ki-duotone ki-heart fs-4 me-1 text-danger"></i> 추천 ({{ post.likes }})
+          <!-- 3. 삭제 버튼 (크기: btn-sm, 텍스트 크기: fs-6) -->
+          <button class="btn btn-dark btn-sm fw-bold d-flex align-items-center justify-content-start ps-3 pe-4" @click="confirmDelete">
+            <i class="ki-duotone ki-trash fs-6 me-1 text-danger"></i> <span class="text-white fs-6">삭제</span>
           </button>
         </div>
       </div>
 
-      <!-- 댓글 영역 -->
-      <div class="card card-flush shadow-sm mx-3">
+      <!-- 댓글 영역: 쉐도우 비율 낮추기 -->
+      <div class="card card-flush shadow-xs mx-3">
         <div class="card-body p-5">
-          <!-- 댓글 헤더: text-primary -> text-gray-900로 변경하여 다크 톤 유지 -->
+          <!-- 댓글 헤더: text-gray-900로 변경하여 다크 톤 유지 -->
           <h5 class="fw-bolder text-gray-900 mb-4">댓글 (<span class="text-gray-900">{{ comments.length }}</span>)</h5>
 
           <!-- 댓글 입력 -->
-          <div class="mb-6 d-flex">
+          <div class="mb-6 d-flex align-items-center">
             <input
                 v-model="newComment"
                 type="text"
                 class="form-control me-3 form-control-solid rounded-2 border border-gray-300"
                 placeholder="댓글을 입력하세요"
                 @keyup.enter="addComment"
+                style="height: 38px;"
             />
-            <button class="btn btn-dark fw-bold text-nowrap" @click="addComment">등록</button>
+            <button class="btn btn-dark btn-sm fw-bold text-nowrap" @click="addComment" style="height: 38px;">
+                <span class="fs-6">등록</span>
+            </button>
           </div>
 
           <!-- 댓글 리스트 -->
@@ -140,6 +145,11 @@ const modalMessage = ref('')
 const modalType = ref('info')
 const modalAutoHide = ref(true)
 
+// router.back() 대신 router를 직접 사용하도록 수정
+const goBack = () => {
+    router.back()
+}
+
 const showModal = (title, message, type = 'info', autoHide = true) => {
   modalTitle.value = title
   modalMessage.value = message
@@ -148,9 +158,9 @@ const showModal = (title, message, type = 'info', autoHide = true) => {
   isModalVisible.value = true
 }
 
-// 임시 데이터
+// 임시 데이터 
 const post = ref({
-  id: route.params.id || 123,
+  id: route.params.id || 123, 
   category: "미술",
   title: "최종 디자인이 적용된 게시글 상세 페이지입니다.",
   author: "김작가",
@@ -159,7 +169,7 @@ const post = ref({
   views: 123,
   date: "2025.09.29",
   tags: ["미술", "UX개선", "Metronic", "Dark"],
-  image: "https://via.placeholder.com/600x300/6963FF/fff?text=UX+OPTIMIZED+IMAGE"
+  image: "https://placehold.co/600x300/F5A9A9/fff?text=ATTACHED+IMAGE" // 더미 이미지
 })
 
 const comments = ref([
@@ -175,7 +185,7 @@ onMounted(() => {
 const addComment = () => {
   if (newComment.value.trim() !== "") {
     comments.value.push({
-      author: "나",
+      author: "나", 
       text: newComment.value.trim(),
       date: "방금"
     })
@@ -215,6 +225,8 @@ const handleDelete = () => {
 .d-flex.align-items-center.justify-content-between {
     position: relative; /* 중앙 정렬 제목의 기준점 */
 }
+
+/* ⭐ 헤더 제목 안전 영역 확보 */
 .page-heading.position-absolute {
     z-index: 10;
     max-width: 70%;
@@ -226,25 +238,26 @@ const handleDelete = () => {
     background-color: var(--bs-gray-100) !important;
 }
 
-/* 댓글/게시글 삭제 버튼 색상 (Metronic light-danger) */
-/* Light Danger는 삭제됨: 이제 Dark 버튼을 사용합니다. */
+/* ⭐ 댓글 영역 섀도우 비율 낮추기 (shadow-sm보다 더 약한 효과) */
+.shadow-xs {
+  box-shadow: 0 0.1rem 0.5rem 0 rgba(0, 0, 0, 0.05) !important;
+}
 
-/* ⭐ 추천 버튼의 배경색 (Dark 스타일 통일) */
-/* btn-primary의 덮어쓰기 규칙을 Dark로 통일 */
+/* 추천 버튼의 배경색 (Dark 스타일 통일) */
 .btn-primary {
-    background-color: var(--bs-dark) !important;
-    border-color: var(--bs-dark) !important;
+    background-color: var(--bs-dark) !important; 
+    border-color: var(--bs-dark) !important;     
     color: #fff !important;
 }
 
-/* 수정, 등록, 삭제 버튼의 배경색 (Dark 스타일 통일) */
+/* 수정 및 등록 버튼의 배경색 (Dark 스타일 통일) */
 .btn-dark {
     background-color: var(--bs-dark) !important;
     border-color: var(--bs-dark) !important;
     color: #fff !important;
 }
 
-/* ⭐ Light Danger 버튼에 대한 별도 처리 (삭제 버튼에 사용됨) */
+/* Light Danger 버튼에 대한 별도 처리 (삭제 버튼에 사용됨) */
 .btn-light-danger {
     color: var(--bs-danger) !important;
     background-color: transparent !important; /* 배경 투명하게 */

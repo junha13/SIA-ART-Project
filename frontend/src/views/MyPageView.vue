@@ -1,84 +1,120 @@
 <template>
-  <div class="container py-5">
-    <div class="card shadow-sm mb-5">
-      <div class="card-body d-flex align-items-center">
-        <div class="symbol symbol-70px me-4">
-          <img :src="authStore.user.profileImage" alt="user avatar" class="rounded-circle" />
-        </div>
-        <div class="flex-grow-1">
-          <h5 class="fw-bold mb-1">{{ authStore.user.name }}</h5>
-          <p class="text-muted small mb-0">{{ authStore.user.role }}</p>
-        </div>
-        <button class="btn btn-light btn-sm ms-auto" @click="confirmLogout">
-          <i class="fas fa-sign-out-alt"></i> 로그아웃
-        </button>
-      </div>
+  <div class="bg-white min-vh-100 d-flex flex-column">
 
-      <div class="card-footer pt-4 pb-2 bg-light border-0">
-        <p class="fw-bold mb-2 small text-muted">팔로잉 작가 ({{ followingStore.getArtistCount }}명)</p>
-        <div class="d-flex gap-3 overflow-auto pb-2">
-          <div v-for="artist in followingStore.getArtistsForPreview.value" :key="artist.id" class="text-center" style="min-width: 60px;">
-            <div class="symbol symbol-40px mx-auto mb-1 rounded-circle border border-primary cursor-pointer" @click="goTo(`/artist/${artist.id}`)">
-              <img :src="artist.avatar" :alt="artist.name" class="rounded-circle" />
-            </div>
-            <small class="text-muted d-block text-truncate">{{ artist.name }}</small>
+    <!-- 상단 앱바 -->
+    <header class="sticky-top border-bottom">
+      <div class="container d-flex align-items-center justify-content-between py-2">
+        <button class="btn btn-link text-body p-0" @click="router.back()">
+          <i class="fas fa-chevron-left fs-5"></i>
+        </button>
+        <div class="fw-bold">마이페이지</div>
+
+        <!-- 더보기 드롭다운: 로그아웃 포함 -->
+        <div class="dropdown">
+          <button class="btn btn-link text-body p-0" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-ellipsis-vertical fs-5"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><button class="dropdown-item" @click="goTo('/profile/edit')">프로필 편집</button></li>
+            <li><hr class="dropdown-divider" /></li>
+            <li><button class="dropdown-item text-danger" @click="confirmLogout">로그아웃</button></li>
+          </ul>
+        </div>
+      </div>
+    </header>
+
+    <!-- 본문 -->
+    <main class="container py-4 flex-grow-1">
+
+      <!-- 프로필 카드 (굵은 외곽 + 둥근 모서리) -->
+      <section class="border border-2 rounded-4 p-3 mb-4">
+        <div class="d-flex align-items-center">
+          <img
+            :src="authStore.user.profileImage"
+            alt="avatar"
+            class="rounded-circle me-3"
+            width="64" height="64"
+          />
+          <div class="flex-grow-1">
+            <div class="fw-bold fs-5 mb-1">{{ authStore.user.name }}</div>
+            <div class="text-muted small">{{ authStore.user.role }}</div>
           </div>
-          <div v-if="followingStore.getArtistCount === 0" class="text-muted small">
-            팔로우 중인 작가가 없습니다.
-          </div>
         </div>
-      </div>
-    </div>
+      </section>
 
-    <div class="card shadow-sm mb-4">
-      <div class="card-header border-0">
-        <h6 class="fw-bold mb-0">거래</h6>
-      </div>
-      <div class="list-group list-group-flush">
-        <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" @click="goTo('/sales-history')" >
-          <i class="fas fa-box-open me-2 text-warning"></i> 판매 내역 <i class="fas fa-chevron-right text-muted"></i>
-        </button>
-        <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" @click="goTo('/purchase-history')" >
-          <i class="fas fa-shopping-bag me-2 text-primary"></i> 구매 내역 <i class="fas fa-chevron-right text-muted"></i>
-        </button>
-      </div>
-    </div>
+      <!-- 거래 -->
+      <section class="border border-2 rounded-4 p-3 mb-4">
+        <div class="small fw-bold text-muted mb-2">거래</div>
 
-    <div class="card shadow-sm mb-4">
-      <div class="card-header border-0">
-        <h6 class="fw-bold mb-0">관심</h6>
-      </div>
-      <div class="list-group list-group-flush">
-        <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" @click="goTo('/favorite-products')" >
-          <i class="fas fa-heart me-2 text-danger"></i> 관심 작품 <i class="fas fa-chevron-right text-muted"></i>
+        <button type="button"
+                class="w-100 bg-body-secondary border-0 rounded-2 d-flex justify-content-between align-items-center py-3 px-3 mb-3"
+                @click="goTo('/sales-history')">
+          <span class="text-body">판매내역</span>
+          <span class="ms-1">&gt;</span>
         </button>
-        <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" @click="goTo('/favorite-places')" >
-          <i class="fas fa-map-marked-alt me-2 text-info"></i> 관심 장소 <i class="fas fa-chevron-right text-muted"></i>
-        </button>
-        <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" @click="goTo('/following-artists')" >
-          <i class="fas fa-users me-2 text-success"></i> 팔로우한 작가 <i class="fas fa-chevron-right text-muted"></i>
-        </button>
-      </div>
-    </div>
 
-    <div class="card shadow-sm mb-4">
-      <div class="card-header border-0">
-        <h6 class="fw-bold mb-0">설정/등록</h6>
-      </div>
-      <div class="list-group list-group-flush">
-        <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" @click="goTo('/product/register')" >
-          <i class="fas fa-upload me-2 text-dark"></i> 작품 등록 <i class="fas fa-chevron-right text-muted"></i>
+        <button type="button"
+                class="w-100 bg-body-secondary border-0 rounded-2 d-flex justify-content-between align-items-center py-3 px-3"
+                @click="goTo('/purchase-history')">
+          <span class="text-body">구매내역</span>
+          <span class="ms-1">&gt;</span>
         </button>
-        <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" @click="goTo('/location-settings')" >
-          <i class="fas fa-street-view me-2 text-secondary"></i> 내 지역 설정 <i class="fas fa-chevron-right text-muted"></i>
-        </button>
-        <button class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" @click="goTo('/board')" >
-          <i class="fas fa-comments me-2 text-muted"></i> 자유 게시판 <i class="fas fa-chevron-right text-muted"></i>
-        </button>
-      </div>
-    </div>
+      </section>
 
-    <ConfirmModal
+      <!-- 관심 -->
+      <section class="border border-2 rounded-4 p-3 mb-4">
+        <div class="small fw-bold text-muted mb-2">관심</div>
+
+        <button type="button"
+                class="w-100 bg-body-secondary border-0 rounded-2 d-flex justify-content-between align-items-center py-3 px-3 mb-3"
+                @click="goTo('/favorite-products')">
+          <span class="text-body">관심상품</span>
+          <span class="ms-1">&gt;</span>
+        </button>
+
+        <button type="button"
+                class="w-100 bg-body-secondary border-0 rounded-2 d-flex justify-content-between align-items-center py-3 px-3 mb-3"
+                @click="goTo('/favorite-places')">
+          <span class="text-body">관심장소</span>
+          <span class="ms-1">&gt;</span>
+        </button>
+
+        <button type="button"
+                class="w-100 bg-body-secondary border-0 rounded-2 d-flex justify-content-between align-items-center py-3 px-3"
+                @click="goTo('/following-artists')">
+          <span class="text-body">팔로우한 작가</span>
+          <span class="ms-1">&gt;</span>
+        </button>
+      </section>
+
+      <!-- 설정 / 등록 -->
+      <section class="border border-2 rounded-4 p-3 mb-5">
+        <div class="small fw-bold text-muted mb-2">설정 / 등록</div>
+
+        <button type="button"
+                class="w-100 bg-body-secondary border-0 rounded-2 d-flex justify-content-between align-items-center py-3 px-3 mb-3"
+                @click="goTo('/location-settings')">
+          <span class="text-body">내 지역 설정</span>
+          <span class="ms-1">&gt;</span>
+        </button>
+
+        <button type="button"
+                class="w-100 bg-body-secondary border-0 rounded-2 d-flex justify-content-between align-items-center py-3 px-3 mb-3"
+                @click="goTo('/class/register')">
+          <span class="text-body">강좌 등록</span>
+          <span class="ms-1">&gt;</span>
+        </button>
+
+        <button type="button"
+                class="w-100 bg-body-secondary border-0 rounded-2 d-flex justify-content-between align-items-center py-3 px-3"
+                @click="goTo('/product/register')">
+          <span class="text-body">작품 등록</span>
+          <span class="ms-1">&gt;</span>
+        </button>
+      </section>
+
+      <!-- 로그아웃 확인 모달 -->
+      <ConfirmModal
         v-model:isVisible="isModalVisible"
         title="로그아웃 확인"
         message="정말 로그아웃 하시겠습니까? 세션이 종료됩니다."
@@ -86,58 +122,27 @@
         confirmText="로그아웃"
         cancelText="취소"
         @confirm="handleLogout"
-    />
+      />
+    </main>
   </div>
 </template>
 
 <script setup>
-import { ref } from "vue"
-import { useRouter } from "vue-router"
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import ConfirmModal from '../components/ConfirmModal.vue'
 import { useAuthStore } from '@/stores/useAuthStore'
-import { useFollowingStore } from '@/stores/useFollowingStore'
 
 const router = useRouter()
-const isModalVisible = ref(false)
-const goTo = (path) => router.push(path)
-
 const authStore = useAuthStore()
-const followingStore = useFollowingStore()
 
-// 유저 더미 데이터 제거, Pinia Store에서 가져옴
-// const user = ref({ ... }) // 제거됨
-
-// 팔로잉 작가 더미 데이터 제거, Pinia Store Getter를 통해 가져옴
-const followingArtists = followingStore.getArtistsForPreview
-
-const confirmLogout = () => {
-  isModalVisible.value = true
-}
-
+const isModalVisible = ref(false)
+const confirmLogout = () => { isModalVisible.value = true }
 const handleLogout = () => {
-  authStore.logout() // Pinia 액션 호출
-  router.push("/login")
+  authStore.logout()
+  router.push('/login')
+}
+const goTo = (path) => {
+  router.push(path)
 }
 </script>
-
-<style scoped>
-.list-group-item {
-  font-size: 0.95rem;
-  padding: 0.9rem 1rem;
-}
-.card-header {
-  background: #f9fafb;
-}
-.cursor-pointer {
-  cursor: pointer;
-}
-/* 팔로잉 아티스트 미리보기 영역 스타일 */
-.card-footer .d-flex {
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-}
-.card-footer .d-flex > div {
-  flex: 0 0 auto;
-}
-</style>

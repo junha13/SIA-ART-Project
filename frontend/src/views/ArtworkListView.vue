@@ -1,8 +1,6 @@
-<!-- ArtworkListView.vue -->
 <template>
   <div class="app-content flex-column-fluid my-10">
     <div class="app-container-fluid">
-      <!-- 상단 헤더 -->
       <div class="d-flex align-items-center justify-content-between pt-5 pb-3 mb-5 border-bottom px-3">
         <button class="btn btn-icon btn-active-light-primary w-30px h-30px" @click="$router.back()">
           <i class="ki-duotone ki-arrow-left fs-2 text-gray-800"></i>
@@ -10,7 +8,6 @@
         <h1 class="page-heading d-flex flex-column justify-content-center text-dark fw-bold fs-3 m-0 position-absolute start-50 translate-middle-x">
           전체 작품 목록
         </h1>
-        <!-- 오른쪽: 팔로우/메뉴 드롭다운 -->
         <div class="dropdown">
           <button class="btn btn-icon btn-active-light-primary" data-bs-toggle="dropdown">
             <i class="ki-duotone ki-dots-vertical fs-2 text-gray-800"></i>
@@ -23,9 +20,7 @@
         </div>
       </div>
 
-      <!-- 메인 콘텐츠 -->
       <div class="px-3">
-        <!-- 필터 버튼 -->
         <div class="d-flex flex-wrap gap-2 mb-4 overflow-auto flex-nowrap">
           <button v-for="filter in filters" :key="filter"
                   class="btn btn-sm rounded-pill fw-bold text-nowrap"
@@ -35,7 +30,6 @@
           </button>
         </div>
 
-        <!-- 검색바 + 드롭다운 -->
         <div class="d-flex mb-4 gap-2">
           <div class="input-group shadow-sm rounded-3 overflow-hidden border border-gray-400">
             <input v-model="searchQuery" type="text" class="form-control bg-white text-dark border-0" placeholder="작품명, 작가, 지역 검색" />
@@ -55,7 +49,6 @@
           </div>
         </div>
 
-        <!-- 정렬 -->
         <div class="d-flex justify-content-between align-items-center mb-5">
           <select v-model="sortOrder" class="form-select form-select-sm w-auto fw-bold text-dark border border-gray-400">
             <option value="latest">최신 등록순</option>
@@ -66,20 +59,17 @@
           <span class="text-gray-600 small fw-bold">총 {{ filteredArtworks.length }}개 작품</span>
         </div>
 
-        <!-- 작품 카드 -->
         <div v-if="filteredArtworks.length > 0" class="list-group list-group-flush g-3 pb-5">
           <div v-for="artwork in filteredArtworks" :key="artwork.id"
                class="list-group-item card-flush p-0 mb-4"
                @click="router.push(`/artwork/${artwork.id}`)">
             <div class="d-flex shadow-sm rounded-lg overflow-hidden border border-gray-200 cursor-pointer transition-300">
-              <!-- 이미지 -->
               <div class="position-relative w-150px w-sm-200px flex-shrink-0">
                 <img :src="artwork.image" class="h-100 object-cover w-100" :alt="artwork.title"/>
                 <span class="badge bg-dark position-absolute top-0 end-0 m-2 p-2 fw-bolder">
                   <i class="ki-duotone ki-heart fs-6 text-danger me-1"></i> {{ artwork.likes }}
                 </span>
               </div>
-              <!-- 정보 -->
               <div class="p-4 flex-grow-1 d-flex flex-column justify-content-between">
                 <div>
                   <h5 class="fw-bolder mb-2 text-gray-900 text-truncate">제품명: {{ artwork.title }}</h5>
@@ -88,8 +78,10 @@
                     <span class="text-dark fw-bolder fs-6">{{ artwork.price.toLocaleString() }}원</span>
                   </div>
                   <p class="text-muted small mb-1">by {{ artwork.artist }}</p>
-                  <!-- 팔로우 버튼 -->
-                  <button class="btn btn-sm btn-outline-primary mt-2" @click.stop="toggleFollow(artwork)">
+                  <button
+                      class="btn btn-sm mt-2"
+                      :class="artwork.following ? 'btn-primary' : 'btn-outline-primary'"
+                      @click.stop="toggleFollow(artwork)">
                     <i class="ki-duotone" :class="artwork.following ? 'ki-check' : 'ki-plus' "></i>
                     {{ artwork.following ? '팔로잉' : '팔로우' }}
                   </button>
@@ -102,20 +94,18 @@
           </div>
         </div>
 
-        <!-- Empty -->
         <div v-else class="text-center py-10">
           <i class="ki-duotone ki-box-2 fs-1 text-muted mb-3"></i>
           <p class="text-muted">검색 결과에 해당하는 작품이 없습니다.</p>
         </div>
       </div>
 
-      <!-- Modal -->
       <ConfirmModal
-        v-model:isVisible="isModalVisible"
-        :title="modalTitle"
-        :message="modalMessage"
-        :type="modalType"
-        :autoHide="true"
+          v-model:isVisible="isModalVisible"
+          :title="modalTitle"
+          :message="modalMessage"
+          :type="modalType"
+          :autoHide="true"
       />
     </div>
   </div>
@@ -125,6 +115,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import ConfirmModal from '../components/ConfirmModal.vue'
+import { MOCK_ARTWORKS } from '@/data/MockData.js' // MockData Import
 
 const router = useRouter()
 
@@ -148,15 +139,11 @@ const searchQuery = ref('')
 const sortOrder = ref('latest')
 const searchType = ref('title')
 
-// 더미 데이터
-const allArtworks = ref([
-  { id: 1, title: '놀러가고 싶어요', artist: '주영민', location: '상당구', price: 150000, likes: 6, category: '회화', image: 'https://placehold.co/200x180/5DADE2/fff?text=Art1', following: false },
-  { id: 2, title: '팝업스토어 가는 사람', artist: '박정훈', location: '곤지암동', price: 420000, likes: 18, category: '회화', image: 'https://placehold.co/200x180/A3E4D7/000?text=Art2', following: true },
-  { id: 3, title: '피그마 그만 만질래', artist: '허지서', location: '송도동', price: 990000, likes: 42, category: '공예', image: 'https://placehold.co/200x180/F8C471/000?text=Comedian', following: false },
-  { id: 4, title: '알바하러가는 예원', artist: '고예원', location: '북가좌동', price: 85000, likes: 12, category: '도예', image: 'https://placehold.co/200x180/EC7063/fff?text=Art4', following: false },
-  { id: 5, title: '집에가고 싶은 민호', artist: '박민호', location: '서대문구', price: 250000, likes: 25, category: '사진', image: 'https://placehold.co/200x180/3699FF/fff?text=Photo', following: false },
-  { id: 6, title: '학원가고 싶어요', artist: '김준하', location: '만안구', price: 1200000, likes: 8, category: '조각', image: 'https://placehold.co/200x180/FFA800/fff?text=Sculpture', following: true },
-])
+// 더미 데이터 (MockData 사용)
+const allArtworks = ref(MOCK_ARTWORKS.map(a => ({
+  ...a,
+  following: a.following // following 상태가 객체 내부에 있어야 토글 가능
+})))
 
 const filteredArtworks = computed(() => {
   let result = allArtworks.value
@@ -201,8 +188,11 @@ const performSearch = () => {
   }
 }
 
+// ⭐ 팔로우 토글 로직: 해당 작품 객체의 following 속성을 변경
 const toggleFollow = artwork => {
   artwork.following = !artwork.following
+  const action = artwork.following ? '팔로우' : '언팔로우'
+  showModal(`${action} 완료`, `${artwork.artist} 작가를 ${action} 했습니다.`, 'success')
 }
 </script>
 
@@ -224,4 +214,17 @@ const toggleFollow = artwork => {
 .transition-300:hover { transform: translateY(-3px); box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important; }
 .form-select-sm { padding-top: 0.4rem; padding-bottom: 0.4rem; }
 .form-control.bg-white { background-color: #fff !important; color: var(--bs-dark) !important; }
+
+/* ⭐ 팔로우 버튼 상태 스타일 */
+.btn-outline-primary {
+  color: var(--bs-primary) !important;
+  border-color: var(--bs-primary) !important;
+  background-color: transparent !important;
+}
+
+.btn-primary {
+  color: #fff !important;
+  background-color: var(--bs-primary) !important;
+  border-color: var(--bs-primary) !important;
+}
 </style>

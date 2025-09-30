@@ -1,12 +1,9 @@
 <template>
   <div class="bg-white min-vh-100 d-flex flex-column mt-20">
-
-
     <!-- 본문 -->
     <main class="container py-4 flex-grow-1">
       <!-- 페이지 타이틀 -->
       <h2 class="fw-bold text-dark mb-3">클래스</h2>
-
       <!-- 필터 칩 -->
       <div class="d-flex flex-wrap gap-2 mb-3">
         <button
@@ -112,37 +109,37 @@ const classes = ref([
     id: 1,
     title: '수채화 기초',
     instructor: '김준하',
-    instructorAvatar: 'https://via.placeholder.com/48x48.png?text=KJ',
+    instructorAvatar: 'public/assets/media/icons/duotune/art/art005.svg',
     shortDescription: '처음 시작하는 수채화, 기본기부터 차근차근',
     date: '2025-10-05',
     duration: '일일',
     location: '구로구 구로동',
     category: '미술',
-    image: 'l'
+    image: 'public/assets/media/illustrations/dozzy-1/1.png'
   },
   {
     id: 2,
     title: '유화 마스터',
     instructor: '허지서',
-    instructorAvatar: 'https://via.placeholder.com/48x48.png?text=HJ',
+    instructorAvatar: 'public/assets/media/icons/duotune/art/art002.svg',
     shortDescription: '전문가를 위한 고급 유화 기법',
     date: '2025-10-12',
     duration: '4주',
     location: '구로구 구로동',
     category: '미술',
-    image: ''
+    image: 'public/assets/media/illustrations/dozzy-1/12.png'
   },
   {
     id: 3,
     title: '클래식 기초반',
     instructor: '박연주',
-    instructorAvatar: 'https://via.placeholder.com/48x48.png?text=PY',
+    instructorAvatar: 'public/assets/media/icons/duotune/art/art008.svg',
     shortDescription: '처음 배우는 클래식 음악 이론',
     date: '2025-11-01',
     duration: '2주',
     location: '양천구 목동',
     category: '음악',
-    image: ''
+    image: 'public/assets/media/illustrations/dozzy-1/5.png'
   }
 ])
 

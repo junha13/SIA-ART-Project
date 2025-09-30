@@ -1,7 +1,6 @@
 <!-- ArtworkDetailView.vue -->
 <template>
-  <div class="container py-3">
-    <!-- 상단 헤더 -->
+  <div class="container py-3" v-if="item">
     <div class="d-flex align-items-center mb-3">
       <button class="btn btn-link p-0 me-2" @click="$router.back()">
         <i class="bi bi-arrow-left"></i>
@@ -9,100 +8,93 @@
       <h5 class="fw-bold mb-0">작품 상세페이지</h5>
     </div>
 
-    <!-- 카테고리 -->
     <div class="mb-2">
-      <small class="text-muted"># {{ artwork.category }}</small>
+      <small class="text-muted"># {{ item.category }}</small>
     </div>
 
-    <!-- 작품 이미지 (Metronic 카드 스타일 적용) -->
     <div class="card mb-3 border-0 shadow-sm bg-light">
       <div class="card-body p-2 d-flex justify-content-center align-items-center" style="min-height:300px;">
-        <img
-          :src="artwork.image"
-          class="img-fluid rounded"
-          alt="artwork.title"
-          style="max-height: 280px; object-fit: contain; background-color: #f8f9fa;"
-        />
+        <img :src="imgSrc" class="img-fluid rounded" :alt="item.title"
+             style="max-height: 280px; object-fit: contain; background-color: #f8f9fa;" />
       </div>
     </div>
 
-    <!-- 작품 정보 -->
-    <div class="p-3 bg-light rounded mb-3">
+    <!-- info는 리스트 데이터에 없을 수 있으니 조건부 -->
+    <div v-if="item.info" class="p-3 bg-light rounded mb-3">
       <h6 class="fw-bold mb-2">작품 정보</h6>
       <div class="d-flex flex-wrap gap-2">
-        <span class="badge rounded-pill bg-secondary">재료: {{ artwork.info.material }}</span>
-        <span class="badge rounded-pill bg-secondary">무게: {{ artwork.info.weight }}</span>
-        <span class="badge rounded-pill bg-secondary">크기: {{ artwork.info.size }}</span>
-        <span class="badge rounded-pill bg-secondary">제작년도: {{ artwork.info.year }}</span>
+        <span class="badge rounded-pill bg-secondary">재료: {{ item.info.material }}</span>
+        <span class="badge rounded-pill bg-secondary">무게: {{ item.info.weight }}</span>
+        <span class="badge rounded-pill bg-secondary">크기: {{ item.info.size }}</span>
+        <span class="badge rounded-pill bg-secondary">제작년도: {{ item.info.year }}</span>
       </div>
     </div>
 
-    <!-- 작품 기본 -->
-    <h4 class="fw-bold">{{ artwork.title }}</h4>
-    <p class="text-muted mb-1">{{ artwork.subtitle }}</p>
+    <h4 class="fw-bold">{{ item.title }}</h4>
+    <p class="text-muted mb-1">{{ item.subtitle }}</p>
 
-    <!-- 작가 정보 -->
     <div class="d-flex align-items-center mb-3">
-      <img
-        :src="artwork.artist.profile"
-        class="rounded-circle me-2 border"
-        alt="작가 프로필"
-        style="width: 40px; height: 40px; object-fit: cover"
-      />
-      <div>
-        <p class="mb-0 fw-semibold">{{ artwork.artist.name }}</p>
-      </div>
+      <img src="https://picsum.photos/100/100?random=2" class="rounded-circle me-2 border"
+           alt="작가 프로필" style="width: 40px; height: 40px; object-fit: cover" />
+      <div><p class="mb-0 fw-semibold">{{ item.artist }}</p></div>
     </div>
 
-    <!-- 상세 설명 -->
     <div class="p-3 bg-white rounded shadow-sm mb-3">
       <h6 class="fw-bold mb-2">상세 설명</h6>
-      <p class="mb-0">{{ artwork.description }}</p>
+      <p class="mb-0">{{ item.description || '설명이 없습니다.' }}</p>
     </div>
+  </div>
+
+  <div v-else class="container py-5 text-center">
+    <p class="text-muted mb-3">해당 작품을 찾을 수 없습니다.</p>
+    <button class="btn btn-dark" @click="$router.push('/')">목록으로</button>
   </div>
 </template>
 
+
 <script setup>
-import { ref } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const artworkId = route.params.id
+const item = ref(null)
 
-// 더미 데이터
-const artwork = ref({
-  id: artworkId,
-  title: '학원가고 싶어요',
-  subtitle: '보고 싶다 김준하',
-  image: 'https://picsum.photos/600/400?random=1', // 예시: Bootstrap/Picsum 랜덤 이미지
-  category: '미술',
-  artist: {
-    name: '김준하',
-    profile: 'https://picsum.photos/100/100?random=2' // 예시: 프로필 사진
-  },
-  info: {
-    size: '45cm x 53cm',
-    material: '캔버스 유화물감',
-    year: '2023',
-    weight: '1.5kg'
-  },
-  description: '이건 진짜 엄청난 명작이다.',
-
-  id: artworkId,
-  title: '',
-  subtitle: '느슨한 예술계를 뒤집어놓았다',
-  image: 'https://picsum.photos/600/400?random=1', // 예시: Bootstrap/Picsum 랜덤 이미지
-  category: '미술',
-  artist: {
-    name: '허지서',
-    profile: 'https://picsum.photos/100/100?random=2' // 예시: 프로필 사진
-  },
-  info: {
-    size: '45cm x 53cm',
-    material: '캔버스 유화물감',
-    year: '2023',
-    weight: '1.5kg'
-  },
-  description: '이건 진짜 엄청난 명작이다.'
+// item.image가 상대경로여도 안전하게 절대 URL로
+const imgSrc = computed(() => {
+  if (!item.value?.image) return ''
+  const base = import.meta.env.BASE_URL || '/'
+  // 이미 http(s)면 그대로, 아니면 절대 URL로 변환
+  return /^https?:\/\//i.test(item.value.image)
+    ? item.value.image
+    : new URL(item.value.image, window.location.origin + base).href
 })
+
+// 라우터 state → sessionStorage 순으로 복구
+const restore = () => {
+  const id = Number(route.params.id)
+
+  // 1) history.state에 실려온 데이터 우선
+  const st = window.history.state
+   if (st?.artwork && Number(st.artwork.id) === id) {
+    item.value = st.artwork
+    return
+  }
+  try {
+    const raw = sessionStorage.getItem('lastArtwork')
+    const cached = raw && JSON.parse(raw)
+    if (cached && Number(cached.id) === id) {
+      item.value = cached
+      return
+    }
+  } catch (e) {
+    // 무시
+  }
+
+  // 3) 실패 시
+  item.value = null
+}
+
+restore()
+watch(() => route.params.id, restore)
 </script>
+

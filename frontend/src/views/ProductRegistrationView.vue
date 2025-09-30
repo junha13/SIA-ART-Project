@@ -43,6 +43,10 @@
       </div>
 
       <div class="mb-3">
+        <input type="text" v-model="form.subtitle" class="form-control" placeholder="위치" />
+      </div>
+
+      <div class="mb-3">
         <textarea v-model="form.description" class="form-control" rows="4" placeholder="상세 설명"></textarea>
       </div>
 

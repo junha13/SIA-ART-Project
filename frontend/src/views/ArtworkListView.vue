@@ -70,7 +70,7 @@
         <div v-if="filteredArtworks.length > 0" class="list-group list-group-flush g-3 pb-5">
           <div v-for="artwork in filteredArtworks" :key="artwork.id" 
                class="list-group-item card-flush p-0 mb-4"
-               @click="router.push(`/artwork/${artwork.id}`)">
+               @click="goDetail(artwork)">
             <div class="d-flex shadow-sm rounded-lg overflow-hidden border border-gray-200 cursor-pointer transition-300">
               <!-- 이미지 -->
               <div class="position-relative w-150px w-sm-200px flex-shrink-0">
@@ -150,12 +150,12 @@ const searchType = ref('title')
 
 // 더미 데이터
 const allArtworks = ref([
-  { id: 1, title: '놀러가고 싶어요', artist: '주영민', location: '상당구', price: 150000, likes: 6, category: '회화', image: 'https://placehold.co/200x180/5DADE2/fff?text=Art1', following: false },
-  { id: 2, title: '팝업스토어 가는 사람', artist: '박정훈', location: '곤지암동', price: 420000, likes: 18, category: '회화', image: 'https://placehold.co/200x180/A3E4D7/000?text=Art2', following: true },
-  { id: 3, title: '피그마 그만 만질래', artist: '허지서', location: '송도동', price: 990000, likes: 42, category: '공예', image: 'https://placehold.co/200x180/F8C471/000?text=Comedian', following: false },
-  { id: 4, title: '알바하러가는 예원', artist: '고예원', location: '북가좌동', price: 85000, likes: 12, category: '도예', image: 'https://placehold.co/200x180/EC7063/fff?text=Art4', following: false },
-  { id: 5, title: '집에가고 싶은 민호', artist: '박민호', location: '서대문구', price: 250000, likes: 25, category: '사진', image: 'https://placehold.co/200x180/3699FF/fff?text=Photo', following: false },
-  { id: 6, title: '학원가고 싶어요', artist: '김준하', location: '만안구', price: 1200000, likes: 8, category: '조각', image: 'https://placehold.co/200x180/FFA800/fff?text=Sculpture', following: true },
+  { id: 1, title: '놀러가고 싶어요', artist: '주영민', location: '상당구', price: 150000, likes: 6, category: '회화', image: '/assets/media/stock/600x600/img-44.jpg', following: false, subtitle: '느슨한 예술계를 뒤집어놓았다', description: '이건 진짜 엄청난 명작이다.', info: { size: '45cm x 53cm', material: '캔버스 유화물감', year: '2023', weight: '1.5kg' } },
+  { id: 2, title: '팝업스토어 가는 사람', artist: '박정훈', location: '곤지암동', price: 420000, likes: 18, category: '회화', image: '/assets/media/stock/600x600/img-62.jpg', following: true, subtitle: '느슨한 예술계를 뒤집어놓았다', description: '이건 진짜 엄청난 명작이다.', info: { size: '45cm x 53cm', material: '캔버스 유화물감', year: '2023', weight: '1.5kg' }  },
+  { id: 3, title: '피그마 그만 만질래', artist: '허지서', location: '송도동', price: 990000, likes: 42, category: '공예', image: '/assets/media/stock/600x600/img-37.jpg', following: false, subtitle: '느슨한 예술계를 뒤집어놓았다', description: '이건 진짜 엄청난 명작이다.', info: { size: '45cm x 53cm', material: '캔버스 유화물감', year: '2023', weight: '1.5kg' }  },
+  { id: 4, title: '알바하러가는 예원', artist: '고예원', location: '북가좌동', price: 85000, likes: 12, category: '도예', image: '/assets/media/stock/600x600/img-2.jpg', following: false, subtitle: '느슨한 예술계를 뒤집어놓았다', description: '이건 진짜 엄청난 명작이다.', info: { size: '45cm x 53cm', material: '캔버스 유화물감', year: '2023', weight: '1.5kg' }  },
+  { id: 5, title: '집에가고 싶은 민호', artist: '박민호', location: '서대문구', price: 250000, likes: 25, category: '사진', image: '/assets/media/stock/600x600/img-54.jpg', following: false, subtitle: '느슨한 예술계를 뒤집어놓았다', description: '이건 진짜 엄청난 명작이다.', info: { size: '45cm x 53cm', material: '캔버스 유화물감', year: '2023', weight: '1.5kg' }  },
+  { id: 6, title: '학원가고 싶어요', artist: '김준하', location: '만안구', price: 1200000, likes: 8, category: '조각', image: '/assets/media/stock/600x600/img-43.jpg', following: true, subtitle: '느슨한 예술계를 뒤집어놓았다', description: '이건 진짜 엄청난 명작이다.', info: { size: '45cm x 53cm', material: '캔버스 유화물감', year: '2023', weight: '1.5kg' }  },
 ])
 
 const filteredArtworks = computed(() => {
@@ -203,6 +203,15 @@ const performSearch = () => {
 
 const toggleFollow = artwork => {
   artwork.following = !artwork.following
+}
+
+const goDetail = (artwork) => {
+  // 앱 베이스 경로까지 고려해서 절대 URL 생성 (유틸 없이 한 줄)
+  const base = import.meta.env.BASE_URL || '/';
+  const absImg = new URL(artwork.image, window.location.origin + base).href;
+  const payload = { ...artwork, image: absImg };
+  try { sessionStorage.setItem('lastArtwork', JSON.stringify(payload)) } catch {}
+  router.push({ path: `/artwork/${artwork.id}`, state: { artwork: payload } })
 }
 </script>
 

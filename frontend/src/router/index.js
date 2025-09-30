@@ -43,13 +43,13 @@ const router = createRouter({
 
         // === 기존 레이아웃을 사용할 페이지 ===
         {
-            path: "/", // 기존 메인 경로를 지도 아카이빙으로 변경
+            path: "/archive-map", // 기존 메인 경로를 지도 아카이빙으로 변경
             name: "archive-map",
             component: ArchiveMapView,
             meta: { title: '지역 예술 지도' }
         },
         {
-            path: "/home", // 홈 버튼이 이동할 실제 메인 뷰 (콘텐츠 강조 버전)
+            path: "/", // 홈 버튼이 이동할 실제 메인 뷰 (콘텐츠 강조 버전)
             name: "home",
             component: MainView,
             meta: { title: '홈' }
@@ -119,6 +119,11 @@ const router = createRouter({
             path: "/board/:id", name: "board-detail",
             component: BoardDetailView, props: true
         },
+         {
+    path: '/board/edit', name: 'board-edit',
+    component: BoardWriteView // ⭐ BoardWriteView 재사용
+  }
+        ,
     ],
 })
 

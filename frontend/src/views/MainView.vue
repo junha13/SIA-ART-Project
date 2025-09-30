@@ -314,22 +314,17 @@ const handleLocationSelect = () => {
 /* 카드별 배경 이미지 및 필터 */
 .archive-card {
   background-image: url('@/public/images/art/art1.png');
-  filter: grayscale(80%) brightness(1.1);
 }
 .artist-card {
   background-image: url('@/public/images/art/art2.png');
-  filter: grayscale(80%) brightness(1.1);
 }
 .class-card {
   background-image: url('@/public/images/art/art3.png');
-  filter: grayscale(80%) brightness(1.1);
 }
 .store-card {
   background-image: url('@/public/images/art/art4.png');
-  filter: grayscale(80%) brightness(1.1);
 }
 .community-card {
   background-image: url('@/public/images/art/art5.png');
-  filter: grayscale(80%) brightness(1.1);
 }
 </style>

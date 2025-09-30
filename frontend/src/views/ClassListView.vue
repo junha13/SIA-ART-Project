@@ -1,54 +1,84 @@
 <template>
-  <div class="container py-5">
-    <!-- Header -->
-    <div class="d-flex align-items-center mb-4">
-      <button class="btn btn-light btn-sm me-3" @click="$router.back()">
-        <i class="fas fa-chevron-left"></i>
-      </button>
-      <h1 class="fs-3 fw-bold mb-0">예술 클래스</h1>
-    </div>
+  <div class="bg-white min-vh-100 d-flex flex-column">
 
-    <!-- Filters -->
-    <div class="d-flex flex-wrap gap-2 mb-4">
-      <button v-for="cat in categories" :key="cat"
-              class="btn btn-outline-dark btn-sm"
-              :class="{ active: selectedCategory === cat }"
-              @click="selectedCategory = cat">
-        {{ cat }}
-      </button>
-    </div>
 
-    <!-- Search -->
-    <div class="input-group mb-4">
-      <input v-model="searchQuery" type="text" class="form-control" placeholder="클래스 검색" @keyup.enter="searchClasses"/>
-      <button class="btn btn-primary" @click="searchClasses">검색</button>
-    </div>
+    <!-- 본문 -->
+    <main class="container py-4 flex-grow-1">
+      <!-- 페이지 타이틀 -->
+      <h2 class="fw-bold text-dark mb-3">클래스</h2>
 
-    <!-- Empty State -->
-    <div v-if="filteredClasses.length === 0" class="text-center py-10">
-      <i class="fas fa-chalkboard fs-1 text-muted mb-3"></i>
-      <p class="text-muted">등록된 클래스가 없습니다.</p>
-    </div>
+      <!-- 필터 칩 -->
+      <div class="d-flex flex-wrap gap-2 mb-3">
+        <button
+          v-for="cat in categories" :key="cat"
+          class="btn btn-sm rounded-pill"
+          :class="selectedCategory === cat ? 'btn-dark text-white' : 'btn-light border text-dark'"
+          @click="selectedCategory = cat"
+        >
+          {{ cat }}
+        </button>
+      </div>
 
-    <!-- Class Cards -->
-    <div v-else class="row g-4">
-      <div v-for="cls in filteredClasses" :key="cls.id" class="col-md-4 col-sm-6">
-        <div class="card h-100 shadow-sm cursor-pointer" @click="viewClass(cls.id)">
-          <img :src="cls.image" class="card-img-top" :alt="cls.title"/>
-          <div class="card-body">
-            <h5 class="fw-bold mb-1">{{ cls.title }}</h5>
-            <p class="text-muted small mb-2">{{ cls.instructor }}</p>
-            <p class="small text-truncate">{{ cls.shortDescription }}</p>
+      <!-- 위치/검색 -->
+      <div class="input-group mb-4">
+        <input
+          v-model="searchQuery"
+          type="text"
+          class="form-control rounded-start"
+          placeholder="구로구 구로동"
+          @keyup.enter="searchClasses"
+        />
+        <button class="btn btn-outline-dark rounded-end" @click="searchClasses" aria-label="검색">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+
+      <!-- 비어있음 -->
+      <div v-if="filteredClasses.length === 0" class="text-center py-5">
+        <i class="fas fa-chalkboard fs-1 text-muted mb-3"></i>
+        <p class="text-muted mb-0">등록된 클래스가 없습니다.</p>
+      </div>
+
+      <!-- 리스트형 카드 -->
+      <div v-else class="d-flex flex-column gap-3" >
+        <div
+          v-for="cls in filteredClasses" :key="cls.id"
+          class="border border-2 rounded-4 p-3 d-flex align-items-center" 
+          @click="viewClass(cls.id)"
+        >
+          <!-- 썸네일 -->
+          <img :src="cls.image" :alt="cls.title"
+               class="rounded-4 me-3" width="72" height="72" />
+
+          <!-- 본문 -->
+          <div class="flex-grow-1">
+            <div class="fw-bold text-dark">
+              {{ cls.title }}
+              <small class="ms-1 text-muted">{{ cls.duration }} · {{ cls.location }}</small>
+            </div>
+            <div class="small text-muted">
+              {{ cls.shortDescription }}
+            </div>
+
+            <!-- 강사 -->
+            <div class="d-flex align-items-center mt-2">
+              <img :src="cls.instructorAvatar" alt="instructor" width="24" height="24" class="rounded-circle me-2" />
+              <small class="text-dark">{{ cls.instructor }}</small>
+            </div>
           </div>
-          <div class="card-footer text-muted small">
-            <i class="fas fa-calendar-alt me-1"></i> {{ cls.date }}
-          </div>
+
         </div>
       </div>
-    </div>
 
-    <!-- Custom Modal -->
-    <ConfirmModal v-model:isVisible="isModalVisible" :title="modalTitle" :message="modalMessage" :type="modalType" :autoHide="true"/>
+      <!-- 모달 -->
+      <ConfirmModal
+        v-model:isVisible="isModalVisible"
+        :title="modalTitle"
+        :message="modalMessage"
+        :type="modalType"
+        :autoHide="true"
+      />
+    </main>
   </div>
 </template>
 
@@ -59,43 +89,82 @@ import ConfirmModal from '../components/ConfirmModal.vue'
 
 const router = useRouter()
 
-// Modal State
+// Modal
 const isModalVisible = ref(false)
 const modalTitle = ref('')
 const modalMessage = ref('')
 const modalType = ref('info')
-
-const showModal = (title, message, type = 'info', autoHide = true) => {
+const showModal = (title, message, type='info') => {
   modalTitle.value = title
   modalMessage.value = message
   modalType.value = type
   isModalVisible.value = true
 }
 
-const categories = ["전체", "미술", "음악", "도예", "공예"]
-const selectedCategory = ref("전체")
-const searchQuery = ref("")
+// 필터/검색
+const categories = ['전체', '미술', '음악', '도예', '공예']
+const selectedCategory = ref('미술')   // 스샷처럼 기본 '미술'
+const searchQuery = ref('')
 
+// 데이터 (기존 구조 + 화면 메타 보완: duration/location/instructorAvatar)
 const classes = ref([
-  { id: 1, title: '현대미술 클래스', instructor: '김예술', shortDescription: '현대미술의 기초와 창작 방법을 배웁니다.', date: '2025-10-05', category: '미술', image: 'https://placehold.co/400x250/A9F5A9/000?text=Class+1' },
-  { id: 2, title: '추상화 워크숍', instructor: '박화가', shortDescription: '색채와 형태를 활용한 추상화 기법을 익힙니다.', date: '2025-10-12', category: '미술', image: 'https://placehold.co/400x250/F8C471/000?text=Class+2' }
+  {
+    id: 1,
+    title: '수채화 기초',
+    instructor: '김준하',
+    instructorAvatar: 'https://via.placeholder.com/48x48.png?text=KJ',
+    shortDescription: '처음 시작하는 수채화, 기본기부터 차근차근',
+    date: '2025-10-05',
+    duration: '일일',
+    location: '구로구 구로동',
+    category: '미술',
+    image: 'l'
+  },
+  {
+    id: 2,
+    title: '유화 마스터',
+    instructor: '허지서',
+    instructorAvatar: 'https://via.placeholder.com/48x48.png?text=HJ',
+    shortDescription: '전문가를 위한 고급 유화 기법',
+    date: '2025-10-12',
+    duration: '4주',
+    location: '구로구 구로동',
+    category: '미술',
+    image: ''
+  },
+  {
+    id: 3,
+    title: '클래식 기초반',
+    instructor: '박연주',
+    instructorAvatar: 'https://via.placeholder.com/48x48.png?text=PY',
+    shortDescription: '처음 배우는 클래식 음악 이론',
+    date: '2025-11-01',
+    duration: '2주',
+    location: '양천구 목동',
+    category: '음악',
+    image: ''
+  }
 ])
 
+// 필터링
 const filteredClasses = computed(() => {
-  return classes.value.filter(cls => {
-    const matchCategory = selectedCategory.value === "전체" || cls.category === selectedCategory.value
-    const matchSearch = cls.title.includes(searchQuery.value) || cls.instructor.includes(searchQuery.value)
-    return matchCategory && matchSearch
+  const q = searchQuery.value.trim()
+  return classes.value.filter(c => {c
+    const byCat = selectedCategory.value === '전체' || c.category === selectedCategory.value
+    const byQ =
+      !q ||
+      c.title.includes(q) ||
+      c.instructor.includes(q) ||
+      (c.location && c.location.includes(q))
+    return byCat && byQ
   })
 })
 
+// 액션
 const searchClasses = () => {
   if (searchQuery.value.trim()) {
-    showModal('검색 완료', `"${searchQuery.value}"에 대한 클래스 검색을 실행합니다.`, 'info')
+    showModal('검색', `"${searchQuery.value}"로 검색했습니다.`, 'info')
   }
 }
-
-const viewClass = (id) => {
-  router.push(`/class/${id}`)
-}
+const viewClass = (id) => router.push(`/class/${id}`)
 </script>

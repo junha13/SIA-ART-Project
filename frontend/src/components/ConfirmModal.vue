@@ -3,7 +3,7 @@
   <div v-if="isVisible" class="modal-backdrop d-flex align-items-center justify-content-center" style="z-index: 1050;">
     <!-- Modal Container -->
     <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content shadow-xl rounded-lg border-0 bg-white" :class="modalClasses">
+      <div class="modal-content shadow-xl rounded-lg border-0 bg-white rounded-xl" :class="modalClasses">
         <div class="modal-body p-5 p-md-8 text-center">
 
           <!-- ICON AREA (Enhanced) -->

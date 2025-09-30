@@ -1,14 +1,14 @@
 <template>
   <div class="app-content flex-column-fluid">
     <div class="app-container-fluid"> 
-      
+
       <!-- 상단 헤더: 통일된 디자인 -->
       <div class="d-flex align-items-center justify-content-between pt-5 pb-3 border-bottom px-3 mb-5">
-        
+
         <button class="btn btn-icon btn-active-light-primary w-30px h-30px" @click="goBack">
           <i class="ki-duotone ki-arrow-left fs-2 text-gray-800"></i>
         </button>
-        
+
         <h1 class="page-heading d-flex flex-column justify-content-center text-dark fw-bold fs-3 m-0 position-absolute start-50 translate-middle-x">
           게시판
         </h1>
@@ -17,13 +17,13 @@
       </div>
       
       <div class="mb-5 px-3">
-        
+
         <!-- 검색 입력창 및 드롭다운 -->
         <div class="d-flex justify-content-center mb-5">
           <div class="input-group w-100 mw-500px border border-gray-500 rounded-2">
             
             <!-- ⭐ 검색 필터 드롭다운 -->
-            <button class="btn btn-secondary dropdown-toggle text-dark fw-bold" 
+            <button class="btn btn-secondary dropdown-toggle text-dark fw-bold"
                     type="button" 
                     data-bs-toggle="dropdown" 
                     aria-expanded="false" 
@@ -39,7 +39,7 @@
             </ul>
 
             <!-- 검색 입력 필드 -->
-            <input type="text" 
+            <input type="text"
                    class="form-control border-0 bg-white" 
                    placeholder="검색어를 입력하세요" 
                    v-model="searchQuery" 
@@ -47,7 +47,7 @@
                    style="height: 40px; border-top-left-radius: 0; border-bottom-left-radius: 0;"/>
           </div>
         </div>
-        
+
         <!-- 카테고리 필터 및 글쓰기 버튼 -->
         <div class="d-flex align-items-center justify-content-between mb-5">
           <!-- 카테고리 버튼 -->
@@ -296,7 +296,7 @@ const goBack = () => {
 }
 .page-heading.position-absolute {
     z-index: 10; /* 버튼 위에 표시되도록 z-index 설정 */
-    max-width: 70%; 
+    max-width: 70%;
     text-align: center;
 }
 
@@ -331,6 +331,6 @@ const goBack = () => {
 }
 
 .table tbody tr.bg-hover-light-primary:hover {
-    background-color: var(--bs-light-primary) !important;
+  background-color: var(--bs-light-primary) !important;
 }
 </style>

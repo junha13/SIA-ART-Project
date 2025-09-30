@@ -167,7 +167,7 @@ const post = ref({
   views: 123,
   date: "2025.09.29",
   tags: ["미술", "UX개선", "Metronic", "Dark"],
-  image: "https://placehold.co/600x300/F5A9A9/fff?text=ATTACHED+IMAGE" // 더미 이미지
+  image: "https://via.placeholder.com/600x300/6963FF/fff?text=UX+OPTIMIZED+IMAGE"
 })
 
 const comments = ref([
@@ -227,7 +227,7 @@ const handleDelete = () => {
 /* ⭐ 헤더 제목 안전 영역 확보 */
 .page-heading.position-absolute {
     z-index: 10;
-    max-width: 70%; 
+    max-width: 50%;
     text-align: center;
 }
 

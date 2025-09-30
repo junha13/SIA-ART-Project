@@ -1,20 +1,9 @@
 <template>
   <div class="bg-white min-vh-100 d-flex flex-column">
-    <!-- 상단 앱바 -->
-    <header class="sticky-top border-bottom">
-      <div class="container d-flex align-items-center justify-content-between py-2">
-        <button class="btn btn-link text-dark p-0" @click="$router.back()">
-          <i class="fas fa-chevron-left fs-5"></i>
-        </button>
-        <div class="fw-bold text-dark">예술가 프로필</div>
-        <button class="btn btn-link text-dark p-0" @click="showProfileSettings">
-          <i class="fas fa-ellipsis-vertical fs-5"></i>
-        </button>
-      </div>
-    </header>
 
     <!-- 본문 -->
-    <main class="container py-4 flex-grow-1">
+    <main class="mt-20 container py-4 flex-grow-1">
+        <div class="text-center fw-bold text-dark mb-3">예술가 프로필</div>
       <!-- 프로필 카드 -->
       <div class="border border-2 rounded-4 p-3 mb-4">
         <div class="row g-3 align-items-center">
@@ -28,8 +17,8 @@
             <div class="small text-dark-50 mb-2">{{ artist.role }}</div>
             <div class="d-flex gap-3 text-muted small">
               <div class="d-flex align-items-center gap-1"><i class="fas fa-palette"></i><span>작품 29</span></div>
-              <div class="d-flex align-items-center gap-1"><i class="fas fa-user-friends"></i><span>팔로워 29</span></div>
-              <div class="d-flex align-items-center gap-1"><i class="fas fa-user-plus"></i><span>팔로잉 29</span></div>
+              <div class="d-flex align-items-center gap-1 cursor-pointer" @click="router.push('/following-artists')"><i class="fas fa-user-friends"></i><span>팔로워 29</span></div>
+              <div class="d-flex align-items-center gap-1 cursor-pointer" @click="router.push('/following-artists')"><i class="fas fa-user-plus"></i><span>팔로잉 29</span></div>
             </div>
           </div>
 
@@ -37,13 +26,13 @@
           <div class="col-auto ms-auto">
             <div class="d-flex flex-column gap-2">
               <button class="btn btn-sm rounded-pill"
-                      :class="activeTab==='intro' ? 'btn-outline-dark' : 'btn-light border'"
+                      :class="activeTab==='intro' ? 'btn-dark text-white' : 'btn-light border'"
                       @click="activeTab='intro'">자기소개</button>
               <button class="btn btn-sm rounded-pill"
                       :class="activeTab==='portfolio' ? 'btn-dark text-white' : 'btn-light border'"
                       @click="activeTab='portfolio'">포트폴리오</button>
               <button class="btn btn-sm rounded-pill"
-                      :class="activeTab==='activity' ? 'btn-secondary text-white' : 'btn-light border'"
+                      :class="activeTab==='activity' ? 'btn-dark text-white' : 'btn-light border'"
                       @click="activeTab='activity'">활동 발자취</button>
             </div>
           </div>

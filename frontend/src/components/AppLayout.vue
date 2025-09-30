@@ -30,7 +30,7 @@
                  currentRoute === item.path ? 'text-primary' : 'text-muted']"
           @click="router.push(item.path)"
           style="font-size: 0.9rem; line-height: 1;" >
-        <i :class="[item.iconClass, 'fs-4']"></i> <span>{{ item.label }}</span>
+        <i :class="[item.iconClass, 'fs-4']"></i> <span style="font-size: 13px;">{{ item.label }}</span>
       </button>
     </div>
 
@@ -98,10 +98,10 @@ const isDrawerOpen = ref(false)
 
 // 하단 내비게이션 아이템 정의
 const navItems = ref([
-  { path: '/home', label: '홈', iconClass: 'fas fa-home' },
-  { path: '/', label: '지도', iconClass: 'fas fa-map-marked-alt' },
   { path: '/artworks', label: '작품', iconClass: 'fas fa-palette' },
   { path: '/board', label: '커뮤니티', iconClass: 'fas fa-comments' },
+  { path: '/', label: '홈', iconClass: 'fas fa-home' },
+  { path: '/archive-map', label: '지도', iconClass: 'fas fa-map-marked-alt' },
   { path: '/mypage', label: '마이', iconClass: 'fas fa-user' },
 ])
 

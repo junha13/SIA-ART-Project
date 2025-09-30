@@ -48,30 +48,18 @@
 
       <!-- 작성 완료 버튼 -->
       <div class="d-grid">
-        <button type="submit" class="btn btn-dark">작성 완료</button>
+        <button type="submit" class="btn btn-dark" @click="router.push('/artworks')">작성 완료</button>
       </div>
     </form>
 
-    <!-- 하단 네비게이션 -->
-    <div class="fixed-bottom bg-white border-top d-flex justify-content-around py-2">
-      <button class="btn btn-link text-center" @click="goMyPage">
-        <i class="ki-duotone ki-user fs-2"></i><br>
-        마이페이지
-      </button>
-      <button class="btn btn-link text-center" @click="goHome">
-        <i class="ki-duotone ki-home fs-2"></i><br>
-        홈
-      </button>
-      <button class="btn btn-link text-center" @click="goSearch">
-        <i class="ki-duotone ki-search fs-2"></i><br>
-        검색
-      </button>
-    </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from "vue";
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const form = ref({
   category: "",

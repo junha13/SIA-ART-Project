@@ -1,18 +1,9 @@
 <template>
   <div class="bg-white min-vh-100 d-flex flex-column">
-    <!-- 상단 앱바 -->
-    <header class="sticky-top border-bottom">
-      <div class="container d-flex align-items-center justify-content-between py-2">
-        <button class="btn btn-link text-dark p-0" @click="$router.back()">
-          <i class="fas fa-chevron-left fs-5"></i>
-        </button>
-        <div class="fw-bold text-dark">팔로우한 작가</div>
-        <div style="width:24px"></div>
-      </div>
-    </header>
 
     <!-- 본문 -->
-    <main class="container py-4 flex-grow-1">
+    <main class="mt-20 container py-4 flex-grow-1">
+      <div class="text-center fw-bold text-dark mb-3">팔로우한 작가</div>
       <!-- 비어있을 때 -->
       <div v-if="artists.length === 0" class="text-center py-5">
         <i class="fas fa-user-slash fs-1 text-muted mb-3"></i>

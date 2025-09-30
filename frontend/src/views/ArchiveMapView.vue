@@ -1,86 +1,85 @@
 <template>
-  <!-- 지도가 화면 전체를 차지하고, 하단 뷰가 올라오도록 padding-bottom 제거 -->
   <div class="d-flex flex-column" style="height: 100vh;">
-
-    <!-- 1. Top Header & Filter (55px 헤더 + 90px 검색/필터 영역) -->
-    <div class="fixed-top bg-white pt-4 pb-3 px-4 shadow-sm" style="z-index: 990; margin-top: 55px;">
-      <div class="d-flex align-items-center mb-3">
-        <p class="text-muted small mb-0 me-3">현재 위치</p>
-        <div class="input-group shadow-md rounded-pill overflow-hidden bg-white flex-grow-1">
-          <input type="text" v-model="searchQuery" class="form-control border-0 ps-4" placeholder="작품, 예술인, 클래스 검색" @focus="showDetailView = false"/>
-          <button class="btn btn-primary btn-icon rounded-circle me-1 my-1 p-0" @click="performSearch" style="width: 38px; height: 38px;">
-            <i class="fas fa-search"></i>
-          </button>
-        </div>
+    <header class="fixed-top bg-white px-4 pt-3 pb-2 shadow-sm" style="z-index: 1000;">
+      <div class="input-group mb-3" style="padding-left: 15px; padding-right: 15px;">
+        <input type="text" v-model="searchQuery" class="form-control rounded-pill pe-5 shadow-sm"
+               style="height: 44px; padding-left: 1.5rem;"
+               placeholder="구로구 구로동" @keyup.enter="performSearch"/>
+        <span class="position-absolute end-0 top-50 translate-middle-y me-3 text-primary cursor-pointer" @click="performSearch">
+          <i class="fas fa-search"></i>
+        </span>
       </div>
-      <!-- Filters -->
-      <div class="d-flex flex-wrap gap-2 mb-2">
+
+      <div class="d-flex flex-wrap gap-2 mb-2 pb-1 overflow-auto filter-scroll" style="padding-left: 15px">
         <button
             v-for="filter in filters"
             :key="filter.key"
-            class="btn btn-sm rounded-pill fw-bold"
-            :class="activeFilter === filter.key ? 'btn-primary' : 'btn-outline-dark text-dark'"
+            class="btn btn-sm rounded-pill fw-bold text-nowrap"
+            :class="activeFilter === filter.key ? 'btn-dark' : 'btn-outline-secondary'"
             @click="activeFilter = filter.key">
           {{ filter.label }}
         </button>
+        <button class="btn btn-sm rounded-pill btn-outline-secondary"
+                @click="showModal('기타 필터', '추가 필터 기능은 구현되지 않았습니다.', 'info')">
+          <i class="fas fa-ellipsis-h"></i>
+        </button>
       </div>
-    </div>
+    </header>
 
-    <!-- 2. Naver Map Area (헤더 높이만큼 마진) -->
-    <div
-        id="archiveMap"
-        class="flex-grow-1"
-        :style="{ 'margin-top': '145px', 'margin-bottom': showDetailView ? '300px' : '0px', 'transition': 'margin-bottom 0.3s' }"
-    >
-      <!-- Map Content will be here -->
-    </div>
+    <main class="flex-grow-1 overflow-auto" style="margin-top: 130px;">
+      <!-- 지도 -->
+      <div
+          id="archiveMap"
+          style="height: 45vh; width: 100%; border: 1px solid gray; border-radius: 1rem;"
+          class="mb-3"
+      ></div>
 
-    <!-- 3. Floating Button: 현 지도에서 재검색 -->
-    <button
-        class="btn btn-lg btn-danger shadow-lg position-absolute start-50 translate-middle-x fw-bold"
-        style="top: 155px; z-index: 995;"
-        @click="reclusterMarkers"
-    >
-      <i class="fas fa-sync-alt me-1"></i> 현 지도에서 재검색
-    </button>
-
-    <!-- 4. Detail View (하단에서 올라오는 뷰) - 미몽 지도1, 2 참고 -->
-    <div :class="['detail-view', { 'show': showDetailView }]" class="card shadow-lg bg-white p-4 rounded-t-xl">
-      <div class="handle mx-auto mb-3"></div> <!-- 드래그 핸들 -->
-      <h3 class="fs-5 fw-bolder mb-3 text-dark">지도 내 검색된 예술 {{ filteredMarkers.length }}</h3>
-
-      <div v-if="filteredMarkers.length === 0" class="text-center py-5 text-muted">
-        <i class="fas fa-map-marker-slash fs-3 mb-2"></i>
-        <p>선택된 지역에 예술 정보가 없습니다.</p>
+      <div class="px-1 mb-2">
+        <h5 class="fw-bold">선택된 지역의 {{ filters.find(f => f.key === activeFilter)?.label }}</h5>
       </div>
 
-      <!-- 상세 리스트 (작품, 예술인, 클래스 탭) -->
-      <ul class="nav nav-tabs nav-line-tabs nav-bold mb-4">
-        <li class="nav-item">
-          <a class="nav-link" :class="{ active: detailTab === 'artwork' }" href="#" @click.prevent="detailTab = 'artwork'">작품 ({{ getTabCount('artwork') }})</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" :class="{ active: detailTab === 'artist' }" href="#" @click.prevent="detailTab = 'artist'">예술인 ({{ getTabCount('artist') }})</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" :class="{ active: detailTab === 'class' }" href="#" @click.prevent="detailTab = 'class'">클래스 ({{ getTabCount('class') }})</a>
-        </li>
-      </ul>
 
-      <!-- 콘텐츠 리스트 (스크롤 가능) -->
-      <div class="content-list overflow-y-auto">
-        <div v-for="item in currentDetailList" :key="item.id + item.type" class="d-flex align-items-center border-bottom py-3 cursor-pointer" @click="viewDetail(item)">
-          <img :src="item.image" class="rounded me-3" width="60" height="60" style="object-fit: cover;" :alt="item.title || item.name"/>
-          <div class="flex-grow-1">
-            <h6 class="fw-bold mb-0 text-truncate">{{ item.title || item.name }}</h6>
-            <p class="text-muted small mb-0">{{ item.category || item.bio || item.type }}</p>
+
+      <!-- ▼▼ 카드 스크롤 래퍼: relative로 만들어 버튼을 안에 겹친다 ▼▼ -->
+      <div class="px-1 pb-5 cards-wrap">
+        <div class="d-flex overflow-auto gap-3 card-scroll" style="border-radius: 1rem;">
+          <div v-for="item in currentDetailList" :key="item.id + item.type"
+               class="card flex-shrink-0" style="width: 200px; cursor: pointer;"
+               @click="viewDetail(item)">
+            <img :src="item.image" class="card-img-top" height="120" style="object-fit: cover;" :alt="item.title || item.name"/>
+            <div class="card-body p-3">
+              <h6 class="fw-bold mb-1 text-truncate">{{ item.title || item.name }}</h6>
+              <p class="text-muted small mb-0 text-truncate">
+                <i class="fas fa-map-marker-alt me-1"></i> {{ item.loc }}
+              </p>
+            </div>
           </div>
-          <i class="fas fa-chevron-right text-muted"></i>
-        </div>
-      </div>
-    </div>
 
-    <!-- Custom Modal (for alerts) -->
+          <div v-if="currentDetailList.length === 0" class="w-100 h-100 d-flex justify-content-center align-items-center">
+            <div class="text-center text-muted">
+              <i class="fas fa-info-circle mb-2"></i>
+              <p class="mb-0">지도에 표시할 정보가 없습니다.</p>
+            </div>
+          </div>
+        </div>
+
+
+
+        <!-- ★ 여기로 버튼 이동: 카드 영역 우하단에 겹친다 -->
+        <button
+            class="btn btn-lg btn-light rounded-circle shadow-lg fab-add"
+            @click="showModal('추가', '새로운 정보 등록 기능입니다.', 'info')"
+            aria-label="새 항목 추가"
+            title="새 항목 추가"
+        >
+          <i class="ki-duotone ki-plus"></i>
+        </button>
+      </div>
+    </main>
+
+
+
+
     <ConfirmModal v-model:isVisible="isModalVisible" :title="modalTitle" :message="modalMessage" :type="modalType" :autoHide="true"/>
   </div>
 </template>
@@ -94,13 +93,8 @@ const router = useRouter()
 const naverMap = ref(null)
 const markerClustering = ref(null)
 const markers = ref([])
-const activeFilter = ref('artwork')
-const searchQuery = ref('')
-
-// Detail View State (하단 뷰)
-const showDetailView = ref(false)
-const detailTab = ref('artwork')
-const clusteredItemIds = ref([]) // 선택된 클러스터 또는 마커에 포함된 item.id 목록
+const activeFilter = ref('art')
+const searchQuery = ref('구로구 구로동')
 
 // Modal State
 const isModalVisible = ref(false)
@@ -114,55 +108,44 @@ const showModal = (title, message, type = 'info') => {
   isModalVisible.value = true
 }
 
-// 필터 (작품, 예술인, 클래스)
+// 필터 (예술작품, 클래스, 갤러리/전시회)
 const filters = [
-  { key: 'artwork', label: '예술작품' },
-  { key: 'artist', label: '예술인' },
-  { key: 'class', label: '클래스' },
+  { key: 'art', label: '예술작품' },
+  { key: 'studio', label: '클래스' },
+  { key: 'gallery', label: '갤러리' },
 ]
 
-// --- 더미 데이터 확장 (총 18개) ---
+// --- 더미 데이터 확장 (총 21개: art 8, studio 6, gallery 7) ---
 const allData = ref([
-  // 작품 (Artwork) - 8개
-  { id: 101, type: 'artwork', title: '고요한 아침의 빛', category: '회화', image: 'assets/media/avatars/300-11.jpg', lat: 37.5665, lng: 126.9780, loc: '종로구' }, // 종로 클러스터
-  { id: 102, type: 'artwork', title: '추상적 선율', category: '회화', image: 'assets/media/avatars/300-12.jpg', lat: 37.5666, lng: 126.9781, loc: '종로구' }, // 종로 클러스터
-  { id: 103, type: 'artwork', title: '바나나 코미디', category: '공예', image: 'assets/media/avatars/300-13.jpg', lat: 37.5000, lng: 127.0363, loc: '강남구' }, // 강남 클러스터
-  { id: 104, type: 'artwork', title: '도시의 그림자', category: '사진', image: 'assets/media/avatars/300-14.jpg', lat: 37.5500, lng: 126.9200, loc: '마포구' }, // 마포 클러스터
-  { id: 105, type: 'artwork', title: '흙과 불의 춤', category: '도예', image: 'assets/media/avatars/300-15.jpg', lat: 37.5501, lng: 126.9201, loc: '마포구' }, // 마포 클러스터
-  { id: 106, type: 'artwork', title: '청동의 미소', category: '조각', image: 'assets/media/avatars/300-16.jpg', lat: 37.5250, lng: 126.9000, loc: '영등포구' }, // 영등포
-  { id: 107, type: 'artwork', title: '미래 도시', category: '디지털', image: 'assets/media/avatars/300-17.jpg', lat: 37.4950, lng: 126.8870, loc: '구로구' }, // 구로
-  { id: 108, type: 'artwork', title: '밤의 꿈', category: '회화', image: 'assets/media/avatars/300-18.jpg', lat: 37.4951, lng: 126.8871, loc: '구로구' }, // 구로
+  // 작품 (Art) - 8개 (기존 artwork을 art로 변경)
+  { id: 101, type: 'art', title: '바나나 코미디', category: '공예', image: 'assets/media/avatars/300-13.jpg', lat: 37.5000, lng: 127.0363, loc: '강남구' },
+  { id: 102, type: 'art', title: '추상적 선율', category: '회화', image: 'assets/media/avatars/300-12.jpg', lat: 37.5666, lng: 126.9781, loc: '종로구' },
+  { id: 103, type: 'art', title: '도시의 그림자', category: '사진', image: 'assets/media/avatars/300-14.jpg', lat: 37.5500, lng: 126.9200, loc: '마포구' },
+  { id: 104, type: 'art', title: '흙과 불의 춤', category: '도예', image: 'assets/media/avatars/300-15.jpg', lat: 37.5501, lng: 126.9201, loc: '마포구' },
+  { id: 105, type: 'art', title: '청동의 미소', category: '조각', image: 'assets/media/avatars/300-16.jpg', lat: 37.5250, lng: 126.9000, loc: '영등포구' },
+  { id: 106, type: 'art', title: '미래 도시', category: '디지털', image: 'assets/media/avatars/300-17.jpg', lat: 37.4950, lng: 126.8870, loc: '구로구' }, // 구로
+  { id: 107, type: 'art', title: '밤의 꿈', category: '회화', image: 'assets/media/avatars/300-18.jpg', lat: 37.4951, lng: 126.8871, loc: '구로구' }, // 구로
+  { id: 108, type: 'art', title: '고요한 아침의 빛', category: '회화', image: 'assets/media/avatars/300-11.jpg', lat: 37.5665, lng: 126.9780, loc: '종로구' },
 
-  // 예술인 (Artist) - 5개
-  { id: 201, type: 'artist', name: '김준하', bio: '추상화 작가', image: 'assets/media/avatars/300-1.jpg', lat: 37.5670, lng: 126.9785, loc: '종로구' }, // 종로 클러스터
-  { id: 202, type: 'artist', name: '이예술', bio: '설치미술가', image: 'assets/media/avatars/300-2.jpg', lat: 37.5010, lng: 127.0365, loc: '강남구' }, // 강남 클러스터
-  { id: 203, type: 'artist', name: '박작가', bio: '도예가', image: 'assets/media/avatars/300-3.jpg', lat: 37.5502, lng: 126.9202, loc: '마포구' }, // 마포 클러스터
-  { id: 204, type: 'artist', name: '최화가', bio: '인물화 전문', image: 'assets/media/avatars/300-4.jpg', lat: 37.5251, lng: 126.9001, loc: '영등포구' }, // 영등포
-  { id: 205, type: 'artist', name: '정조각', bio: '현대 조각', image: 'assets/media/avatars/300-5.jpg', lat: 37.4952, lng: 126.8872, loc: '구로구' }, // 구로
+  // 클래스 (Studio) - 6개
+  { id: 201, type: 'studio', name: '김작가 클래스', bio: '추상화 전문 스튜디오', image: 'assets/media/avatars/300-1.jpg', lat: 37.5670, lng: 126.9785, loc: '종로구' },
+  { id: 202, type: 'studio', name: '이도예 스튜디오', bio: '도예 클래스 및 작업 공간', image: 'assets/media/avatars/300-2.jpg', lat: 37.5010, lng: 127.0365, loc: '강남구' },
+  { id: 203, type: 'studio', name: '빛과 그림자 사진실', bio: '사진 보정 심화 클래스', image: 'assets/media/avatars/300-8.jpg', lat: 37.5503, lng: 126.9203, loc: '마포구' },
+  { id: 204, type: 'studio', name: '최화가 아뜰리에', bio: '인물화/유화 개인 레슨', image: 'assets/media/avatars/300-4.jpg', lat: 37.5251, lng: 126.9001, loc: '영등포구' },
+  { id: 205, type: 'studio', name: '정조각 공방', bio: '현대 조각 작업 공간', image: 'assets/media/avatars/300-5.jpg', lat: 37.4952, lng: 126.8872, loc: '구로구' },
+  { id: 206, type: 'studio', name: '기타 연주 스튜디오', bio: '음악 레슨 공간', image: 'assets/media/avatars/300-10.jpg', lat: 37.4953, lng: 126.8873, loc: '구로구' },
 
-  // 클래스 (Class) - 5개
-  { id: 301, type: 'class', title: '현대미술 클래스', category: '미술', image: 'assets/media/avatars/300-6.jpg', lat: 37.5675, lng: 126.9790, loc: '종로구' }, // 종로 클러스터
-  { id: 302, type: 'class', title: '수채화 기초', category: '미술', image: 'assets/media/avatars/300-7.jpg', lat: 37.5020, lng: 127.0367, loc: '강남구' }, // 강남 클러스터
-  { id: 303, type: 'class', title: '사진 보정 심화', category: '사진', image: 'assets/media/avatars/300-8.jpg', lat: 37.5503, lng: 126.9203, loc: '마포구' }, // 마포 클러스터
-  { id: 304, type: 'class', title: 'DIY 공예', category: '공예', image: 'assets/media/avatars/300-9.jpg', lat: 37.5252, lng: 126.9002, loc: '영등포구' }, // 영등포
-  { id: 305, type: 'class', title: '기타 연주 입문', category: '음악', image: 'assets/media/avatars/300-10.jpg', lat: 37.4953, lng: 126.8873, loc: '구로구' }, // 구로
+  // 갤러리 (Gallery/Exhibition) - 7개
+  { id: 301, type: 'gallery', title: '종로 현대 갤러리', category: '특별 전시', image: 'assets/media/avatars/300-6.jpg', lat: 37.5675, lng: 126.9790, loc: '종로구' },
+  { id: 302, type: 'gallery', title: '강남 미니 갤러리', category: '신진 작가전', image: 'assets/media/avatars/300-7.jpg', lat: 37.5020, lng: 127.0367, loc: '강남구' },
+  { id: 303, type: 'gallery', title: '마포 사진 전시회', category: '사진전', image: 'assets/media/avatars/300-9.jpg', lat: 37.5504, lng: 126.9204, loc: '마포구' },
+  { id: 304, type: 'gallery', title: '영등포 예술센터', category: '기획 전시', image: 'assets/media/avatars/300-19.jpg', lat: 37.5253, lng: 126.9003, loc: '영등포구' },
+  { id: 305, type: 'gallery', title: '구로 디지털 아트홀', category: '미디어 아트', image: 'assets/media/avatars/300-20.jpg', lat: 37.4954, lng: 126.8874, loc: '구로구' },
+  { id: 306, type: 'gallery', title: '서울 시립 미술관', category: '상설 전시', image: 'assets/media/avatars/300-21.jpg', lat: 37.5615, lng: 126.9750, loc: '중구' },
+  { id: 307, type: 'gallery', title: '홍대 길거리 전시', category: '야외 설치', image: 'assets/media/avatars/300-22.jpg', lat: 37.5505, lng: 126.9205, loc: '마포구' },
+
 ])
 // --- 더미 데이터 확장 끝 ---
-
-// 1. 현재 클러스터링으로 선택된 모든 데이터 (상세 뷰 전체 리스트)
-const filteredMarkers = computed(() => {
-  return allData.value.filter(item => clusteredItemIds.value.includes(item.id))
-})
-
-// 2. 현재 선택된 탭에 따른 상세 리스트
-const currentDetailList = computed(() => {
-  return filteredMarkers.value.filter(item => item.type === detailTab.value)
-})
-
-// 3. 탭별 카운트 계산
-const getTabCount = (type) => {
-  return filteredMarkers.value.filter(item => item.type === type).length
-}
 
 // --- Map & Clustering Logic ---
 
@@ -173,19 +156,19 @@ const createMarkers = () => {
   }
   markers.value = []
 
-  // 2. 현재 활성 필터에 맞는 데이터만 선택
-  const dataToMap = allData.value.filter(item => item.type === activeFilter.value)
+  // 2. 현재 활성 필터 + 검색 키워드에 맞는 데이터만 선택
+  const dataToMap = filteredList.value
 
   dataToMap.forEach(item => {
     const marker = new window.naver.maps.Marker({
       position: new window.naver.maps.LatLng(item.lat, item.lng),
       title: item.title || item.name,
-      // map: naverMap.value // 클러스터링 사용 시 주석 처리
     })
 
-    // 마커 클릭 이벤트: 단일 마커 클릭 시 해당 아이템만 포함된 배열 전달
+    // 마커 클릭 이벤트: 단일 마커 클릭 시 해당 마커 위치로 지도를 이동하고 하단 뷰는 그대로 유지
     window.naver.maps.Event.addListener(marker, 'click', () => {
-      handleClusterClick([item.id])
+      naverMap.value.setCenter(marker.getPosition());
+      // 실제 앱에서는 클릭한 마커에 해당하는 상세 정보만 하단 뷰에 표시할 수 있도록 로직 추가 필요
     })
 
     // 클러스터링을 위해 마커 객체 자체에 원본 데이터 ID 속성 추가
@@ -193,36 +176,39 @@ const createMarkers = () => {
     markers.value.push(marker)
   })
 
-  // 3. MarkerClustering 인스턴스 생성 및 설정 (안정성 강화)
+  // 3. MarkerClustering 인스턴스 생성 및 설정 (이미지 UI 반영)
   if (naverMap.value && markers.value.length > 0) {
     if (window.MarkerClustering) {
       markerClustering.value = new window.MarkerClustering({
         map: naverMap.value,
         markers: markers.value,
-        maxZoom: 14, // 줌 레벨 14 이하에서 클러스터링
+        maxZoom: 14,
         minClusterSize: 2,
-        // 미몽 시안 참고: 검은색 원형 스타일
+        // 이미지 UI처럼 단순 핀/클러스터로 보이도록 스타일 변경
         styles: [{
-          // 실제 이미지를 사용하지 않고 텍스트 오버레이로 갯수를 표시
+          // 단일 마커 스타일 (이미지 UI의 빨간 핀)
           icon: {
-            content: '<div style="background:#000; color:#fff; font-size:14px; font-weight:bold; border-radius:50%; width:40px; height:40px; line-height:40px; text-align:center;">{text}</div>',
-            size: new window.naver.maps.Size(40, 40),
-            anchor: new window.naver.maps.Point(20, 20)
+            content: '<div style="color:white; font-size:12px; font-weight:bold; width:30px; height:40px; line-height:30px; text-align:center; background-image:url(\'data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 40 50\'><path fill=\'red\' d=\'M20,0 C9,0 0,9 0,20 C0,30 20,50 20,50 C20,50 40,30 40,20 C40,9 31,0 20,0 Z\'/><circle fill=\'white\' cx=\'20\' cy=\'20\' r=\'8\'/></svg>\'); background-size:contain; background-repeat:no-repeat;"></div>',
+            size: new window.naver.maps.Size(40, 50),
+            anchor: new window.naver.maps.Point(20, 50)
           },
-          size: new window.naver.maps.Size(40, 40),
-          textColor: '#ffffff',
-          fontWeight: 'bold'
-        }],
-        // 클러스터 클릭 이벤트
+        },
+          {
+            // 클러스터 스타일 (검은색 원형)
+            icon: {
+              content: '<div style="background:#000; color:#fff; font-size:14px; font-weight:bold; border-radius:50%; width:40px; height:40px; line-height:40px; text-align:center;">{text}</div>',
+              size: new window.naver.maps.Size(40, 40),
+              anchor: new window.naver.maps.Point(20, 20)
+            },
+            size: new window.naver.maps.Size(40, 40),
+            textColor: '#ffffff',
+            fontWeight: 'bold'
+          }
+        ],
+        // 클러스터 클릭 이벤트: 지도 확대 대신 하단 뷰를 업데이트하는 기능은 제거 (이미지 UI에 해당 기능 없음)
         listener: (event) => {
           const cluster = event.overlay
-          const clusteredMarkers = cluster.getMarkers()
-
-          // 클러스터에 포함된 모든 마커의 dataId(원래 아이템 ID)를 추출
-          const clusterItemIds = clusteredMarkers.map(m => m.dataId)
-
-          // 하단 뷰를 열고 상세 정보를 표시
-          handleClusterClick(clusterItemIds)
+          naverMap.value.fitBounds(cluster.getBounds()) // 클러스터 클릭 시 해당 범위로 지도 확대
         }
       })
     } else {
@@ -233,49 +219,11 @@ const createMarkers = () => {
   }
 }
 
-const handleClusterClick = (itemIds) => {
-  clusteredItemIds.value = itemIds
-
-  // 첫 번째 탭의 카운트를 확인하여 탭 기본값 설정 (선택된 클러스터 내에 데이터가 있는 탭으로)
-  const availableTypes = ['artwork', 'artist', 'class'].filter(type =>
-      allData.value.some(item => itemIds.includes(item.id) && item.type === type)
-  )
-
-  if (availableTypes.length > 0) {
-    detailTab.value = availableTypes[0] // 데이터가 있는 첫 번째 탭으로 이동
-  } else {
-    detailTab.value = 'artwork' // 기본값 유지
-  }
-
-  // 하단 상세 뷰 표시
-  showDetailView.value = true
-}
-
-const reclusterMarkers = () => {
-  if (!naverMap.value) {
-    showModal('지도 로드 오류', 'Naver 지도가 로드되지 않았습니다. 잠시 후 다시 시도해주세요.', 'error')
-    return;
-  }
-
-  // 클러스터링 인스턴스가 존재하면 강제 재실행, 없으면 마커 재구성
-  if (markerClustering.value) {
-    markerClustering.value.redraw()
-    showModal('재검색 완료', '현 지도 범위 내에서 마커를 재검색했습니다.', 'success')
-  } else {
-    // 클러스터링 인스턴스가 없을 경우 (라이브러리 로드가 안 됐거나 마커가 1개일 경우)
-    createMarkers(); // 마커를 다시 생성하여 클러스터링을 재시도
-    showModal('재검색 완료', '현 지도 범위 내에서 마커를 재검색했습니다.', 'success')
-  }
-
-  // 재검색 시 하단 상세 뷰는 닫음
-  showDetailView.value = false;
-}
-
 const initMap = () => {
   if (!window.naver) return
 
   naverMap.value = new window.naver.maps.Map('archiveMap', {
-    center: new window.naver.maps.LatLng(37.5665, 126.9780), // 서울 시청
+    center: new window.naver.maps.LatLng(37.4940, 126.8870), // 구로구 구로동 근처
     zoom: 13,
     minZoom: 9,
     maxZoom: 18,
@@ -283,46 +231,51 @@ const initMap = () => {
     mapDataControl: false,
     zoomControl: true,
     scaleControl: true,
-    mapTypeControl: true,
+    mapTypeControl: false,
   })
 
   createMarkers() // 마커 및 클러스터링 초기화
 
-  // 맵 영역을 클릭하면 상세 뷰 닫기
-  window.naver.maps.Event.addListener(naverMap.value, 'click', () => {
-    showDetailView.value = false
-  });
+  // 맵 영역을 클릭해도 하단 카드 뷰는 유지 (이미지 UI 반영)
 }
 
 // 필터 변경 시 지도 업데이트
-watch(activeFilter, () => {
+watch(searchQuery, () => {
   createMarkers()
-  showDetailView.value = false // 필터 변경 시 하단 뷰 닫기
-  clusteredItemIds.value = [] // 하단 데이터도 초기화
 })
 
 const performSearch = () => {
-  showModal('검색 실행', `${searchQuery.value}를 지도에 반영하여 검색합니다.`, 'info')
-  // 실제 로직: 검색어를 기반으로 allData를 업데이트하고 createMarkers()를 다시 호출
-  showDetailView.value = false
+  // 1) 필터 반영된 리스트
+  const list = filteredList.value
+
+  // 2) 마커/클러스터 갱신
+  createMarkers()
+
+  // 3) 결과가 있으면 해당 핀들을 모두 담는 bounds로 화면 이동
+  if (naverMap.value && list.length > 0) {
+    const bounds = new window.naver.maps.LatLngBounds()
+    list.forEach(it => bounds.extend(new window.naver.maps.LatLng(it.lat, it.lng)))
+    naverMap.value.fitBounds(bounds)
+  } else {
+    // 결과 없으면 간단 안내
+    showModal('검색 결과 없음', `'${searchQuery.value}'에 해당하는 위치를 찾지 못했어요. 다른 지역명을 입력해보세요.`, 'warning')
+  }
+}
+
+const goBack = () => {
+  router.go(-1)
 }
 
 const viewDetail = (item) => {
-  if (item.type === 'artwork') {
-    router.push(`/artwork/${item.id}`)
-  } else if (item.type === 'artist') {
-    router.push(`/artist/${item.id}`)
-  } else if (item.type === 'class') {
-    router.push(`/class/${item.id}`)
-  }
+  showModal('상세 보기', `${item.title || item.name}의 상세 페이지로 이동합니다.`, 'info')
+  // router.push(`/${item.type}/${item.id}`)
 }
 
 
 onMounted(() => {
-  // Naver Map SDK 로드 확인 후 초기화 (index.html에서 defer로 로드 가정)
+  // Naver Map SDK 로드 확인 후 초기화
   if (window.naver) {
-    // MarkerClustering 라이브러리가 로드될 때까지 기다림 (실제 환경에서는 index.html에 추가되어야 함)
-    // NOTE: 이 setTimeout은 Canvas 환경에서 라이브러리 로드 타이밍 문제를 임시로 해결하기 위함입니다.
+    // NOTE: setTimeout은 Canvas 환경에서 라이브러리 로드 타이밍 문제를 임시로 해결하기 위함입니다.
     setTimeout(() => {
       initMap();
     }, 500);
@@ -335,35 +288,85 @@ onMounted(() => {
     });
   }
 })
+
+///
+/// 지도 검색 필터
+///
+
+// --- 검색어에서 지역 키워드(구/군/시 일부) 추출 ---
+const extractAreaKeyword = (raw) => {
+  if (!raw) return ''
+  const s = String(raw).trim()
+  // 한글 + 숫자/영문 혼합 대비, 공백 기준으로 토큰화 후 '구/군/시'로 끝나는 단어 우선
+  const tokens = s.split(/\s+/)
+  const bySuffix = tokens.find(t => /[가-힣A-Za-z0-9]+(구|군|시)$/.test(t))
+  if (bySuffix) return bySuffix.replace(/[^가-힣A-Za-z0-9]/g, '')
+
+  // 못 찾으면 첫 토큰 사용 (예: '구로'만 쳐도 '구로' 매칭되게)
+  return tokens[0].replace(/[^가-힣A-Za-z0-9]/g, '')
+}
+
+// 현재 검색어에서 키워드 추출 (ex: '구로구 구로동' -> '구로구')
+const areaKeyword = computed(() => extractAreaKeyword(searchQuery.value))
+
+// 1) 타입 필터 + 2) 지역 키워드(부분 일치)까지 반영된 최종 리스트
+const filteredList = computed(() => {
+  const kw = areaKeyword.value
+  return allData.value.filter(item => {
+    const typeOk = item.type === activeFilter.value
+    if (!kw) return typeOk
+    // loc이 '구로구', '종로구' 처럼 들어있으니 부분 일치 허용
+    return typeOk && String(item.loc).includes(kw)
+  })
+})
+
+// 하단 카드 뷰는 filteredList 사용
+const currentDetailList = computed(() => filteredList.value)
+
+
+
+
 </script>
 
 <style scoped>
-.rounded-t-xl {
-  border-top-left-radius: 1.5rem !important;
-  border-top-right-radius: 1.5rem !important;
+/* 카드/필터 스크롤에서 스크롤바 감추기 */
+.filter-scroll, .card-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
-.detail-view {
-  position: fixed;
-  bottom: 60px; /* 하단 네비게이션바 피하기 */
-  left: 0;
-  right: 0;
-  height: 300px; /* 상세 뷰 고정 높이 */
-  transform: translateY(100%); /* 기본적으로 숨김 */
-  transition: transform 0.3s ease-out;
-  z-index: 1000;
-  border-top: 1px solid #e9ecef;
+.filter-scroll::-webkit-scrollbar, .card-scroll::-webkit-scrollbar {
+  display: none;
 }
-.detail-view.show {
-  transform: translateY(0); /* 보일 때 위로 이동 */
+
+/* 메인 패딩 */
+main {
+  padding-right: 30px;
+  padding-left: 30px;
 }
-.detail-view .handle {
-  width: 40px;
-  height: 4px;
-  background-color: #dee2e6;
-  border-radius: 2px;
+
+/* ▼ 카드 스크롤 래퍼를 상대배치로, 버튼은 절대배치로 */
+.cards-wrap {
+  position: relative;
+  background-color: #fff;
 }
-.content-list {
-  max-height: calc(100% - 120px); /* 탭과 제목 영역 높이를 뺀 나머지 */
-  -webkit-overflow-scrolling: touch;
+
+/* 플로팅 추가 버튼(FAB) – 카드 위 우하단에 겹침 */
+.fab-add {
+  position: absolute;
+  right: 8px;   /* 카드 오른쪽 여백 */
+  bottom: 20px; /* 카드 아래쪽 여백 */
+  width: 60px;
+  height: 60px;
+  z-index: 10;  /* 카드 위로 올라오게 */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
+
+/* 마지막 카드가 버튼에 가리지 않도록 스크롤 패딩 확보 */
+.card-scroll {
+  padding-right: 80px; /* 버튼 폭 + 여유 */
+  background-color: #fff;
+}
+
 </style>

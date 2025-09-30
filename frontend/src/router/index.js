@@ -119,6 +119,11 @@ const router = createRouter({
             path: "/board/:id", name: "board-detail",
             component: BoardDetailView, props: true
         },
+         {
+    path: '/board/edit', name: 'board-edit',
+    component: BoardWriteView // ⭐ BoardWriteView 재사용
+  }
+        ,
     ],
 })
 

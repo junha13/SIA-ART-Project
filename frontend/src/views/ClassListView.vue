@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white min-vh-100 d-flex flex-column">
+  <div class="bg-white min-vh-100 d-flex flex-column mt-20">
 
 
     <!-- 본문 -->

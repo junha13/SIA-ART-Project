@@ -1,5 +1,5 @@
 <template>
-  <div class="app-content flex-column-fluid">
+  <div class="app-content flex-column-fluid mt-10 mb-17">
     <div class="app-container-fluid">
 
       <!-- 상단 헤더: 통일된 디자인 -->

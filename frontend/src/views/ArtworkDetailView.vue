@@ -1,6 +1,6 @@
 <!-- ArtworkDetailView.vue -->
 <template>
-  <div class="container py-3">
+  <div class="container py-3 my-20">
     <!-- 상단 헤더 -->
     <div class="d-flex align-items-center mb-3">
       <button class="btn btn-link p-0 me-2" @click="$router.back()">

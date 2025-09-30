@@ -1,8 +1,6 @@
 <template>
   <AppLayout>
-    <div class="my-10">
     <router-view />
-    </div>
   </AppLayout>
 </template>
 

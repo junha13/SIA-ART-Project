@@ -1,6 +1,6 @@
 <!-- ArtworkListView.vue -->
 <template>
-  <div class="app-content flex-column-fluid">
+  <div class="app-content flex-column-fluid my-10">
     <div class="app-container-fluid">
       <!-- 상단 헤더 -->
       <div class="d-flex align-items-center justify-content-between pt-5 pb-3 mb-5 border-bottom px-3">

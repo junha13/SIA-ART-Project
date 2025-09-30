@@ -1,5 +1,5 @@
 <template>
-  <div class="container py-5">
+  <div class="container py-5 my-20">
     <!-- Header -->
     <div class="d-flex align-items-center mb-6">
       <button class="btn btn-light btn-sm me-3" @click="$router.back()">

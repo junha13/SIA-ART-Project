@@ -1,30 +1,8 @@
 <template>
   <div class="bg-white min-vh-100 d-flex flex-column">
 
-    <!-- 상단 앱바 -->
-    <header class="sticky-top border-bottom">
-      <div class="container d-flex align-items-center justify-content-between py-2">
-        <button class="btn btn-link text-body p-0" @click="router.back()">
-          <i class="fas fa-chevron-left fs-5"></i>
-        </button>
-        <div class="fw-bold">마이페이지</div>
-
-        <!-- 더보기 드롭다운: 로그아웃 포함 -->
-        <div class="dropdown">
-          <button class="btn btn-link text-body p-0" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="fas fa-ellipsis-vertical fs-5"></i>
-          </button>
-          <ul class="dropdown-menu dropdown-menu-end">
-            <li><button class="dropdown-item" @click="goTo('/profile/edit')">프로필 편집</button></li>
-            <li><hr class="dropdown-divider" /></li>
-            <li><button class="dropdown-item text-danger" @click="confirmLogout">로그아웃</button></li>
-          </ul>
-        </div>
-      </div>
-    </header>
-
     <!-- 본문 -->
-    <main class="container py-4 flex-grow-1">
+    <main class="mt-20 container py-4 flex-grow-1">
 
       <!-- 프로필 카드 (굵은 외곽 + 둥근 모서리) -->
       <section class="border border-2 rounded-4 p-3 mb-4">
@@ -42,7 +20,8 @@
         </div>
       </section>
 
-      <!-- 거래 -->
+      <!--
+       거래 
       <section class="border border-2 rounded-4 p-3 mb-4">
         <div class="small fw-bold text-muted mb-2">거래</div>
 
@@ -60,7 +39,7 @@
           <span class="ms-1">&gt;</span>
         </button>
       </section>
-
+      -->
       <!-- 관심 -->
       <section class="border border-2 rounded-4 p-3 mb-4">
         <div class="small fw-bold text-muted mb-2">관심</div>

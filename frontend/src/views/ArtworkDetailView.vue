@@ -72,7 +72,24 @@ const artworkId = route.params.id
 // 더미 데이터
 const artwork = ref({
   id: artworkId,
-  title: '엄청난 작품',
+  title: '학원가고 싶어요',
+  subtitle: '보고 싶다 김준하',
+  image: 'https://picsum.photos/600/400?random=1', // 예시: Bootstrap/Picsum 랜덤 이미지
+  category: '미술',
+  artist: {
+    name: '김준하',
+    profile: 'https://picsum.photos/100/100?random=2' // 예시: 프로필 사진
+  },
+  info: {
+    size: '45cm x 53cm',
+    material: '캔버스 유화물감',
+    year: '2023',
+    weight: '1.5kg'
+  },
+  description: '이건 진짜 엄청난 명작이다.',
+
+  id: artworkId,
+  title: '',
   subtitle: '느슨한 예술계를 뒤집어놓았다',
   image: 'https://picsum.photos/600/400?random=1', // 예시: Bootstrap/Picsum 랜덤 이미지
   category: '미술',

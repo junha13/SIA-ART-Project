@@ -1,5 +1,5 @@
 <template>
-  <div class="container py-4">
+  <div class="container py-4 mt-20">
 
     <!-- 상단 헤더 -->
     <div class="d-flex align-items-center mb-3">

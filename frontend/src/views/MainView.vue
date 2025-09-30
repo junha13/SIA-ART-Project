@@ -21,10 +21,10 @@
     </div>
   </div>
 
-  <div v-else class="main-content-page container-fluid px-0">
+  <div v-else class="main-content-page container-fluid">
 
     <div class="custom-header-container position-relative overflow-hidden ">
-      <div class="custom-header-bg-gradient "></div>
+      <div class="custom-header-bg-gradient"></div>
 
       <div class="header-overlay px-4 py-3 mt-n5 d-flex align-items-center justify-content-between">
 
@@ -50,8 +50,7 @@
 
       <div class="location-select-top d-flex align-items-center cursor-pointer" @click="handleLocationSelect">
         <i class="fas fa-map-marker-alt text-white fs-5"></i>
-        <span class="ms-2 fw-bold text-white fs-6">우리 동네</span>
-        <i class="fas fa-chevron-down ms-1 text-white fs-6"></i>
+        <span class="ms-2 fw-bold text-white fs-6">{{ locationStore.currentLocation.name }}</span> <i class="fas fa-chevron-down ms-1 text-white fs-6"></i>
       </div>
 
     </div>
@@ -88,11 +87,11 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAppStore } from '@/stores/useAppStore';
-import { useLocationStore } from '@/stores/useLocationStore'; // 위치 스토어 사용
+import { useLocationStore } from '@/stores/useLocationStore'; // 🟢 Location Store 사용
 
 const router = useRouter();
 const appStore = useAppStore();
-const locationStore = useLocationStore(); // 위치 스토어 초기화
+const locationStore = useLocationStore(); // Store 초기화
 
 const showSplash = ref(true);
 const SPLASH_DURATION = 1200; // 1.2초
@@ -104,6 +103,9 @@ onMounted(() => {
     showSplash.value = false;
     appStore.setShowLayout(true);
   }, SPLASH_DURATION);
+
+  // Store 초기화 (필요한 경우)
+  // locationStore.initializeAreas();
 });
 
 onUnmounted(() => {
@@ -115,34 +117,26 @@ const goTo = (path) => {
 };
 
 /**
- * '우리 동네' 버튼 클릭 핸들러
- * LocationSettingsView의 '내 위치로' 버튼과 동일하게 Geolocation API를 호출하여
- * 현재 위치를 받아오고 Pinia Store에 저장합니다. (화면 이동 없음)
+ * ⭐ [수정]: '우리 동네' 버튼 클릭 핸들러 - 위치 설정 기능
  */
 const handleLocationSelect = () => {
-  console.log("'우리 동네' 클릭: 현재 위치 설정 기능 실행");
-
-  // Geolocation 지원 확인
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
         (pos) => {
           const lat = pos.coords.latitude;
           const lng = pos.coords.longitude;
 
-          // Pinia Store 액션 호출: 현재 위치 업데이트
+          // 🟢 Pinia Store 액션 호출: 현재 위치 업데이트
           locationStore.updateCurrentLocation({
-            name: '현재 위치',
+            name: '내 GPS 위치', // API 호출 전 임시 이름
             address: `위도: ${lat.toFixed(4)}, 경도: ${lng.toFixed(4)} (GPS)`,
             lat, lng
           });
-
-          // 사용자에게 알림 (ConfirmModal이나 토스트 메시지를 사용해야 하지만, 여기서는 콘솔로 대체)
-          console.log(`✅ 위치 업데이트 성공: Lat ${lat}, Lng ${lng}`);
-          alert('현재 위치로 동네가 설정되었습니다!'); // 임시 알림
+          alert('현재 GPS 위치로 동네가 설정되었습니다!');
         },
         (error) => {
           console.error("❌ 위치 정보 접근 실패:", error);
-          alert('위치 정보 접근을 허용해주세요.'); // 임시 알림
+          alert('위치 정보 접근을 허용해주세요.');
         }
     );
   } else {
@@ -152,10 +146,6 @@ const handleLocationSelect = () => {
 </script>
 
 <style scoped>
-/* ================================================================= */
-/* ⚠️ 순수 CSS 최소화: Metronic/Bootstrap 유틸리티 클래스로 대체 불가능한 부분만 유지 */
-/* ================================================================= */
-
 /* --- 1. 스플래시 스크린 스타일 (유지) --- */
 .splash-screen {
   position: fixed;

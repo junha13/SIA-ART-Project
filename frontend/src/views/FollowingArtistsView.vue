@@ -1,27 +1,24 @@
 <template>
   <div class="bg-white min-vh-100 d-flex flex-column">
 
-    <!-- 본문 -->
     <main class="mt-20 container py-4 flex-grow-1">
       <div class="text-center fw-bold text-dark mb-3">팔로우한 작가</div>
-      <!-- 비어있을 때 -->
       <div v-if="artists.length === 0" class="text-center py-5">
         <i class="fas fa-user-slash fs-1 text-muted mb-3"></i>
         <p class="text-muted mb-0">아직 팔로우한 작가가 없습니다.</p>
       </div>
 
-      <!-- 목록 -->
       <div v-else class="d-flex flex-column gap-3">
         <div
-          v-for="artist in artists"
-          :key="artist.id"
-          class="border border-2 rounded-4 p-3 d-flex align-items-center"
+            v-for="artist in artists"
+            :key="artist.id"
+            class="border border-2 rounded-4 p-3 d-flex align-items-center"
         >
           <img
-            :src="artist.avatar"
-            alt="artist avatar"
-            class="rounded-circle me-3"
-            width="56" height="56"
+              :src="artist.avatar"
+              alt="artist avatar"
+              class="rounded-circle me-3"
+              width="56" height="56"
           />
 
           <div class="flex-grow-1">
@@ -40,22 +37,21 @@
         </div>
       </div>
 
-      <!-- 모달 -->
       <ConfirmModal
-        v-model:isVisible="isModalVisible"
-        :title="modalTitle"
-        :message="modalMessage"
-        :type="modalType"
-        :confirmText="modalConfirmText"
-        :autoHide="modalAutoHide"
-        @confirm="handleUnfollow"
+          v-model:isVisible="isModalVisible"
+          :title="modalTitle"
+          :message="modalMessage"
+          :type="modalType"
+          :confirmText="modalConfirmText"
+          :autoHide="modalAutoHide"
+          @confirm="handleUnfollow"
       />
     </main>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import ConfirmModal from '../components/ConfirmModal.vue'
 import { useFollowingStore } from '@/stores/useFollowingStore'
@@ -70,7 +66,7 @@ const modalMessage = ref('')
 const modalType = ref('info')
 const modalAutoHide = ref(true)
 const modalConfirmText = ref('언팔로우')
-const unfollowId = ref(null)
+const unfollowId = ref(null) // 언팔로우할 아티스트 ID 임시 저장
 
 const showModal = (title, message, type = 'info', autoHide = true, confirmText = '확인') => {
   modalTitle.value = title
@@ -81,7 +77,7 @@ const showModal = (title, message, type = 'info', autoHide = true, confirmText =
   isModalVisible.value = true
 }
 
-// Pinia Getter 사용
+// Pinia Getter 사용: 팔로우 목록을 반응형으로 가져옴
 const artists = followingStore.getArtists
 
 const viewProfile = (id) => router.push(`/artist/${id}`)
@@ -91,15 +87,22 @@ const confirmUnfollow = (id, name) => {
   showModal('언팔로우 확인', `"${name}" 작가를 정말로 언팔로우 하시겠습니까?`, 'confirm', false, '언팔로우')
 }
 
-const unfollow = (id) => {
-  followingStore.unfollowArtist(id)
-  showModal('언팔로우 완료', '작가 팔로우가 해제되었습니다.', 'success', true)
-}
-
+/**
+ * 모달 확인 버튼 클릭 시 호출되며, Pinia Store 액션을 실행하여 목록에서 작가를 제거합니다.
+ */
 const handleUnfollow = () => {
   if (unfollowId.value) {
-    unfollow(unfollowId.value)
+    // ⭐ [핵심]: useFollowingStore의 unfollowArtist 액션 호출
+    followingStore.unfollowArtist(unfollowId.value)
+
+    // 언팔로우 후 완료 모달 표시
+    showModal('언팔로우 완료', '작가 팔로우가 해제되었습니다.', 'success', true, '확인')
     unfollowId.value = null
   }
 }
+
+// 컴포넌트 마운트 시, Store에 데이터가 로드되도록 초기화 (선택 사항이지만 안전함)
+onMounted(() => {
+  followingStore.initializeFollowing();
+});
 </script>

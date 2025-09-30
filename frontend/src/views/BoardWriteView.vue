@@ -1,28 +1,24 @@
 <template>
   <div class="app-content flex-column-fluid my-12">
     <div class="app-container-fluid">
-      
-      <!-- 상단 헤더: 제목 동적 변경 및 디자인 유지 -->
+
       <div class="d-flex align-items-center justify-content-between pt-5 pb-3 mb-5 border-bottom px-3">
-        
+
         <button class="btn btn-icon btn-active-light-primary w-30px h-30px" @click="router.back()">
           <i class="ki-duotone ki-arrow-left fs-2 text-gray-800"></i>
         </button>
-        
+
         <h1 class="page-heading d-flex flex-column justify-content-center text-dark fw-bold fs-3 m-0 position-absolute start-50 translate-middle-x">
-          예술을 찾는 사람들
-          <!-- 폼 제목: 수정 모드일 때 '수정하기'로 자동 변경 -->
+          <span class="d-block">예술을 찾는 사람들</span>
           <span class="fs-7 fw-normal text-gray-600">게시판 글 {{ isEditMode ? '수정하기' : '등록하기' }}</span>
         </h1>
-        
+
         <i class="ki-duotone ki-dots-vertical fs-2 text-gray-800" style="cursor: pointer;"></i>
       </div>
-      
-      <!-- 메인 컨텐츠 영역 -->
-      <div class="card card-flush shadow-sm mx-3 mb-5">
+
+      <div class="card card-flush shadow-sm mx-3 mb-5 write-card-bg">
         <div class="card-body p-5">
-          
-          <!-- 카테고리 선택 -->
+
           <div class="mb-8">
             <label class="form-label fw-bold text-gray-800">분류 선택</label>
             <div class="d-flex flex-wrap gap-2">
@@ -35,18 +31,16 @@
             </div>
           </div>
 
-          <!-- 제목 -->
           <div class="mb-8">
             <label class="form-label fw-bold text-gray-800">제목</label>
             <input
                 type="text"
                 class="form-control bg-white text-dark rounded-2 border border-gray-400"
                 v-model="postData.title"
-                placeholder="제목을 입력하세요" 
+                placeholder="제목을 입력하세요"
             />
           </div>
 
-          <!-- 내용 (TextArea) -->
           <div class="mb-8">
             <label class="form-label fw-bold text-gray-800">내용</label>
             <textarea
@@ -57,39 +51,33 @@
             ></textarea>
           </div>
 
-          <!-- 파일 첨부 -->
           <div class="mb-8">
             <label class="form-label fw-bold text-gray-800">사진 및 파일 첨부</label>
-            <!-- 배경색을 bg-light-primary에서 bg-gray-100으로 변경 -->
             <div class="d-flex flex-column border border-dashed border-gray-300 rounded-2 p-5 text-center bg-gray-100">
-                <label for="file-upload" class="d-flex flex-column align-items-center justify-content-center" style="cursor: pointer;">
-                    <i class="ki-duotone ki-cloud-download fs-2tx text-primary mb-3"></i>
-                    <div class="fw-semibold text-gray-600">
-                        여기에 파일을 끌어놓거나 <span class="text-primary fw-bolder">왼쪽의 첨부 버튼</span>을 클릭하세요
-                        <!-- 기존 파일 표시 기능 추가 (수정 모드 시) -->
-                        <div v-if="postData.files.length > 0 && !uploadedFiles.length" class="text-success mt-2 fs-7">
-                          * 기존 파일 {{ postData.files.length }}개가 첨부되어 있습니다.
-                        </div>
-                    </div>
-                </label>
-                <!-- ⭐ 파일 입력 필드에 handleFileUpload 연결 -->
-                <input type="file" id="file-upload" class="d-none" multiple @change="handleFileUpload" />
-            </div>
-            
-            <!-- ⭐ 업로드된 파일 목록 표시 -->
-            <div v-if="uploadedFiles.length > 0" class="mt-4">
-                <h6 class="fs-7 fw-bold text-gray-700 mb-2">업로드 대기 목록 ({{ uploadedFiles.length }}개):</h6>
-                <div class="d-flex flex-wrap gap-2">
-                    <span v-for="(file, index) in uploadedFiles" :key="index"
-                          class="badge bg-light-primary text-primary p-2 rounded-pill fs-7 fw-semibold">
-                        {{ file.name }}
-                        <i class="ki-duotone ki-cross-circle fs-6 ms-1" style="cursor: pointer;" @click="removeFile(index)"></i>
-                    </span>
+              <label for="file-upload" class="d-flex flex-column align-items-center justify-content-center" style="cursor: pointer;">
+                <i class="ki-duotone ki-cloud-download fs-2tx text-primary mb-3"></i>
+                <div class="fw-semibold text-gray-600">
+                  여기에 파일을 끌어놓거나 <span class="text-primary fw-bolder">버튼</span>을 클릭하세요
+                  <div v-if="postData.files.length > 0 && !uploadedFiles.length" class="text-success mt-2 fs-7">
+                    * 기존 파일 {{ postData.files.length }}개가 첨부되어 있습니다.
+                  </div>
                 </div>
+              </label>
+              <input type="file" id="file-upload" class="d-none" multiple @change="handleFileUpload" />
+            </div>
+
+            <div v-if="uploadedFiles.length > 0" class="mt-4">
+              <h6 class="fs-7 fw-bold text-gray-700 mb-2">업로드 대기 목록 ({{ uploadedFiles.length }}개):</h6>
+              <div class="d-flex flex-wrap gap-2">
+                    <span v-for="(file, index) in uploadedFiles" :key="index"
+                          class="badge bg-secondary text-white p-2 rounded-pill fs-7 fw-semibold">
+                        {{ file.name }}
+                        <i class="ki-duotone ki-cross-circle fs-5 ms-1 text-danger" style="cursor: pointer;" @click="removeFile(index)"></i>
+                    </span>
+              </div>
             </div>
           </div>
 
-          <!-- 태그 -->
           <div class="mb-10">
             <label class="form-label fw-bold text-gray-800">태그</label>
             <div class="d-flex flex-wrap gap-2 mb-3">
@@ -99,7 +87,6 @@
                   class="badge bg-secondary text-white p-2 rounded-pill fs-7 fw-semibold"
               >
                 #{{ tag }}
-                <!-- 태그 삭제 아이콘 색상을 text-danger로 변경하여 시인성 확보 -->
                 <i class="ki-duotone ki-cross-circle fs-5 ms-1 text-danger" style="cursor: pointer;" @click="removeTag(index)"></i>
               </span>
             </div>
@@ -112,7 +99,6 @@
             />
           </div>
 
-          <!-- 버튼: 텍스트 동적 변경 및 등록/수정 로직 호출 -->
           <div class="d-flex justify-content-end gap-3">
             <button class="btn btn-light-secondary fw-bold" @click="saveDraft">임시저장</button>
             <button class="btn btn-dark fw-bold" @click="confirmSubmit">
@@ -121,8 +107,7 @@
           </div>
         </div>
       </div>
-      
-      <!-- Custom Modal (이하 동일) -->
+
       <ConfirmModal
           v-model:isVisible="isModalVisible"
           :title="modalTitle"
@@ -137,28 +122,28 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue" 
-import { useRoute, useRouter } from "vue-router" 
+import { ref, computed, onMounted } from "vue"
+import { useRoute, useRouter } from "vue-router"
 import ConfirmModal from '../components/ConfirmModal.vue'
+import { MOCK_POSTS, MOCK_ARTISTS } from '@/data/MockData.js' // 🟢 MockData Import
 
 const router = useRouter()
-const route = useRoute() 
-const DRAFT_STORAGE_KEY = 'board_post_draft'; // localStorage 키 정의
+const route = useRoute()
+const DRAFT_STORAGE_KEY = 'board_post_draft';
 
 const categories = ["미술", "음악", "공예", "정보"]
 const newTag = ref("")
 
 // 하나의 통합된 폼 데이터 상태
 const postData = ref({
-    id: null,
-    category: "미술",
-    title: "",
-    content: "",
-    tags: [],
-    files: [] // 기존 파일 정보 (수정 모드 로드시 사용)
+  id: null,
+  category: "미술",
+  title: "",
+  content: "",
+  tags: [],
+  files: [] // 기존 파일 정보 (수정 모드 로드시 사용)
 })
 
-// 새로 업로드된 파일 객체를 저장하는 상태 (발표를 위한 핵심)
 const uploadedFiles = ref([])
 
 // isEditMode computed 속성: URL에 ID가 있으면 수정 모드
@@ -175,42 +160,42 @@ const modalConfirmText = ref('확인')
 
 // ⭐ 로드된 임시 저장 데이터를 postData에 적용하는 함수
 const loadDraftData = (draft) => {
-    postData.value.category = draft.category || '미술';
-    postData.value.title = draft.title || '';
-    postData.value.content = draft.content || '';
-    postData.value.tags = draft.tags || [];
+  postData.value.category = draft.category || '미술';
+  postData.value.title = draft.title || '';
+  postData.value.content = draft.content || '';
+  postData.value.tags = draft.tags || [];
 }
 
 // ⭐ onMounted: 수정 모드일 때 데이터 로드, 아니면 임시 저장 데이터 로드 여부 질문
 onMounted(() => {
-    if (isEditMode.value) {
-        const postId = route.query.id
-        
-        // 수정 모드: 기존 게시글 데이터 로드 (API 호출 시뮬레이션)
-        const mockPost = {
-            id: postId,
-            category: "음악",
-            title: `[ID ${postId}] 기존 제목이 로드되었습니다.`,
-            content: "여기에 기존 게시글 내용이 로드됩니다. 이 내용을 지우거나 바꿔서 수정할 수 있습니다.",
-            tags: ["음악", "작곡", "수정됨"],
-            files: [{ name: "기존_작품1.jpg" }, { name: "참고_자료.pdf" }]
-        }
-        postData.value = mockPost
-    } else {
-        // ⭐ 작성 모드: 임시 저장 데이터 로드 여부 질문
-        const savedDraft = localStorage.getItem(DRAFT_STORAGE_KEY);
-        if (savedDraft) {
-            // 임시 저장된 내용이 있으면 모달 띄우기
-            showModal(
-                '임시저장 확인', 
-                '작성 중이던 글이 있습니다. 이 내용을 불러오시겠습니까?', 
-                'confirm', 
-                'load_draft', // 새로운 액션 정의
-                '불러오기', 
-                false
-            );
-        }
+  if (isEditMode.value) {
+    const postId = parseInt(route.query.id) || 2;
+    // 🟢 MockData에서 게시글 찾기
+    const mockPost = MOCK_POSTS.find(p => p.id === postId) || MOCK_POSTS[0];
+
+    // 수정 모드: 기존 게시글 데이터 로드 (API 호출 시뮬레이션)
+    postData.value = {
+      id: postId,
+      category: mockPost.category,
+      title: mockPost.title,
+      content: mockPost.content,
+      tags: mockPost.tags,
+      files: [{ name: "기존_작품1.jpg" }, { name: "참고_자료.pdf" }]
     }
+  } else {
+    // ⭐ 작성 모드: 임시 저장 데이터 로드 여부 질문
+    const savedDraft = localStorage.getItem(DRAFT_STORAGE_KEY);
+    if (savedDraft) {
+      showModal(
+          '임시저장 확인',
+          '작성 중이던 글이 있습니다. 이 내용을 불러오시겠습니까?',
+          'confirm',
+          'load_draft',
+          '불러오기',
+          false
+      );
+    }
+  }
 })
 
 const showModal = (title, message, type = 'info', action = null, confirmText = '확인', autoHide = true) => {
@@ -225,7 +210,7 @@ const showModal = (title, message, type = 'info', action = null, confirmText = '
 
 const handleModalConfirm = () => {
   isModalVisible.value = false;
-  
+
   if (modalAction.value === 'submit') {
     // 등록 확인 모달 -> 등록 로직 실행
     submitPost()
@@ -233,19 +218,19 @@ const handleModalConfirm = () => {
     // 등록/수정 완료 모달 -> 리스트로 이동
     const targetPath = isEditMode.value ? `/board/${postData.value.id}` : "/board"
     // 등록/수정 완료 시에만 임시 저장 데이터 삭제
-    localStorage.removeItem(DRAFT_STORAGE_KEY); 
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
     router.push(targetPath)
   } else if (modalAction.value === 'load_draft') {
     // ⭐ 임시 저장 불러오기 선택 시
     const savedDraft = localStorage.getItem(DRAFT_STORAGE_KEY);
     if (savedDraft) {
-        try {
-            const draft = JSON.parse(savedDraft);
-            loadDraftData(draft); // 데이터 로드 함수 호출
-        } catch (e) {
-            console.error("Failed to parse draft from localStorage", e);
-            localStorage.removeItem(DRAFT_STORAGE_KEY);
-        }
+      try {
+        const draft = JSON.parse(savedDraft);
+        loadDraftData(draft); // 데이터 로드 함수 호출
+      } catch (e) {
+        console.error("Failed to parse draft from localStorage", e);
+        localStorage.removeItem(DRAFT_STORAGE_KEY);
+      }
     }
   }
 }
@@ -266,24 +251,22 @@ const removeTag = (index) => {
 
 // 파일 처리 핸들러: 파일 상태 업데이트 (발표를 위한 핵심)
 const handleFileUpload = (event) => {
-    const files = Array.from(event.target.files);
-    uploadedFiles.value = files;
-    event.target.value = null; 
+  const files = Array.from(event.target.files);
+  uploadedFiles.value = files;
+  event.target.value = null;
 }
 
-// 파일 삭제 함수
 const removeFile = (index) => {
-    uploadedFiles.value.splice(index, 1);
+  uploadedFiles.value.splice(index, 1);
 }
 
-// saveDraft 함수: 현재 글의 내용과 카테고리, 태그를 localStorage에 저장
 const saveDraft = () => {
   try {
     const draftContent = {
-        category: postData.value.category,
-        title: postData.value.title,
-        content: postData.value.content,
-        tags: postData.value.tags
+      category: postData.value.category,
+      title: postData.value.title,
+      content: postData.value.content,
+      tags: postData.value.tags
     };
     localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draftContent));
     // 임시 저장 후에는 페이지를 이동하지 않고 저장 완료 모달만 표시
@@ -299,7 +282,7 @@ const confirmSubmit = () => {
     showModal('등록 오류', '제목과 내용을 모두 입력해주세요.', 'error')
     return
   }
-  
+
   if (isEditMode.value) {
     submitPost();
   } else {
@@ -311,49 +294,66 @@ const confirmSubmit = () => {
 
 const submitPost = () => {
   const finalData = {
-      ...postData.value,
-      newFiles: uploadedFiles.value.map(file => file.name) 
+    ...postData.value,
+    newFiles: uploadedFiles.value.map(file => file.name)
   }
 
   if (isEditMode.value) {
     console.log('게시글 수정 완료 (ID: ' + finalData.id + '):', finalData)
     showModal('수정 완료', "게시글이 성공적으로 수정되었습니다!", 'success', 'submitSuccess')
   } else {
-    // ⭐ 등록 로직: 게시글 목록 데이터에 새 글 추가 (시연용)
-    if (window.appData && window.appData.addPost) {
-        window.appData.addPost(finalData);
-    }
-    console.log('게시글 등록:', finalData)
+    // ⭐ 등록 로직: 게시글 목록 데이터에 새 글 추가 시뮬레이션
+    const newPost = {
+      id: MOCK_POSTS.length + 1,
+      category: finalData.category,
+      title: finalData.title,
+      content: finalData.content,
+      comments: '0',
+      author: MOCK_ARTISTS[0].name, // 현재 로그인된 사용자 (김준하)
+      authorId: MOCK_ARTISTS[0].id,
+      likes: 0,
+      views: 0,
+      date: new Date().toLocaleDateString('ko-KR'),
+      tags: finalData.tags,
+      image: finalData.newFiles.length > 0 ? 'https://placehold.co/600x300/F0F0F0/000?text=NEW+POST' : '',
+    };
+    MOCK_POSTS.unshift(newPost); // 목록 맨 앞에 추가
+
+    console.log('게시글 등록:', newPost)
     showModal('등록 완료', "게시글이 성공적으로 등록되었습니다!", 'success', 'submitSuccess')
   }
 }
 </script>
 
 <style scoped>
-/* (스타일은 이전과 동일하게 유지) */
+/* ⭐ [수정]: 배경색을 아주 약간만 더 어둡게 조정 */
+.write-card-bg {
+  background-color: #fcfcfc !important;
+}
+
 .btn-outline-secondary {
- border-color: #d1d1d1 !important;
- color: var(--bs-gray-700) !important;
+  border-color: #d1d1d1 !important;
+  color: var(--bs-gray-700) !important;
 }
 
 .btn-dark {
- background-color: var(--bs-dark) !important;
- border-color: var(--bs-dark) !important;
- color: #fff !important;
+  background-color: var(--bs-dark) !important;
+  border-color: var(--bs-dark) !important;
+  color: #fff !important;
 }
 
 .d-flex.align-items-center.justify-content-between {
- position: relative; 
+  position: relative;
 }
 .page-heading.position-absolute {
- z-index: 10;
- max-width: 70%; 
- text-align: center;
+  z-index: 10;
+  max-width: 70%;
+  text-align: center;
 }
 
 .form-control.bg-white {
- background-color: #fff !important;
- color: var(--bs-dark) !important;
- border-color: var(--bs-gray-400) !important; 
+  background-color: #fff !important;
+  color: var(--bs-dark) !important;
+  border-color: var(--bs-gray-400) !important;
 }
 </style>

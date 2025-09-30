@@ -80,10 +80,10 @@
                   <p class="text-muted small mb-1">by {{ artwork.artist }}</p>
                   <button
                       class="btn btn-sm mt-2"
-                      :class="artwork.following ? 'btn-primary' : 'btn-outline-primary'"
-                      @click.stop="toggleFollow(artwork)">
-                    <i class="ki-duotone" :class="artwork.following ? 'ki-check' : 'ki-plus' "></i>
-                    {{ artwork.following ? '팔로잉' : '팔로우' }}
+                      :class="isFollowing(artwork.artistId) ? 'btn-primary' : 'btn-outline-primary'"
+                      @click.stop="toggleFollow(artwork.artistId)">
+                    <i class="ki-duotone" :class="isFollowing(artwork.artistId) ? 'ki-check' : 'ki-plus' "></i>
+                    {{ isFollowing(artwork.artistId) ? '팔로잉' : '팔로우' }}
                   </button>
                 </div>
                 <small class="text-gray-600 text-truncate mt-2">
@@ -115,9 +115,11 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import ConfirmModal from '../components/ConfirmModal.vue'
-import { MOCK_ARTWORKS } from '@/data/MockData.js' // MockData Import
+import { MOCK_ARTWORKS, MOCK_ARTISTS } from '@/data/MockData.js'
+import { useFollowingStore } from '@/stores/useFollowingStore' // 🟢 useFollowingStore Import
 
 const router = useRouter()
+const followingStore = useFollowingStore() // Store 초기화
 
 // Modal State
 const isModalVisible = ref(false)
@@ -132,22 +134,42 @@ const showModal = (title, message, type = 'info') => {
   isModalVisible.value = true
 }
 
-// 필터 및 검색
+// 필터 및 검색 (이전과 동일)
 const filters = ['전체', '회화', '조각', '도예', '사진', '공예']
 const activeFilter = ref('전체')
 const searchQuery = ref('')
 const sortOrder = ref('latest')
 const searchType = ref('title')
 
-// 더미 데이터
-const allArtworks = ref([
-  { id: 1, title: '놀러가고 싶어요', artist: '주영민', location: '상당구', price: 150000, likes: 6, category: '회화', image: '/assets/media/stock/600x600/img-44.jpg', following: false, subtitle: '느슨한 예술계를 뒤집어놓았다', description: '이건 진짜 엄청난 명작이다.', info: { size: '45cm x 53cm', material: '캔버스 유화물감', year: '2023', weight: '1.5kg' } },
-  { id: 2, title: '팝업스토어 가는 사람', artist: '박정훈', location: '곤지암동', price: 420000, likes: 18, category: '회화', image: '/assets/media/stock/600x600/img-62.jpg', following: true, subtitle: '느슨한 예술계를 뒤집어놓았다', description: '이건 진짜 엄청난 명작이다.', info: { size: '45cm x 53cm', material: '캔버스 유화물감', year: '2023', weight: '1.5kg' }  },
-  { id: 3, title: '피그마 그만 만질래', artist: '허지서', location: '송도동', price: 990000, likes: 42, category: '공예', image: '/assets/media/stock/600x600/img-37.jpg', following: false, subtitle: '느슨한 예술계를 뒤집어놓았다', description: '이건 진짜 엄청난 명작이다.', info: { size: '45cm x 53cm', material: '캔버스 유화물감', year: '2023', weight: '1.5kg' }  },
-  { id: 4, title: '알바하러가는 예원', artist: '고예원', location: '북가좌동', price: 85000, likes: 12, category: '도예', image: '/assets/media/stock/600x600/img-2.jpg', following: false, subtitle: '느슨한 예술계를 뒤집어놓았다', description: '이건 진짜 엄청난 명작이다.', info: { size: '45cm x 53cm', material: '캔버스 유화물감', year: '2023', weight: '1.5kg' }  },
-  { id: 5, title: '집에가고 싶은 민호', artist: '박민호', location: '서대문구', price: 250000, likes: 25, category: '사진', image: '/assets/media/stock/600x600/img-54.jpg', following: false, subtitle: '느슨한 예술계를 뒤집어놓았다', description: '이건 진짜 엄청난 명작이다.', info: { size: '45cm x 53cm', material: '캔버스 유화물감', year: '2023', weight: '1.5kg' }  },
-  { id: 6, title: '학원가고 싶어요', artist: '김준하', location: '만안구', price: 1200000, likes: 8, category: '조각', image: '/assets/media/stock/600x600/img-43.jpg', following: true, subtitle: '느슨한 예술계를 뒤집어놓았다', description: '이건 진짜 엄청난 명작이다.', info: { size: '45cm x 53cm', material: '캔버스 유화물감', year: '2023', weight: '1.5kg' }  },
-])
+// 🟢 MockData에서 데이터 로드
+const allArtworks = ref(MOCK_ARTWORKS)
+
+// ⭐ Store Getter를 사용하여 팔로우 상태 확인
+const isFollowing = computed(() => (artistId) => {
+  return followingStore.getArtists.some(artist => artist.id === artistId);
+});
+
+// ⭐ 팔로우 토글 함수: Store 액션에 따라 언팔로우 또는 가상 팔로우 처리
+const toggleFollow = (artistId) => {
+  if (isFollowing.value(artistId)) {
+    // 언팔로우 처리
+    followingStore.unfollowArtist(artistId);
+    showModal('언팔로우 완료', '작가 팔로우가 해제되었습니다.', 'success');
+  } else {
+    // ⭐ Mock Data에서 작가 정보를 찾아 팔로우 목록에 추가 (followArtist 액션 대체)
+    const artistToFollow = MOCK_ARTISTS.find(a => a.id === artistId);
+    if (artistToFollow) {
+      followingStore.artists.push({
+        id: artistToFollow.id,
+        name: artistToFollow.name,
+        bio: artistToFollow.bio,
+        avatar: artistToFollow.profileImage
+      });
+      showModal('팔로우 완료', `${artistToFollow.name} 작가를 팔로우 했습니다.`, 'success');
+    }
+  }
+}
+
 
 const filteredArtworks = computed(() => {
   let result = allArtworks.value
@@ -190,11 +212,6 @@ const performSearch = () => {
   } else {
     showModal('검색 완료', `${filteredArtworks.value.length}개의 작품이 검색되었습니다.`, 'success')
   }
-}
-
-// ⭐ 팔로우 토글 로직: 해당 작품 객체의 following 속성을 변경
-const toggleFollow = artwork => {
-  artwork.following = !artwork.following
 }
 
 const goDetail = (artwork) => {

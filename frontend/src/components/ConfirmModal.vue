@@ -22,8 +22,8 @@
 
           <!-- Action Buttons -->
           <div v-if="type === 'confirm'" class="d-flex justify-content-center gap-3">
-            <button type="button" class="btn btn-light-danger fw-bold flex-fill" @click="handleCancel">{{ cancelText }}</button>
             <button type="button" class="btn btn-primary fw-bold flex-fill" @click="handleConfirm">{{ confirmText }}</button>
+            <button type="button" class="btn btn-light-danger fw-bold flex-fill" @click="handleCancel">{{ cancelText }}</button>
           </div>
           <div v-else class="d-grid">
             <button type="button" class="btn btn-primary fw-bold" @click="handleConfirm">확인</button>

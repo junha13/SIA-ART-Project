@@ -94,7 +94,7 @@ const showModal = (title, message, type = 'info', action = null, autoHide = true
 const submitLogin = () => {
   if (email.value === 'test' && password.value === '1234') {
     authStore.login(
-      { name: '테스트 사용자', role: '예술가님', profileImage: 'assets/media/avatars/300-1.jpg' },
+      { name: '김준하', role: '예술가님', profileImage: 'public/assets/media/stock/600x600/img-63.jpg' },
       'sample-jwt-token'
     )
     showModal('로그인 성공', `${email.value}님, 환영합니다!`, 'success', 'loginSuccess')

@@ -95,7 +95,7 @@ const appStore = useAppStore();
 const locationStore = useLocationStore(); // 위치 스토어 초기화
 
 const showSplash = ref(true);
-const SPLASH_DURATION = 2500; // 2.5초
+const SPLASH_DURATION = 1200; // 1.2초
 
 onMounted(() => {
   appStore.setShowLayout(false);
@@ -115,7 +115,7 @@ const goTo = (path) => {
 };
 
 /**
- * [수정된 기능]: '우리 동네' 버튼 클릭 핸들러
+ * '우리 동네' 버튼 클릭 핸들러
  * LocationSettingsView의 '내 위치로' 버튼과 동일하게 Geolocation API를 호출하여
  * 현재 위치를 받아오고 Pinia Store에 저장합니다. (화면 이동 없음)
  */

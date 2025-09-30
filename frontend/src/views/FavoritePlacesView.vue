@@ -24,11 +24,11 @@
             <p class="small">{{ place.description }}</p>
           </div>
           <div class="card-footer d-flex justify-content-between">
-            <button class="btn btn-sm btn-danger" @click="confirmRemove(place.id, place.name)">
-              <i class="fas fa-times me-1"></i> 제거
-            </button>
             <button class="btn btn-sm btn-primary" @click="confirmViewOnMap(place.name)">
               <i class="fas fa-map me-1"></i> 지도 보기
+            </button>
+            <button class="btn btn-sm btn-danger" @click="confirmRemove(place.id, place.name)">
+              <i class="fas fa-times me-1"></i> 제거
             </button>
           </div>
         </div>

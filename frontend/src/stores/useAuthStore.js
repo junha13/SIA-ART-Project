@@ -7,13 +7,13 @@ export const useAuthStore = defineStore('auth', () => {
     const user = ref(JSON.parse(localStorage.getItem('user_info')) || {
         name: "게스트",
         role: "비회원",
-        profileImage: "assets/media/avatars/default.jpg"
+        profileImage: "public/assets/media/svg/illustrations/easy/3.svg"
     })
 
     // 2. 액션: 로그인/로그아웃 처리
     const login = (userData, token) => {
         // 실제 API 호출 후 데이터 저장
-        user.value = userData || { name: "테스트 사용자", role: "일반 사용자", profileImage: "assets/media/avatars/300-1.jpg" }
+        user.value = userData || { name: "김준하", role: "예술가", profileImage: "public/assets/media/stock/600x600/img-63.jpg" }
         isAuthenticated.value = true
         localStorage.setItem('user_info', JSON.stringify(user.value))
         localStorage.setItem('user_token', token || 'dummy-token-123')
@@ -21,7 +21,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     const logout = () => {
         isAuthenticated.value = false
-        user.value = { name: "게스트", role: "비회원", profileImage: "assets/media/avatars/default.jpg" }
+        user.value = { name: "게스트", role: "비회원", profileImage: "public/assets/media/svg/avatars/001-boy.svg" }
         localStorage.removeItem('user_info')
         localStorage.removeItem('user_token')
     }

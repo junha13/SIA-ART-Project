@@ -30,10 +30,10 @@
           </div>
 
           <div class="ms-auto d-flex gap-2">
-            <button class="btn btn-outline-dark btn-sm" @click="viewProfile(artist.id)">
+            <button class="btn btn-light-facebook btn-sm" @click="viewProfile(artist.id)">
               프로필
             </button>
-            <button class="btn btn-dark btn-sm" @click="confirmUnfollow(artist.id, artist.name)">
+            <button class="btn btn-light-instagram btn-sm" @click="confirmUnfollow(artist.id, artist.name)">
               언팔로우
             </button>
           </div>

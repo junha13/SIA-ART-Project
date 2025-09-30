@@ -72,7 +72,7 @@
               </div>
               <div class="p-4 flex-grow-1 d-flex flex-column justify-content-between">
                 <div>
-                  <h5 class="fw-bolder mb-2 text-gray-900 text-truncate">제품명: {{ artwork.title }}</h5>
+                  <h5 class="fw-bolder mb-2 text-gray-900 text-truncate">작품명: {{ artwork.title }}</h5>
                   <div class="mb-2">
                     <span class="text-gray-700 fw-semibold">가격: </span>
                     <span class="text-dark fw-bolder fs-6">{{ artwork.price.toLocaleString() }}원</span>

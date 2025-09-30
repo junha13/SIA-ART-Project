@@ -111,10 +111,10 @@ const appStore = useAppStore()
 const isDrawerOpen = ref(false)
 
 const navItems = ref([
-  { path: '/', label: '홈', iconClass: 'fas fa-home' },
-  { path: '/archive-map', label: '지도', iconClass: 'fas fa-map-marked-alt' },
   { path: '/artworks', label: '작품', iconClass: 'fas fa-palette' },
   { path: '/board', label: '커뮤니티', iconClass: 'fas fa-comments' },
+  { path: '/', label: '홈', iconClass: 'fas fa-home' },
+  { path: '/archive-map', label: '지도', iconClass: 'fas fa-map-marked-alt' },
   { path: '/mypage', label: '마이', iconClass: 'fas fa-user' },
 ])
 

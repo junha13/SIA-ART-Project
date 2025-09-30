@@ -60,7 +60,8 @@
           <!-- 파일 첨부 -->
           <div class="mb-8">
             <label class="form-label fw-bold text-gray-800">사진 및 파일 첨부</label>
-            <div class="d-flex flex-column border border-dashed border-gray-300 rounded-2 p-5 text-center bg-light-primary">
+            <!-- ⭐ 배경색을 bg-light-primary에서 bg-gray-100으로 변경 -->
+            <div class="d-flex flex-column border border-dashed border-gray-300 rounded-2 p-5 text-center bg-gray-100">
                 <label for="file-upload" class="d-flex flex-column align-items-center justify-content-center" style="cursor: pointer;">
                     <i class="ki-duotone ki-cloud-download fs-2tx text-primary mb-3"></i>
                     <div class="fw-semibold text-gray-600">
@@ -85,7 +86,8 @@
                   class="badge bg-secondary text-white p-2 rounded-pill fs-7 fw-semibold"
               >
                 #{{ tag }}
-                <i class="ki-duotone ki-cross-circle fs-5 ms-1" style="cursor: pointer;" @click="removeTag(index)"></i>
+                <!-- ⭐ 태그 삭제 아이콘 색상을 text-danger로 변경하여 시인성 확보 -->
+                <i class="ki-duotone ki-cross-circle fs-5 ms-1 text-danger" style="cursor: pointer;" @click="removeTag(index)"></i>
               </span>
             </div>
             <input

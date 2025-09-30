@@ -1,26 +1,26 @@
 <template>
   <div class="app-content flex-column-fluid">
-    <div class="app-container-fluid"> 
+    <div class="app-container-fluid">
       <div class="d-flex align-items-center justify-content-between px-3 pt-5 pb-3 border-bottom mb-5">
-        
+
         <i class="ki-duotone ki-arrow-left fs-2 text-dark" style="cursor: pointer;" @click="goBack"></i>
-        
+
         <h1 class="page-heading d-flex align-items-center justify-content-center text-dark fw-bold fs-3 m-0 position-absolute start-50 translate-middle-x">
           게시판
         </h1>
-        
+
         <i class="ki-duotone ki-dots-vertical fs-2 text-dark" style="cursor: pointer;"></i>
       </div>
-      
+
       <div class="mb-5 px-3">
-        
+
         <div class="d-flex justify-content-center mb-5">
           <div class="input-group w-100 mw-500px border border-gray-500 rounded-2">
-            
-            <button class="btn btn-secondary dropdown-toggle text-dark fw-bold" 
-                    type="button" 
-                    data-bs-toggle="dropdown" 
-                    aria-expanded="false" 
+
+            <button class="btn btn-secondary dropdown-toggle text-dark fw-bold"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
                     style="border-top-left-radius: .475rem; border-bottom-left-radius: .475rem;">
               {{ getSearchFieldName(searchField) }}
             </button>
@@ -32,15 +32,15 @@
               <li><a class="dropdown-item" href="#" @click.prevent="searchField = 'comment'">댓글</a></li>
             </ul>
 
-            <input type="text" 
-                   class="form-control border-0 bg-white" 
-                   placeholder="검색어를 입력하세요" 
-                   v-model="searchQuery" 
-                   @keyup.enter="searchPosts" 
+            <input type="text"
+                   class="form-control border-0 bg-white"
+                   placeholder="검색어를 입력하세요"
+                   v-model="searchQuery"
+                   @keyup.enter="searchPosts"
                    style="height: 40px; border-top-left-radius: 0; border-bottom-left-radius: 0;"/>
           </div>
         </div>
-        
+
         <div class="d-flex align-items-center justify-content-between mb-5">
           <div class="d-flex overflow-auto flex-nowrap me-3">
             <button v-for="cat in categories" :key="cat"
@@ -55,20 +55,20 @@
         </div>
 
         <div class="d-flex align-items-center fw-bold fs-7 text-gray-600 mb-3">
-            <span 
-                class="me-3 cursor-pointer" 
+            <span
+                class="me-3 cursor-pointer"
                 :class="{ 'text-dark': selectedBoardType === '전체글' }"
                 @click="selectedBoardType = '전체글'">
                 전체글
             </span>
-            <span 
-                class="me-3 cursor-pointer" 
+            <span
+                class="me-3 cursor-pointer"
                 :class="{ 'text-dark': selectedBoardType === '인기글' }"
                 @click="selectedBoardType = '인기글'">
                 인기글
             </span>
-            <span 
-                class="me-3 cursor-pointer" 
+            <span
+                class="me-3 cursor-pointer"
                 :class="{ 'text-dark': selectedBoardType === '공지사항' }"
                 @click="selectedBoardType = '공지사항'">
                 공지사항
@@ -84,7 +84,7 @@
                 <i v-if="sortColumn === 'id'" :class="sortDirection === 'asc' ? 'ki-duotone ki-up fs-7' : 'ki-duotone ki-down fs-7'"></i>
               </th>
               <th class="w-100px text-start">분류</th>
-              <th class="min-w-250px text-start">제목</th> 
+              <th class="min-w-250px text-start">제목</th>
               <th class="w-100px text-start cursor-pointer" @click="sortBy('author')">글쓴이</th>
               <th class="w-70px text-end cursor-pointer" @click="sortBy('likes')">
                 추천
@@ -161,8 +161,8 @@ import ConfirmModal from '../components/ConfirmModal.vue'
 const router = useRouter()
 const searchQuery = ref("")
 const selectedCategory = ref("전체")
-const selectedBoardType = ref("전체글") 
-const searchField = ref("title_content") 
+const selectedBoardType = ref("전체글")
+const searchField = ref("title_content")
 
 const sortColumn = ref("id")
 const sortDirection = ref("desc")
@@ -184,7 +184,7 @@ const posts = ref([
 const filteredPosts = computed(() => {
   let filtered = posts.value.filter(post => {
     const matchCategory = selectedCategory.value === "전체" || post.category === selectedCategory.value
-    
+
     const query = searchQuery.value.toLowerCase()
     let matchSearch = true
 
@@ -201,7 +201,7 @@ const filteredPosts = computed(() => {
         matchSearch = post.comments.toLowerCase().includes(query)
       }
     }
-    
+
     return matchCategory && matchSearch
   })
 
@@ -210,7 +210,7 @@ const filteredPosts = computed(() => {
   } else if (selectedBoardType.value === '공지사항') {
     filtered = filtered.filter(post => post.category === '공지')
   }
-  
+
   return filtered
 })
 
@@ -224,7 +224,7 @@ const sortedAndFilteredPosts = computed(() => {
         let comparison = 0
         if (valA > valB) comparison = 1
         else if (valA < valB) comparison = -1
-        
+
         return sortDirection.value === 'asc' ? comparison : comparison * -1
     })
 
@@ -236,7 +236,7 @@ const sortBy = (column) => {
         sortDirection.value = sortDirection.value === 'asc' ? 'desc' : 'asc'
     } else {
         sortColumn.value = column
-        sortDirection.value = 'desc' 
+        sortDirection.value = 'desc'
     }
 }
 

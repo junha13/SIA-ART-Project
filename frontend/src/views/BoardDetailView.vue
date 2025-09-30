@@ -1,18 +1,18 @@
 <template>
   <div class="app-content flex-column-fluid">
     <div class="app-container-fluid">
-      
+
       <!-- 상단 헤더: 통일된 디자인 -->
       <div class="d-flex align-items-center justify-content-between pt-5 pb-3 mb-5 border-bottom px-3">
-        
+
         <button class="btn btn-icon btn-active-light-primary w-30px h-30px" @click="$router.back()">
           <i class="ki-duotone ki-arrow-left fs-2 text-gray-800"></i>
         </button>
-        
+
         <h1 class="page-heading d-flex flex-column justify-content-center text-dark fw-bold fs-3 m-0 position-absolute start-50 translate-middle-x">
           게시글 상세
         </h1>
-        
+
         <i class="ki-duotone ki-dots-vertical fs-2 text-gray-800" style="cursor: pointer;"></i>
       </div>
 
@@ -148,9 +148,9 @@ const showModal = (title, message, type = 'info', autoHide = true) => {
   isModalVisible.value = true
 }
 
-// 임시 데이터 
+// 임시 데이터
 const post = ref({
-  id: route.params.id || 123, 
+  id: route.params.id || 123,
   category: "미술",
   title: "최종 디자인이 적용된 게시글 상세 페이지입니다.",
   author: "김작가",
@@ -175,7 +175,7 @@ onMounted(() => {
 const addComment = () => {
   if (newComment.value.trim() !== "") {
     comments.value.push({
-      author: "나", 
+      author: "나",
       text: newComment.value.trim(),
       date: "방금"
     })
@@ -217,7 +217,7 @@ const handleDelete = () => {
 }
 .page-heading.position-absolute {
     z-index: 10;
-    max-width: 70%; 
+    max-width: 70%;
     text-align: center;
 }
 
@@ -232,8 +232,8 @@ const handleDelete = () => {
 /* ⭐ 추천 버튼의 배경색 (Dark 스타일 통일) */
 /* btn-primary의 덮어쓰기 규칙을 Dark로 통일 */
 .btn-primary {
-    background-color: var(--bs-dark) !important; 
-    border-color: var(--bs-dark) !important;     
+    background-color: var(--bs-dark) !important;
+    border-color: var(--bs-dark) !important;
     color: #fff !important;
 }
 

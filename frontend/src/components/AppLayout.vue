@@ -30,7 +30,7 @@
                  currentRoute === item.path ? 'text-primary' : 'text-muted']"
           @click="router.push(item.path)"
           style="font-size: 0.9rem; line-height: 1;" >
-        <i :class="[item.iconClass, 'fs-4']"></i> <span>{{ item.label }}</span>
+        <i :class="[item.iconClass, 'fs-4']"></i> <span style="font-size: 13px;">{{ item.label }}</span>
       </button>
     </div>
 

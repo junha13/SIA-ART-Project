@@ -1,5 +1,5 @@
 <template>
-  <div class="container py-5">
+  <div class="container py-5 my-20">
     <!-- Header -->
     <div class="d-flex align-items-center mb-6">
       <button class="btn btn-light btn-sm me-3" @click="$router.back()">
@@ -84,6 +84,7 @@ const showModal = (title, message, type = 'info', action = null, id = null, conf
 // Mock Data
 const favorites = ref([
   { id: 1, title: '추상화 작품', artist: '홍길동', shortDescription: '강렬한 색채가 특징인 현대 추상화', image: 'https://via.placeholder.com/400x250/F5A9A9/fff?text=Abstract+Art' },
+  { id: 2, title: '풍경화', artist: '이화가', shortDescription: '자연의 아름다움을 담은 풍경화', image: 'https://via.placeholder.com/400x250/A9F5A9/000?text=Landscape+Art' },
   { id: 2, title: '풍경화', artist: '이화가', shortDescription: '자연의 아름다움을 담은 풍경화', image: 'https://via.placeholder.com/400x250/A9F5A9/000?text=Landscape+Art' }
 ])
 

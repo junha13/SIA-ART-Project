@@ -1,5 +1,5 @@
 <template>
-  <div class="container py-4">
+  <div class="container py-4 mt-20">
 
     <!-- 상단 헤더 -->
     <div class="d-flex align-items-center mb-3">
@@ -40,6 +40,10 @@
 
       <div class="mb-3">
         <input type="text" v-model="form.subtitle" class="form-control" placeholder="부제" />
+      </div>
+
+      <div class="mb-3">
+        <input type="text" v-model="form.subtitle" class="form-control" placeholder="위치" />
       </div>
 
       <div class="mb-3">

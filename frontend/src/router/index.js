@@ -22,7 +22,7 @@ import ArtworkListView from "../views/ArtworkListView.vue"
 import BoardListView from "../views/BoardListView.vue"
 import BoardWriteView from "../views/BoardWriteView.vue"
 import BoardDetailView from "../views/BoardDetailView.vue"
-
+import ArtistListView from "../views/ArtistListView.vue"
 
 const router = createRouter({
     history: createWebHistory(),
@@ -118,6 +118,10 @@ const router = createRouter({
         {
             path: "/board/:id", name: "board-detail",
             component: BoardDetailView, props: true
+        },
+        {
+            path: "/artist/list", name: "artist-list",
+            component: ArtistListView, props: true
         },
          {
     path: '/board/edit', name: 'board-edit',

@@ -1,5 +1,5 @@
 <template>
-  <div class="app-content flex-column-fluid">
+  <div class="app-content flex-column-fluid mt-10 mb-20">
     <div class="app-container-fluid">
       
       <!-- 상단 헤더: 게시판 뷰와 디자인 통일 (중앙 제목) -->

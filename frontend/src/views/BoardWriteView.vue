@@ -1,5 +1,5 @@
 <template>
-  <div class="app-content flex-column-fluid">
+  <div class="app-content flex-column-fluid my-12">
     <div class="app-container-fluid">
       
       <!-- 상단 헤더: 제목 동적 변경 및 디자인 유지 -->

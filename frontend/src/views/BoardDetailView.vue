@@ -1,18 +1,19 @@
 <template>
-  <div class="app-content flex-column-fluid">
+  <div class="app-content flex-column-fluid mt-10 mb-17">
     <div class="app-container-fluid">
-      
+
       <!-- 상단 헤더: 통일된 디자인 -->
       <div class="d-flex align-items-center justify-content-between pt-5 pb-3 mb-5 border-bottom px-3">
-        
+
         <button class="btn btn-icon btn-active-light-primary w-30px h-30px" @click="router.back()">
           <i class="ki-duotone ki-arrow-left fs-2 text-gray-800"></i>
         </button>
-        
+
+        <!-- ⭐ H1 태그의 제목 중앙 정렬 및 안전 영역 확보 -->
         <h1 class="page-heading d-flex flex-column justify-content-center text-dark fw-bold fs-3 m-0 position-absolute start-50 translate-middle-x header-title-safe">
           게시글 상세
         </h1>
-        
+
         <i class="ki-duotone ki-dots-vertical fs-2 text-gray-800" style="cursor: pointer;"></i>
       </div>
 
@@ -45,6 +46,7 @@
         <div class="mb-5">
           <p class="text-gray-800 fs-4 lh-lg">{{ post.content }}</p>
           <div v-if="post.image" class="mt-5 text-center">
+            <!-- ⭐ 더미 사진 추가 -->
             <img :src="post.image" alt="첨부 이미지" class="img-fluid rounded shadow-lg border border-gray-300" />
           </div>
         </div>
@@ -87,11 +89,8 @@
                 class="form-control me-3 form-control-solid rounded-2 border border-gray-300"
                 placeholder="댓글을 입력하세요"
                 @keyup.enter="addComment"
-                style="height: 38px;"
             />
-            <button class="btn btn-dark btn-sm fw-bold text-nowrap" @click="addComment" style="height: 38px;">
-                <span class="fs-6">등록</span> 
-            </button>
+            <button class="btn btn-dark fw-bold text-nowrap" @click="addComment">등록</button>
           </div>
 
           <!-- 댓글 리스트 -->
@@ -143,11 +142,6 @@ const modalMessage = ref('')
 const modalType = ref('info')
 const modalAutoHide = ref(true)
 
-// router.back() 대신 router를 직접 사용하도록 수정
-const goBack = () => {
-    router.back()
-}
-
 const showModal = (title, message, type = 'info', autoHide = true) => {
   modalTitle.value = title
   modalMessage.value = message
@@ -156,9 +150,9 @@ const showModal = (title, message, type = 'info', autoHide = true) => {
   isModalVisible.value = true
 }
 
-// 임시 데이터 
+// 임시 데이터
 const post = ref({
-  id: route.params.id || 123, 
+  id: route.params.id || 123,
   category: "미술",
   title: "최종 디자인이 적용된 게시글 상세 페이지입니다.",
   author: "김작가",
@@ -167,7 +161,7 @@ const post = ref({
   views: 123,
   date: "2025.09.29",
   tags: ["미술", "UX개선", "Metronic", "Dark"],
-  image: "https://via.placeholder.com/600x300/6963FF/fff?text=UX+OPTIMIZED+IMAGE"
+  image: "https://placehold.co/600x300/F5A9A9/fff?text=ATTACHED+IMAGE" // 더미 이미지
 })
 
 const comments = ref([
@@ -183,7 +177,7 @@ onMounted(() => {
 const addComment = () => {
   if (newComment.value.trim() !== "") {
     comments.value.push({
-      author: "나", 
+      author: "나",
       text: newComment.value.trim(),
       date: "방금"
     })
@@ -224,7 +218,7 @@ const handleDelete = () => {
     position: relative; /* 중앙 정렬 제목의 기준점 */
 }
 
-/* ⭐ 헤더 제목 안전 영역 확보 */
+/* ⭐ 헤더 제목 안전 영역 확보: max-width를 50%로 축소하여 좌우 버튼 영역 침범 방지 */
 .page-heading.position-absolute {
     z-index: 10;
     max-width: 50%;
@@ -243,8 +237,8 @@ const handleDelete = () => {
 
 /* 추천 버튼의 배경색 (Dark 스타일 통일) */
 .btn-primary {
-    background-color: var(--bs-dark) !important; 
-    border-color: var(--bs-dark) !important;     
+    background-color: var(--bs-dark) !important;
+    border-color: var(--bs-dark) !important;
     color: #fff !important;
 }
 

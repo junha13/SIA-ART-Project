@@ -20,13 +20,13 @@
         <!-- 폼 -->
         <form @submit.prevent="submitLogin" class="pt-2">
           <div class="mb-3">
-            <input type="text" v-model="email"
+            <input type="text" v-model="loginData.loginId"
                    class="form-control form-control-lg rounded-3 border-2 shadow-none"
                    placeholder="아이디 or 이메일" required />
           </div>
 
           <div class="mb-3">
-            <input type="password" v-model="password"
+            <input type="password" v-model="loginData.loginPw"
                    class="form-control form-control-lg rounded-3 border-2 shadow-none"
                    placeholder="비밀번호" required />
           </div>
@@ -69,10 +69,11 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import ConfirmModal from '../components/ConfirmModal.vue'
 import { useAuthStore } from '@/stores/useAuthStore'
+import axios from 'axios'
 
 const router = useRouter()
-const email = ref('')
-const password = ref('')
+//const email = ref('')
+//const password = ref('')
 const authStore = useAuthStore()
 
 const isModalVisible = ref(false)
@@ -81,6 +82,12 @@ const modalMessage = ref('')
 const modalType = ref('info')
 const modalAutoHide = ref(true)
 const modalAction = ref(null)
+const loading = ref(false)
+
+const loginData = ref({
+  loginId: '',
+  loginPw: ''
+})
 
 const showModal = (title, message, type = 'info', action = null, autoHide = true) => {
   modalTitle.value = title
@@ -91,17 +98,34 @@ const showModal = (title, message, type = 'info', action = null, autoHide = true
   isModalVisible.value = true
 }
 
-const submitLogin = () => {
-  if (email.value === 'test' && password.value === '1234') {
-    authStore.login(
-      { name: '김준하', role: '예술가님', profileImage: 'public/assets/media/stock/600x600/img-63.jpg' },
-      'sample-jwt-token'
-    )
-    showModal('로그인 성공', `${email.value}님, 환영합니다!`, 'success', 'loginSuccess')
-  } else if (email.value && password.value) {
-    showModal('로그인 실패', '아이디 또는 비밀번호가 올바르지 않습니다.', 'error')
-  } else {
+const submitLogin = async () => {
+  if (!loginData.value.loginId?.trim() || !loginData.value.loginPw?.trim()) {
     showModal('로그인 오류', '아이디/이메일과 비밀번호를 모두 입력해주세요.', 'error')
+    return
+  }
+  loading.value = true
+  try {
+    const { data, status } = await axios.post('/api/login', {
+      loginId: loginData.value.loginId.trim(),
+      loginPw: loginData.value.loginPw.trim()
+    })
+    if (status === 200 && typeof data?.userId === 'number') {
+      sessionStorage.setItem('userId', String(data.userId))
+      // 필요하다면 loginId도 저장 가능
+      // sessionStorage.setItem('loginId', loginData.value.loginId)
+      showModal('로그인 성공', '환영합니다!', 'success', 'loginSuccess')
+    } else {
+      showModal('로그인 실패', '서버 응답이 올바르지 않습니다.', 'error')
+      console.error('Unexpected response:', data)
+    }
+  } catch (err) {
+    const msg = err?.response?.data?.error
+      || (typeof err?.response?.data === 'string' ? err.response.data : null)
+      || '아이디 또는 비밀번호가 올바르지 않습니다.'
+    showModal('로그인 실패', msg, 'error')
+    console.error('Login error:', err)
+  } finally {
+    loading.value = false
   }
 }
 

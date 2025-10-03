@@ -1,6 +1,8 @@
 package lx.team2.backend.feature.artwork;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,7 +15,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ArtworkService {
 
-    private final ArtworkMapper artworkMapper;
+	@Autowired
+    private ArtworkMapper artworkMapper;
 
     public void saveArtwork(String title, Double lat, Double lng, MultipartFile image) {
         String uploadPath = "uploads/";

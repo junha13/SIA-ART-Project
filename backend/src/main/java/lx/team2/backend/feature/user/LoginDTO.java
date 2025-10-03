@@ -1,7 +1,5 @@
 package lx.team2.backend.feature.user;
 
-import java.time.LocalDate;
-
 public class LoginDTO {
 	/*
 	 * 정보를 넘길때 사용.

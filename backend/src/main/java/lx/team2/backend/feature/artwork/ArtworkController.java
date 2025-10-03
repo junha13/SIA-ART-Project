@@ -1,6 +1,8 @@
 package lx.team2.backend.feature.artwork;
 
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,7 +14,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ArtworkController {
 
-    private final ArtworkService artworkService;
+	@Autowired
+    private ArtworkService artworkService;
 
     @PostMapping
     public ResponseEntity<?> upload(

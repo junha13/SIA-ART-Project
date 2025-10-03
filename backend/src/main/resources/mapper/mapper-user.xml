@@ -2,10 +2,22 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="mapper-user">
 
-    <insert id="insertUser" parameterType="lx.team2.backend.feature.user.UserVO">
-        INSERT INTO users (username, password, role)
-        VALUES (#{username}, #{password}, #{role})
-    </insert>
+	<!-- 로그인 -->
+	<!-- id와 비밀번호가 모두 DB에 있다면 결과의 userId를 뱉는다. -->
+	<select id="getUserIdByLogin" resultType="int">
+    	SELECT user_id
+    	FROM users
+    	WHERE (login_id = #{loginId} OR email = #{loginId})
+      		AND password = #{loginPw}
+	</select>
+
+
+	<!-- 회원가입 -->
+	<insert id="insertUser"
+		parameterType="lx.team2.backend.feature.user.UserVO">
+		INSERT INTO users (username, password, role)
+		VALUES (#{username}, #{password}, #{role})
+	</insert>
 
 
 </mapper>

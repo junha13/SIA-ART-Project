@@ -110,6 +110,7 @@ const submitLogin = async () => {
       loginPw: loginData.value.loginPw.trim()
     })
     if (status === 200 && typeof data?.userId === 'number') {
+      authStore.login(data.token); // 스토어를 통해 로그인 상태 업데이트
       sessionStorage.setItem('userId', String(data.userId))
       // 필요하다면 loginId도 저장 가능
       // sessionStorage.setItem('loginId', loginData.value.loginId)

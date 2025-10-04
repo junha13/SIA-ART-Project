@@ -55,13 +55,15 @@ public class UserController {
 		int userId = userService.getUserIdByLogin(dto);
 
 		// 인증 성공 여부 확인
-		if (userId > 0) {
-            // 성공 시 userId를 JSON으로 리턴
-            return ResponseEntity.ok().body(userId);
+        if (userId > 0) {
+            // 성공 시 { userId: <id> } 형태로 응답
+            java.util.Map<String, Integer> resp = new java.util.HashMap<>();
+            resp.put("userId", userId);
+            return ResponseEntity.ok().body(resp);
         } else {
-			// 로그인 실패 시 401 Unauthorized
-			return ResponseEntity.status(401).body("로그인 실패: 아이디 또는 비밀번호가 올바르지 않습니다.");
-		}
+            // 로그인 실패 시 401 Unauthorized
+            return ResponseEntity.status(401).body("로그인 실패: 아이디 또는 비밀번호가 올바르지 않습니다.");
+        }
 
 	}
 

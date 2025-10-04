@@ -5,8 +5,8 @@
 	<!-- 로그인 -->
 	<!-- id와 비밀번호가 모두 DB에 있다면 결과의 userId를 뱉는다. -->
 	<select id="getUserIdByLogin" resultType="int">
-    	SELECT user_number FROM tb_user
-		WHERE users.id = #{loginId} OR email = #{loginId} AND password = #{loginPw}
+	    SELECT user_number FROM tb_user
+	    WHERE (id = #{loginId} OR email = #{loginId}) AND password = #{loginPw}
 	</select>
 
 	<!-- 회원가입 -->

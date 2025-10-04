@@ -11,12 +11,27 @@ export const useAuthStore = defineStore('auth', () => {
     })
 
     // 2. 액션: 로그인/로그아웃 처리
-    const login = (userData, token) => {
-        // 실제 API 호출 후 데이터 저장
+    // remember: true -> persist to localStorage, false -> sessionStorage
+    const login = (userData, token, remember = false) => {
         user.value = userData || { name: "테스트 사용자", role: "일반 사용자", profileImage: "assets/media/avatars/300-1.jpg" }
         isAuthenticated.value = true
-        localStorage.setItem('user_info', JSON.stringify(user.value))
-        localStorage.setItem('user_token', token || 'dummy-token-123')
+
+        const userJson = JSON.stringify(user.value)
+        const accessToken = token || 'dummy-token-123'
+
+        if (remember) {
+            localStorage.setItem('user_info', userJson)
+            localStorage.setItem('user_token', accessToken)
+            // clear any session storage copies
+            sessionStorage.removeItem('user_info')
+            sessionStorage.removeItem('user_token')
+        } else {
+            sessionStorage.setItem('user_info', userJson)
+            sessionStorage.setItem('user_token', accessToken)
+            // clear any local storage copies
+            localStorage.removeItem('user_info')
+            localStorage.removeItem('user_token')
+        }
     }
 
     const logout = () => {
@@ -24,6 +39,8 @@ export const useAuthStore = defineStore('auth', () => {
         user.value = { name: "게스트", role: "비회원", profileImage: "assets/media/avatars/default.jpg" }
         localStorage.removeItem('user_info')
         localStorage.removeItem('user_token')
+        sessionStorage.removeItem('user_info')
+        sessionStorage.removeItem('user_token')
     }
 
     // 3. Getter

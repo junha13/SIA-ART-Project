@@ -111,7 +111,7 @@ const submitLogin = async () => {
     })
     if (status === 200 && typeof data?.userId === 'number') {
       authStore.login(data.token); // 스토어를 통해 로그인 상태 업데이트
-      //sessionStorage.setItem('userId', String(data.userId))
+      sessionStorage.setItem('userId', String(data.userId))
       // 필요하다면 loginId도 저장 가능
       // sessionStorage.setItem('loginId', loginData.value.loginId)
       showModal('로그인 성공', '환영합니다!', 'success', 'loginSuccess')

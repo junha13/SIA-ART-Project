@@ -20,14 +20,9 @@ public class UserVO {
 	private String mobile;
 	private String email;
 	private LocalDate birthday;
-    private String roleNumber; // role_number
-	private int locationId;
+    private int roleNumber; // role_number, 1: 사용자, 2: 여술가
     private double locationLon; // location 경도
 	private double locationLat; // location 위도
-	private String[] interestsList;
-
-	public String[] getInterestsList() {
-		return interestsList;
-	}
+	private String interestsList; // interests_list
 	
 }

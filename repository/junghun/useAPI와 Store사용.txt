@@ -1,0 +1,35 @@
+useAPI와 Pinia를 결합해서 앞단에서 백단과 연결하는 것은
+
+1. 상태관리 (pinia)
+2.비동기 데이터 패치(Data Fetching)의 분리
+
+를 통해 이루어짐
+
+
+1.pinia
+- 애플리케이션의 상태(State)
+- 상태를 변경하는 액션(Action)
+- 상태를 조회하는 게터(Getter)
+를 관리함
+
+API 통신은 주로 Action에서 일어남
+
+1) Action (비즈니스 로직 및 API 호출 담당)
+
+
+2)State (데이터 저장소)
+API 호출을 통해 받은 데이터는 Store의 ref() 상태에 저장됨
+2API 호출을 통해 받은 데이터의 상태가 백엔드에서 온 데이터로 채워짐
+
+3)Getter (데이터 조회)
+
+크롬 확장기능(.js로) 문서 비교
+
+NFT
+DevOps
+영상처리
+딥러닝
+MSA
+SPA
+데이터다루기
+VR/AR

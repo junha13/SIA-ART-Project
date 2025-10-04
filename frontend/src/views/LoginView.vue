@@ -80,7 +80,6 @@ const modalMessage = ref('')
 const modalType = ref('info')
 const modalAutoHide = ref(true)
 const modalAction = ref(null)
-const loading = ref(false)
 
 const loginData = ref({
   loginId: '',
@@ -101,16 +100,12 @@ const submitLogin = async () => {
     showModal('로그인 오류', '아이디/이메일과 비밀번호를 모두 입력해주세요.', 'error')
     return
   }
-  loading.value = true
   try {
-    const { data, status } = await axios.post('/api/login', {
+    const { data, status } = await axios.post('/api/user/login', {
       loginId: loginData.value.loginId.trim(),
       loginPw: loginData.value.loginPw.trim()
     })
     if (status === 200 && typeof data?.userId === 'number') {
-      sessionStorage.setItem('userId', String(data.userId))
-      // 필요하다면 loginId도 저장 가능
-      // sessionStorage.setItem('loginId', loginData.value.loginId)
       showModal('로그인 성공', '환영합니다!', 'success', 'loginSuccess')
     } else {
       showModal('로그인 실패', '서버 응답이 올바르지 않습니다.', 'error')
@@ -122,9 +117,6 @@ const submitLogin = async () => {
       || '아이디 또는 비밀번호가 올바르지 않습니다.'
     showModal('로그인 실패', msg, 'error')
     console.error('Login error:', err)
-  } finally {
-    loading.value = false
-  }
 }
 
 const handleModalConfirm = () => {

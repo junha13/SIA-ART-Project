@@ -2,9 +2,11 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
 export const useAuthStore = defineStore('auth', () => {
-    // 1. 상태: 인증 및 사용자 정보 (localStorage에서 초기 로드)
-    const isAuthenticated = ref(!!localStorage.getItem('user_token'))
-    const user = ref(JSON.parse(localStorage.getItem('user_info')) || {
+    // 1. 상태: 인증 및 사용자 정보 (localStorage 또는 sessionStorage에서 초기 로드)
+    const storedToken = localStorage.getItem('user_token') || sessionStorage.getItem('user_token')
+    const storedUserJson = localStorage.getItem('user_info') || sessionStorage.getItem('user_info')
+    const isAuthenticated = ref(!!storedToken)
+    const user = ref(storedUserJson ? JSON.parse(storedUserJson) : {
         name: "게스트",
         role: "비회원",
         profileImage: "assets/media/avatars/default.jpg"
@@ -43,9 +45,11 @@ export const useAuthStore = defineStore('auth', () => {
         sessionStorage.removeItem('user_token')
     }
 
-    // 3. Getter
+    // 3. Getter / alias for compatibility
     const getUser = computed(() => user.value)
     const getIsAuthenticated = computed(() => isAuthenticated.value)
+    // 기존 컴포넌트에서 사용하던 이름 호환성 유지
+    const isLoggedIn = computed(() => isAuthenticated.value)
 
     return {
         user,

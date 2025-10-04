@@ -327,15 +327,11 @@ import QuillForm from '@/components/Editor.vue'
     const html = editorRef.value?.getContent() || ''
 
     const params = {
-      post: {
         title: postData.value.title,
         content:html,
-      },
-      board: {
         regionName:boardData.value.regionName,
         boardCategoryName:boardData.value.boardCategoryName,
         postCategoryName:boardData.value.postCategoryName
-      }
     }
     try {
       const response = await axios.post(`http://localhost:8080/api/post/post`, 

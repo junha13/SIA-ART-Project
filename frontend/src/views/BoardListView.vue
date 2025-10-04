@@ -102,11 +102,11 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="post in sortedAndFilteredPosts" :key="post.id" @click="goDetail(post.id)" style="cursor:pointer"
+            <tr v-for="post in sortedAndFilteredPosts" :key="post.postNumber" @click="goDetail(post.postNumber)" style="cursor:pointer"
                 :class="{ 'bg-hover-light-primary': post.category === '공지' }">
-              <td class="text-start"><span class="text-gray-600 fw-semibold d-block">{{ post.id }}</span></td>
+              <td class="text-start"><span class="text-gray-600 fw-semibold d-block">{{ post.postNumber }}</span></td>
               <td class="text-start">
-                <span class="fw-bold">{{ post.category }}</span>
+                <span class="fw-bold">{{ post.postCategoryName }}</span>
               </td>
               <td class="text-start">
                 <a href="#" class="text-gray-800 fw-bold text-hover-primary fs-6 me-2">
@@ -117,16 +117,16 @@
               <td class="text-end">
                 <span class="text-gray-600 fw-semibold d-block fs-7">
                   <i class="ki-duotone ki-heart fs-7 me-1 text-danger"></i>
-                  {{ post.likes }}
+                  {{ post.recommendCount }}
                 </span>
               </td>
               <td class="text-end">
                 <span class="text-gray-600 fw-semibold d-block fs-7">
                   <i class="ki-duotone ki-eye fs-7 me-1 text-info"></i>
-                  {{ post.views }}
+                  {{ post.viewCount }}
                 </span>
               </td>
-              <td class="text-start"><span class="text-gray-600 fw-semibold d-block fs-7">{{ post.date }}</span></td>
+              <td class="text-start"><span class="text-gray-600 fw-semibold d-block fs-7">{{ post.createdAt }}</span></td>
             </tr>
             </tbody>
           </table>
@@ -185,12 +185,8 @@ const modalTitle = ref('')
 const modalMessage = ref('')
 const modalType = ref('info')
 
-const posts = ref([
-  { id: 1, category: "공지", title: "게시판 규정 관련 공지사항입니다.[12]", content: "게시판 이용에 관한 주요 규정입니다. 모두 필독해주세요.", comments: "댓글 내용 1", author: "관리자", likes: 15, views: 200, date: "2025.09.27" },
-  { id: 2, category: "미술", title: "미술 빡x 요즘 미술하기 힘드네요...", content: "아이디어가 고갈되어서 힘듭니다.", comments: "아이디어가 좋네요", author: "김춘화", likes: 5, views: 120, date: "2025.09.28" },
-  { id: 3, category: "음악", title: "인기글 예시 - 조회수 높음", content: "최근 발표된 새로운 음악 트렌드 분석입니다.", comments: "노래 좋아요", author: "음악가", likes: 50, views: 500, date: "2025.09.29" },
-  { id: 4, category: "정보", title: "일반 정보글 예시", content: "유용한 웹사이트 정보를 공유합니다.", comments: "새로운 정보 감사합니다", author: "정보통", likes: 2, views: 50, date: "2025.09.20" }
-])
+const posts = ref([])
+
 
 // ⭐ 필터링 로직: 카테고리, 검색어, 게시판 타입 적용
 const filteredPosts = computed(() => {
@@ -298,12 +294,19 @@ async function requestPostList() {
           headers: { 'Content-Type': 'application/json' },
           timeout: 5000,
         })
-        console.log('OK', response.data)
+        console.log('OK', response.data.result)
+        posts.value = response.data.result
 
     } catch (e) {
       console.error('[Detail] load error:', e)
     } 
   }
+
+  //   { id: 1, category: "공지", title: "게시판 규정 관련 공지사항입니다.[12]", content: "게시판 이용에 관한 주요 규정입니다. 모두 필독해주세요.", comments: "댓글 내용 1", author: "관리자", likes: 15, views: 200, date: "2025.09.27" },
+  // { id: 2, category: "미술", title: "미술 빡x 요즘 미술하기 힘드네요...", content: "아이디어가 고갈되어서 힘듭니다.", comments: "아이디어가 좋네요", author: "김춘화", likes: 5, views: 120, date: "2025.09.28" },
+  // { id: 3, category: "음악", title: "인기글 예시 - 조회수 높음", content: "최근 발표된 새로운 음악 트렌드 분석입니다.", comments: "노래 좋아요", author: "음악가", likes: 50, views: 500, date: "2025.09.29" },
+  // { id: 4, category: "정보", title: "일반 정보글 예시", content: "유용한 웹사이트 정보를 공유합니다.", comments: "새로운 정보 감사합니다", author: "정보통", likes: 2, views: 50, date: "2025.09.20" }
+
 </script>
 
 <style scoped>

@@ -21,6 +21,8 @@ public class PostVO {
 	private int boardNumber;
 	private int userNumber;
 	
+	private int viewCount;
+	
 	// DB 추가해야됨
 	private String tags;
 	

@@ -29,7 +29,21 @@ public class PostDAO {
 	/*
 	 * ========== 게시글 리스트 뽑기 ( listview onmounted 시 필요 ) ==========
 	 */
-	public List<PostVO> selectPostList() {
+	public List<PostRequestDTO> selectPostList() {
 		return session.selectList("selectPostList");
+	}
+	
+	/*
+	 * ========== 게시글 id로 상세정보 뽑기 (detail view) ==========
+	 */
+	public PostRequestDTO selectPostDetailByPostId(int PostNumber) {
+		return session.selectOne("selectPostDetailByPostId", PostNumber);
+	}
+	
+	/*
+	 * ========== 게시글 들어갈때마다 조회수 1 증가 (detail view) ==========
+	 */
+	public int updateIncrementViewCount(int PostNumber) {
+		return session.update("updateIncrementViewCount", PostNumber);
 	}
 }

@@ -26,7 +26,24 @@
               <li><a v-for="region in regions" :key="region" class="dropdown-item"  @click.prevent="searchRegion = region">{{ region }}</a></li>
             </ul>
 
+
+
           <div class="input-group w-100 mw-500px border border-gray-500 rounded-2">
+            <!-- ⭐ 검색 필터 드롭다운 -->
+            <button class="btn btn-secondary dropdown-toggle text-dark fw-bold"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    style="border-top-left-radius: .475rem; border-bottom-left-radius: .475rem;">
+              {{ getSearchFieldName(searchField) }}
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" @click.prevent="searchField = 'title'">제목</a></li>
+              <li><a class="dropdown-item" href="#" @click.prevent="searchField = 'title_content'">제목+내용</a></li>
+              <li><a class="dropdown-item" href="#" @click.prevent="searchField = 'content'">내용</a></li>
+              <li><a class="dropdown-item" href="#" @click.prevent="searchField = 'author'">글쓴이</a></li>
+              <li><a class="dropdown-item" href="#" @click.prevent="searchField = 'comment'">댓글</a></li>
+            </ul>
 
             <!-- 검색 입력 필드 -->
             <input type="text"
@@ -34,7 +51,7 @@
                    placeholder="검색어를 입력하세요"
                    v-model="searchQuery"
                    @keyup.enter="searchPosts"
-                   style="height: 40px;"/>
+                   style="height: 40px; border-top-left-radius: 0; border-bottom-left-radius: 0;"/>
           </div>
         </div>
 
@@ -42,12 +59,12 @@
         <div class="d-flex align-items-center justify-content-between mb-5">
           <!-- 카테고리 버튼 -->
           <div class="d-flex overflow-auto flex-nowrap me-3">
-            <button v-for="categorie in artCategories" :key="categorie"
+            <button v-for="cat in artCategories" :key="cat"
                     class="btn btn-sm text-nowrap rounded-pill me-2 fw-semibold"
-                    :class="selectedCategory === categorie ? 'btn-dark text-white' : 'btn-outline-secondary text-gray-700'"
-                    @click="selectedCategory = categorie"
+                    :class="selectedCategory === cat ? 'btn-dark text-white' : 'btn-outline-secondary text-gray-700'"
+                    @click="selectedCategory = cat"
                     style="border-color: #d1d1d1;">
-              {{ categorie }}
+              {{ cat }}
             </button>
           </div>
           <button class="btn btn-dark btn-sm fw-bold text-nowrap" @click="goWrite">글쓰기</button>
@@ -156,7 +173,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue"
+import { ref, computed } from "vue"
 import { useRouter } from "vue-router"
 import ConfirmModal from '../components/ConfirmModal.vue'
 
@@ -282,28 +299,6 @@ const goDetail = (id) => {
 const goBack = () => {
   router.back()
 }
-//===========================================================================
-
-import axios from 'axios'
-
-onMounted(() => {
-  requestPostList()
-})
-
-async function requestPostList() {
-
-    try {
-      const response = await axios.post(`http://localhost:8080/api/post/getPostList`, 
-        {
-          headers: { 'Content-Type': 'application/json' },
-          timeout: 5000,
-        })
-        console.log('OK', response.data)
-
-    } catch (e) {
-      console.error('[Detail] load error:', e)
-    } 
-  }
 </script>
 
 <style scoped>

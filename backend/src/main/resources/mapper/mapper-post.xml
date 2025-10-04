@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper-post">
+
+<resultMap id="postMap" type="lx.team2.backend.feature.post.PostVO">
+  <id     column="post_number"  property="postNumber"/>
+  <result column="post_title"   property="title"/>
+  <result column="post_content" property="content"/>
+  <result column="create_at"    property="createdAt"  jdbcType="TIMESTAMP"/>
+  <result column="user_number"  property="userNumber"/>
+  <result column="board_number" property="boardNumber"/>
+</resultMap>
+
+	<!-- post insert -->
+	<insert id="insertPostDB"
+		parameterType="lx.team2.backend.feature.post.PostVO">
+		INSERT INTO tb_post (post_title, post_content, board_number, user_number, create_at)
+		VALUES (#{title}, #{content}, #{boardNumber}, #{userNumber}, now())
+	</insert>
+	
+	<!-- ========== board number select ( 게시글 insert 하려면 필요함 ) ========== -->
+	<select id="selectBoardNumber" 
+		parameterType="lx.team2.backend.feature.post.BoardVO" resultType="int">
+		Select board_number
+		from tb_board
+		where 1=1
+			and region_name = #{regionName}
+			and board_category_name = #{boardCategoryName}
+			and post_category_name = #{postCategoryName}
+		LIMIT 1
+	</select>
+	
+	<!-- ========== post list 뽑기 ========== -->
+	<select id="selectPostList" 
+		resultMap="postMap">
+		Select post_number, post_title, create_at, user_number, board_number
+		from tb_post
+		ORDER BY create_at DESC
+	</select>
+
+
+</mapper>

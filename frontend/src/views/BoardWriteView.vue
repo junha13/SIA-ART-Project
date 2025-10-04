@@ -21,15 +21,41 @@
       <!-- 메인 컨텐츠 영역 -->
       <div class="card card-flush shadow-sm mx-3 mb-5">
         <div class="card-body p-5">
+
+          <!-- 지역 선택 -->
+          <div class="mb-8">
+            <label class="form-label fw-bold text-gray-800">지역 선택</label>
+            <div class="d-flex flex-wrap gap-2">
+              <button v-for="region in regions" :key="region"
+                      class="btn btn-sm fw-semibold rounded-pill"
+                      :class="boardData.regionName === region ? 'btn-dark text-white' : 'btn-outline-secondary text-gray-700'"
+                      @click="boardData.regionName = region">
+                {{ region }}
+              </button>
+            </div>
+          </div>
           
           <!-- 카테고리 선택 -->
           <div class="mb-8">
-            <label class="form-label fw-bold text-gray-800">분류 선택</label>
+            <label class="form-label fw-bold text-gray-800">예술 분류 선택</label>
             <div class="d-flex flex-wrap gap-2">
-              <button v-for="cat in categories" :key="cat"
+              <button v-for="cat in artCategories" :key="cat"
                       class="btn btn-sm fw-semibold rounded-pill"
-                      :class="postData.category === cat ? 'btn-dark text-white' : 'btn-outline-secondary text-gray-700'"
-                      @click="postData.category = cat">
+                      :class="boardData.boardCategoryName === cat ? 'btn-dark text-white' : 'btn-outline-secondary text-gray-700'"
+                      @click="boardData.boardCategoryName = cat">
+                {{ cat }}
+              </button>
+            </div>
+          </div>
+
+          <!-- 지역 선택 -->
+          <div class="mb-8">
+            <label class="form-label fw-bold text-gray-800">게시글 분류 선택</label>
+            <div class="d-flex flex-wrap gap-2">
+              <button v-for="cat in postCategories" :key="cat"
+                      class="btn btn-sm fw-semibold rounded-pill"
+                      :class="boardData.postCategoryName === cat ? 'btn-dark text-white' : 'btn-outline-secondary text-gray-700'"
+                      @click="boardData.postCategoryName = cat">
                 {{ cat }}
               </button>
             </div>
@@ -49,44 +75,7 @@
           <!-- 내용 (TextArea) -->
           <div class="mb-8">
             <label class="form-label fw-bold text-gray-800">내용</label>
-            <textarea
-                class="form-control bg-white text-dark rounded-2 border border-gray-400"
-                rows="12"
-                v-model="postData.content"
-                placeholder="내용을 입력하세요"
-            ></textarea>
-          </div>
-
-          <!-- 파일 첨부 -->
-          <div class="mb-8">
-            <label class="form-label fw-bold text-gray-800">사진 및 파일 첨부</label>
-            <!-- 배경색을 bg-light-primary에서 bg-gray-100으로 변경 -->
-            <div class="d-flex flex-column border border-dashed border-gray-300 rounded-2 p-5 text-center bg-gray-100">
-                <label for="file-upload" class="d-flex flex-column align-items-center justify-content-center" style="cursor: pointer;">
-                    <i class="ki-duotone ki-cloud-download fs-2tx text-primary mb-3"></i>
-                    <div class="fw-semibold text-gray-600">
-                        여기에 파일을 끌어놓거나 <span class="text-primary fw-bolder">왼쪽의 첨부 버튼</span>을 클릭하세요
-                        <!-- 기존 파일 표시 기능 추가 (수정 모드 시) -->
-                        <div v-if="postData.files.length > 0 && !uploadedFiles.length" class="text-success mt-2 fs-7">
-                          * 기존 파일 {{ postData.files.length }}개가 첨부되어 있습니다.
-                        </div>
-                    </div>
-                </label>
-                <!-- ⭐ 파일 입력 필드에 handleFileUpload 연결 -->
-                <input type="file" id="file-upload" class="d-none" multiple @change="handleFileUpload" />
-            </div>
-            
-            <!-- ⭐ 업로드된 파일 목록 표시 -->
-            <div v-if="uploadedFiles.length > 0" class="mt-4">
-                <h6 class="fs-7 fw-bold text-gray-700 mb-2">업로드 대기 목록 ({{ uploadedFiles.length }}개):</h6>
-                <div class="d-flex flex-wrap gap-2">
-                    <span v-for="(file, index) in uploadedFiles" :key="index"
-                          class="badge bg-light-primary text-primary p-2 rounded-pill fs-7 fw-semibold">
-                        {{ file.name }}
-                        <i class="ki-duotone ki-cross-circle fs-6 ms-1" style="cursor: pointer;" @click="removeFile(index)"></i>
-                    </span>
-                </div>
-            </div>
+            <QuillForm ref="editorRef"/>
           </div>
 
           <!-- 태그 -->
@@ -115,7 +104,7 @@
           <!-- 버튼: 텍스트 동적 변경 및 등록/수정 로직 호출 -->
           <div class="d-flex justify-content-end gap-3">
             <button class="btn btn-light-secondary fw-bold" @click="saveDraft">임시저장</button>
-            <button class="btn btn-dark fw-bold" @click="confirmSubmit">
+            <button class="btn btn-dark fw-bold" @click="requestAddPost()">
               {{ isEditMode ? '수정 완료' : '등록' }}
             </button>
           </div>
@@ -140,20 +129,34 @@
 import { ref, computed, onMounted } from "vue" 
 import { useRoute, useRouter } from "vue-router" 
 import ConfirmModal from '../components/ConfirmModal.vue'
+import axios from 'axios'
 
 const router = useRouter()
 const route = useRoute() 
 const DRAFT_STORAGE_KEY = 'board_post_draft'; // localStorage 키 정의
 
-const categories = ["미술", "음악", "공예", "정보"]
+// 지역 표시 부분
+const regions = ['서울특별시','부산광역시','대구광역시','인천광역시','광주광역시',
+    '대전광역시','울산광역시','세종특별자치시','경기도','강원특별자치도',
+    '충청북도','충청남도','전라북도특별자치도','전라남도','경상북도','경상남도','제주특별자치도']
+// 예술 분야 표시 부분
+const artCategories = ['미술','음악','무용','연극','영화','문학','사진','전통예술']
+// 글 분야 표시 부분
+const postCategories = ['잡담','구인구직','정보']
+const editorRef = ref(null)
+
 const newTag = ref("")
+
+const boardData = ref({
+    regionName: "서울특별시",
+    boardCategoryName: "미술",
+    postCategoryName:"잡담",
+})
 
 // 하나의 통합된 폼 데이터 상태
 const postData = ref({
     id: null,
-    category: "미술",
     title: "",
-    content: "",
     tags: [],
     files: [] // 기존 파일 정보 (수정 모드 로드시 사용)
 })
@@ -264,18 +267,6 @@ const removeTag = (index) => {
   postData.value.tags.splice(index, 1)
 }
 
-// 파일 처리 핸들러: 파일 상태 업데이트 (발표를 위한 핵심)
-const handleFileUpload = (event) => {
-    const files = Array.from(event.target.files);
-    uploadedFiles.value = files;
-    event.target.value = null; 
-}
-
-// 파일 삭제 함수
-const removeFile = (index) => {
-    uploadedFiles.value.splice(index, 1);
-}
-
 // saveDraft 함수: 현재 글의 내용과 카테고리, 태그를 localStorage에 저장
 const saveDraft = () => {
   try {
@@ -327,6 +318,44 @@ const submitPost = () => {
     showModal('등록 완료', "게시글이 성공적으로 등록되었습니다!", 'success', 'submitSuccess')
   }
 }
+
+//===========================================================================================
+
+import QuillForm from '@/components/Editor.vue'
+
+  async function requestAddPost() {
+    const html = editorRef.value?.getContent() || ''
+
+    const params = {
+      post: {
+        title: postData.value.title,
+        content:html,
+      },
+      board: {
+        regionName:boardData.value.regionName,
+        boardCategoryName:boardData.value.boardCategoryName,
+        postCategoryName:boardData.value.postCategoryName
+      }
+    }
+    try {
+      const response = await axios.post(`http://localhost:8080/api/post/post`, 
+        params, 
+        {
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 5000,
+        })
+        console.log('OK', response.data)
+
+        alert(`게시글 등록이 완료되었습니다.`)
+
+        router.push("/board")
+
+    } catch (e) {
+      console.error('[Detail] load error:', e)
+    } 
+  }
+
+
 </script>
 
 <style scoped>

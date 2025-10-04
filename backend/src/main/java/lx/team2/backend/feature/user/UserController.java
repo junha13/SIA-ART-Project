@@ -13,7 +13,6 @@ public class UserController {
 
 	/**
      * 아이디 중복확인 API입니다.
-     * @param signupDto 클라이언트가 보낸 loginId를 담은 객체
      * @return 사용 가능 시 'available', 중복 시 'duplicate' 문자열 응답
      */
     @GetMapping("/check-id")
@@ -30,7 +29,6 @@ public class UserController {
 
     /**
      * 회원가입 처리 API입니다.
-     * @param signupDto 클라이언트가 보낸 회원 정보를 담은 객체
      * @return 회원가입 성공 시 'success', 실패 시 'fail' 문자열 응답
      */
     @PostMapping("/register")
@@ -46,6 +44,10 @@ public class UserController {
         }
     }
     
+    /*
+     * 로그인 처리 API입니다.
+     * @return 로그인 성공 시 userId, 실패 시 401 Unauthorized 응답
+     */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO dto) {
         

@@ -195,7 +195,7 @@ const checkDuplicateId = async () => {
   }
 
   try {
-    const response = await axios.post('http://localhost:8080/api/user/checkDuplicate', { userId: id })
+    const response = await axios.get('http://localhost:8080/api/users/check-id', { userId: id })
     const result = response.data === 'available'
     isDuplicateChecked.value = true
     isIdAvailable.value = result
@@ -235,7 +235,7 @@ const register = async () => {
   }
 
   try {
-    const response = await axios.post('http://localhost:8080/api/user/register', registerData)
+    const response = await axios.get('http://localhost:8080/api/users/register', registerData)
 
     if (response.data === 'success') {
       // showModal로 바꾸고 싶으면 밑의 alert 대신 showModal 호출

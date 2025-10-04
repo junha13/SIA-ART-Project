@@ -5,7 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/users")
 public class UserController {
 
 	@Autowired
@@ -16,7 +16,7 @@ public class UserController {
      * @param signupDto 클라이언트가 보낸 loginId를 담은 객체
      * @return 사용 가능 시 'available', 중복 시 'duplicate' 문자열 응답
      */
-    @PostMapping("/checkDuplicate")
+    @GetMapping("/check-id")
     public ResponseEntity<String> checkDuplicate(@RequestBody RegisterDTO user) {
         // 서비스 계층을 통해 아이디 사용 가능 여부 확인
         boolean isAvailable = userService.isIdAvailable(user.getUserId());

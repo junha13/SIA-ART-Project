@@ -9,4 +9,21 @@ public class ResisterDTO {
     private String email;
     private int userType; // 1: 사용자, 2: 예술가
     private String selectedInterests; // 선택한 관심사들 (콤마로 구분된 문자열)
+    
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	public String getUserId() {
+		return userId;
+	}
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+	
+	
+    
+    
 }

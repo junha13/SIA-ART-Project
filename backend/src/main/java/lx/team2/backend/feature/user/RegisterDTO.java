@@ -1,6 +1,6 @@
 package lx.team2.backend.feature.user;
 
-public class ResisterDTO {
+public class RegisterDTO {
     private String userId;
     private String password;
     private String name;

@@ -30,7 +30,7 @@ public class UserService {
 	/*
 	 * 회원가입
 	 */
-	public boolean signup(ResisterDTO info) {
+	public boolean register(RegisterDTO info) {
         if (!isIdAvailable(info.getUserId())) {
             return false; // 아이디가 이미 존재하면 실패
         }

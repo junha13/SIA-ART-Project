@@ -17,7 +17,7 @@ public class UserController {
      * @return 사용 가능 시 'available', 중복 시 'duplicate' 문자열 응답
      */
     @PostMapping("/checkDuplicate")
-    public ResponseEntity<String> checkDuplicate(@RequestBody ResisterDTO user) {
+    public ResponseEntity<String> checkDuplicate(@RequestBody RegisterDTO user) {
         // 서비스 계층을 통해 아이디 사용 가능 여부 확인
         boolean isAvailable = userService.isIdAvailable(user.getUserId());
         
@@ -34,9 +34,9 @@ public class UserController {
      * @return 회원가입 성공 시 'success', 실패 시 'fail' 문자열 응답
      */
     @PostMapping("/register")
-    public ResponseEntity<String> signup(@RequestBody ResisterDTO user) {
+    public ResponseEntity<String> signup(@RequestBody RegisterDTO user) {
         // 서비스 계층을 통해 회원가입 로직 수행
-        boolean isSuccess = userService.signup(user);
+        boolean isSuccess = userService.register(user);
         
         if (isSuccess) {
             return ResponseEntity.ok("success");

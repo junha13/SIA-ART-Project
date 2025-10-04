@@ -25,13 +25,15 @@
 
           <div class="fv-row mb-6 d-flex gap-4">
             <label class="form-check form-check-custom form-check-solid">
-              <input class="form-check-input" type="radio" name="userType" value="general" v-model="userType" id="typeGeneral" checked/>
+              <input class="form-check-input" type="radio" name="userType" value="general" v-model="userType"
+                id="typeGeneral" checked />
               <span class="form-check-label text-dark fw-bold" for="typeGeneral">
                 일반 사용자
               </span>
             </label>
             <label class="form-check form-check-custom form-check-solid">
-              <input class="form-check-input" type="radio" name="userType" value="artist" v-model="userType" id="typeArtist"/>
+              <input class="form-check-input" type="radio" name="userType" value="artist" v-model="userType"
+                id="typeArtist" />
               <span class="form-check-label text-dark fw-bold" for="typeArtist">
                 예술가
               </span>
@@ -39,94 +41,60 @@
           </div>
 
           <div class="fv-row mb-4">
-            <input
-                type="text"
-                v-model="name"
-                class="form-control form-control-lg border-2 rounded-3"
-                placeholder="본인 실명"
-                required
-            />
+            <input type="text" v-model="name" class="form-control form-control-lg border-2 rounded-3"
+              placeholder="본인 실명" required />
           </div>
 
           <div class="fv-row mb-4">
-            <input
-                type="email"
-                v-model="email"
-                class="form-control form-control-lg border-2 rounded-3"
-                placeholder="이메일"
-                required
-            />
+            <input type="email" v-model="email" class="form-control form-control-lg border-2 rounded-3"
+              placeholder="이메일" required />
           </div>
 
           <div class="fv-row mb-4">
-            <input
-                type="tel"
-                v-model="phone"
-                class="form-control form-control-lg border-2 rounded-3"
-                placeholder="전화번호"
-                required
-            />
+            <input type="tel" v-model="phone" class="form-control form-control-lg border-2 rounded-3" placeholder="전화번호"
+              required />
           </div>
 
           <div class="fv-row mb-4">
             <div class="input-group">
-              <input
-                  type="text"
-                  v-model="userId"
-                  class="form-control form-control-lg border-2 rounded-3"
-                  placeholder="아이디 (영어 or 숫자, 4자 이상)"
-                  required
-              />
-              <button class="btn btn-light-secondary rounded-3 ms-2 text-dark" type="button" @click="checkDuplicateId">
-                중복확인
+              <input type="text" v-model="userId" @input="onLoginIdChange"
+                class="form-control form-control-lg border-2 rounded-3" placeholder="아이디 (영어 or 숫자, 4자 이상)" required />
+
+              <button type="button" class="btn btn-light-secondary rounded-3 ms-2 text-dark" @click="checkDuplicateId"
+                :class="['check-btn', { 'btn-available': isIdAvailable, 'btn-duplicate': isDuplicateChecked && !isIdAvailable }]"
+                :disabled="!userId">
+                {{ buttonText }}
               </button>
             </div>
           </div>
 
           <div class="fv-row mb-4">
-            <input
-                type="password"
-                v-model="password"
-                class="form-control form-control-lg border-2 rounded-3"
-                placeholder="비밀번호 (영어 + 숫자, 8자 이상)"
-                required
-            />
+            <input type="password" v-model="password" class="form-control form-control-lg border-2 rounded-3"
+              placeholder="비밀번호 (영어 + 숫자, 8자 이상)" required />
           </div>
 
           <div class="fv-row mb-4">
             <div class="input-group">
-              <input
-                  type="password"
-                  v-model="confirmPassword"
-                  class="form-control form-control-lg border-2 rounded-3"
-                  placeholder="비밀번호 확인"
-                  required
-              />
-              <button class="btn btn-light-secondary rounded-3 ms-2 text-dark" type="button" @click="checkPasswordMatch">
+              <input type="password" v-model="confirmPassword" class="form-control form-control-lg border-2 rounded-3"
+                placeholder="비밀번호 확인" required />
+              <button class="btn btn-light-secondary rounded-3 ms-2 text-dark" type="button"
+                @click="checkPasswordMatch">
                 확인
               </button>
             </div>
           </div>
 
           <div class="fv-row mb-8">
-            <input
-                type="text"
-                v-model="nickname"
-                class="form-control form-control-lg border-2 rounded-3"
-                placeholder="활동명 (선택 사항)"
-            />
+            <input type="text" v-model="nickname" class="form-control form-control-lg border-2 rounded-3"
+              placeholder="활동명 (선택 사항)" />
           </div>
 
           <div class="fv-row mb-10">
             <label class="form-label fw-bold text-dark mb-3">관심 분야 선택</label>
             <div class="d-flex flex-wrap gap-3">
-              <label v-for="interest in allInterests" :key="interest" class="form-check form-check-custom form-check-solid">
-                <input
-                    class="form-check-input"
-                    type="checkbox"
-                    :value="interest"
-                    v-model="selectedInterests"
-                />
+              <label v-for="interest in allInterests" :key="interest"
+                class="form-check form-check-custom form-check-solid">
+                <input class="form-check-input" type="checkbox" :value="interest" v-model="selectedInterests" />
                 <span class="form-check-label text-muted" :for="'interest-' + interest">
                   {{ interest }}
                 </span>
@@ -148,84 +116,23 @@
       </div>
     </div>
 
-    <ConfirmModal
-        v-model:isVisible="isModalVisible"
-        :title="modalTitle"
-        :message="modalMessage"
-        :type="modalType"
-        :autoHide="modalAutoHide"
-        @confirm="handleModalConfirm"
-    />
+    <ConfirmModal v-model:isVisible="isModalVisible" :title="modalTitle" :message="modalMessage" :type="modalType"
+      :autoHide="modalAutoHide" @confirm="handleModalConfirm" />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import ConfirmModal from '../components/ConfirmModal.vue'
-import { useAuthStore } from '@/stores/useAuthStore' // Pinia Store Import
+import { useAuthStore } from '@/stores/useAuthStore'
 import axios from 'axios'
 
 const router = useRouter()
-const authStore = useAuthStore() // AuthStore 사용
+const authStore = useAuthStore()
 
-
-// 회원가입 데이터
-const registrationData = ref({
-  userId: '',
-  password: '',
-  name: '',
-  nickname: '',
-  phone: '',
-  email: '',
-  userType: '1', // '1': 일반 사용자, '2': 예술가
-  selectedInterests: [] // 관심 분야
-})
-
-const register = () => {
-  if (!name.value || !email.value || !password.value || !confirmPassword.value) {
-    showModal('회원가입 오류', '모든 필수 항목을 입력해주세요.', 'error')
-    return
-  }
-  if (password.value !== confirmPassword.value) {
-    showModal('회원가입 오류', '비밀번호가 일치하지 않습니다.', 'error')
-    return
-  }
-
-  try {
-    const { data, status } = await axios.post('http://localhost:8080/api/user/register', {
-      userid: userId.value.trim(),
-      password: password.value,
-      name: name.value.trim(),
-      nickname: nickname.value.trim(),
-      phone: phone.value.trim(),
-      email: email.value.trim(),
-      userType: userType.value === 'artist' ? '2' : '1', // '1': 일반 사용자, '2': 예술가
-      selectedInterests: selectedInterests.value.join(',') // 관심 분야를 문자열로 변
-    })
-
-    if(status === 200) {
-      showModal('회원가입 완료', `환영합니다, ${nickname.value}님 🎉 이제 로그인해주세요.`, 'success', 'registerSuccess')
-    } else {
-      showModal('회원가입 실패', '서버 응답이 올바르지 않습니다.', 'error')
-    }
-  } catch (error) {
-    const msg = error?.response?.data?.error
-      || (typeof error?.response?.data === 'string' ? error.response.data : null)
-      || '회원가입 중 오류가 발생했습니다.'
-    showModal('회원가입 실패', msg, 'error')
-  }
-}
-
-const handleModalConfirm = () => {
-  isModalVisible.value = false;
-  if (modalAction.value === 'registerSuccess') {
-    router.push('/login') // 회원가입 성공 후 로그인 페이지로 이동
-  }
-}
-
-// 폼 데이터
-const userType = ref('general')
+// 폼 데이터 (단일 소스)
+const userType = ref('general') // 'general' | 'artist'
 const name = ref('')
 const email = ref('')
 const phone = ref('')
@@ -234,9 +141,13 @@ const password = ref('')
 const confirmPassword = ref('')
 const nickname = ref('')
 const allInterests = ['회화', '조각', '도예', '사진', '공예', '음악', '기타']
-const selectedInterests = ref([]) // 관심 분야 상태
+const selectedInterests = ref([])
 
-// Modal State
+// 아이디 중복확인 상태
+const isDuplicateChecked = ref(false)
+const isIdAvailable = ref(false)
+
+// 모달 상태
 const isModalVisible = ref(false)
 const modalTitle = ref('')
 const modalMessage = ref('')
@@ -253,16 +164,19 @@ const showModal = (title, message, type = 'info', action = null, autoHide = true
   isModalVisible.value = true
 }
 
-const checkDuplicateId = () => {
-  if (userId.value === 'test') { // 더미 중복 확인 로직
-    showModal('중복 확인', '이미 사용 중인 아이디입니다.', 'error')
-  } else if (userId.value.length < 4) {
-    showModal('중복 확인', '아이디는 4자 이상이어야 합니다.', 'error')
-  } else {
-    showModal('중복 확인', `'${userId.value}'는 사용 가능한 아이디입니다.`, 'success')
-  }
+// 중복확인 버튼 텍스트
+const buttonText = computed(() => {
+  if (!isDuplicateChecked.value) return '중복확인'
+  return isIdAvailable.value ? '확인완료' : '중복'
+})
+
+// 아이디 입력 변경 시, 중복확인 상태 초기화
+const onLoginIdChange = () => {
+  isDuplicateChecked.value = false
+  isIdAvailable.value = false
 }
 
+// 비밀번호 일치 확인
 const checkPasswordMatch = () => {
   if (password.value && password.value === confirmPassword.value) {
     showModal('비밀번호 확인', '비밀번호가 일치합니다.', 'success')
@@ -271,28 +185,104 @@ const checkPasswordMatch = () => {
   }
 }
 
+// 아이디 중복 확인
+const checkDuplicateId = async () => {
+  const id = userId.value.trim()
 
+  if (id.length < 4) {
+    showModal('중복 확인', '아이디는 4자 이상이어야 합니다.', 'error')
+    return
+  }
+
+  try {
+    const response = await axios.post('http://localhost:8080/api/user/checkDuplicate', { userId: id })
+    const result = response.data === 'available'
+    isDuplicateChecked.value = true
+    isIdAvailable.value = result
+    alert(result ? '사용 가능한 아이디입니다.' : '이미 사용 중인 아이디입니다.')
+  } catch (error) {
+    console.error('중복 체크 오류:', error)
+    isDuplicateChecked.value = false
+    isIdAvailable.value = false
+    alert('서버 연결에 실패했습니다.')
+  }
+}
+
+// 회원가입 실행
+const register = async () => {
+  if (!name.value || !email.value || !password.value || !confirmPassword.value) {
+    showModal('회원가입 오류', '모든 필수 항목을 입력해주세요.', 'error')
+    return
+  }
+  if (password.value !== confirmPassword.value) {
+    showModal('회원가입 오류', '비밀번호가 일치하지 않습니다.', 'error')
+    return
+  }
+  if (!isDuplicateChecked.value || !isIdAvailable.value) {
+    alert('아이디 중복확인을 먼저 해주세요.')
+    return
+  }
+
+  const registerData = {
+    userId: userId.value.trim(),
+    password: password.value,
+    name: name.value.trim(),
+    nickname: nickname.value.trim(),
+    phone: phone.value.trim(),
+    email: email.value.trim(),
+    userType: userType.value === 'artist' ? '2' : '1',
+    selectedInterests: selectedInterests.value.join(',')
+  }
+
+  try {
+    const response = await axios.post('http://localhost:8080/api/user/register', registerData)
+
+    if (response.data === 'success') {
+      // showModal로 바꾸고 싶으면 밑의 alert 대신 showModal 호출
+      alert('회원가입이 완료되었습니다!')
+      router.push('/') // 또는 '/login'
+    } else {
+      alert('회원가입에 실패했습니다. 다시 시도해주세요.')
+    }
+  } catch (error) {
+    console.error('회원가입 오류:', error)
+    alert('서버 연결에 실패했습니다.')
+  }
+}
+
+const handleModalConfirm = () => {
+  isModalVisible.value = false
+  if (modalAction.value === 'registerSuccess') {
+    router.push('/login')
+  }
+}
 </script>
+
 
 <style scoped>
 #kt_register {
   min-height: 100vh;
 }
+
 .bg-white {
   background-color: #ffffff !important;
 }
+
 /* 시안의 둥근 입력 필드 및 테두리 스타일 */
 .form-control-lg {
   border-radius: 0.5rem !important;
   border: 1px solid #ced4da;
 }
+
 .rounded-3 {
   border-radius: 0.5rem !important;
 }
-.input-group > .rounded-3 {
+
+.input-group>.rounded-3 {
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
 }
+
 .input-group .btn {
   border-radius: 0.5rem !important;
 }

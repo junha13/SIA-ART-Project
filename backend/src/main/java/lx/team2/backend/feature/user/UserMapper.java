@@ -15,7 +15,7 @@ public interface UserMapper {
 	/*
 	 * 회원가입
 	 */
-    int insertUser(ResisterDTO user);
+    int insertUser(RegisterDTO user);
 
     
     /*

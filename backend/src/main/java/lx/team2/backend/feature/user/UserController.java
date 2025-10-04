@@ -5,13 +5,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/user")
 public class UserController {
 
 	@Autowired
     private UserService userService;
 
-    @PostMapping("/signup")
+    @PostMapping("/register")
     public ResponseEntity<?> signup(@RequestBody UserVO userVO) {
         userService.signup(userVO);
         return ResponseEntity.ok("회원가입 완료");

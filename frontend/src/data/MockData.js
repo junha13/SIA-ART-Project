@@ -190,14 +190,17 @@ export const MOCK_CLASSES = [
 
 /**
  * 📍 지도 위치 (Location) 더미 데이터 (ArchiveMapView 용) - 총 30개
+ *  column : id, type,name,bio title, category, image, lat, lng, loc
+ *  art, gallery > title, category,
+ *  studio       > name, bio
  */
 export const MOCK_MAP_DATA = [
     // --- 5개 기존 데이터 (1~87 랜덤 숫자 적용) ---
-    { id: 106, type: 'art', title: '미래 도시', category: '디지털', image: '/assets/media/stock/600x600/img-42.jpg', lat: 37.4950, lng: 126.8870, loc: '구로구' },
-    { id: 205, type: 'studio', name: '정조각 공방', bio: '현대 조각 작업 공간', image: '/assets/media/stock/600x600/img-11.jpg', lat: 37.4952, lng: 126.8872, loc: '구로구' },
-    { id: 305, type: 'gallery', title: '구로 디지털 아트홀', category: '미디어 아트', image: '/assets/media/stock/600x600/img-78.jpg', lat: 37.4954, lng: 126.8874, loc: '구로구' },
-    { id: 107, type: 'art', title: '가을의 서정', category: '회화', image: '/assets/media/stock/600x600/img-65.jpg', lat: 37.5615, lng: 126.9750, loc: '중구' },
-    { id: 206, type: 'studio', name: '홍대 작업실', bio: '팝아트 스튜디오', image: '/assets/media/stock/600x600/img-33.jpg', lat: 37.5500, lng: 126.9200, loc: '마포구' },
+    { id: 106, type: 'art',         title: '미래 도시', category: '디지털',            image: '/assets/media/stock/600x600/img-42.jpg', lat: 37.4950, lng: 126.8870, loc: '구로구' },
+    { id: 205, type: 'studio',      name: '정조각 공방', bio: '현대 조각 작업 공간',      image: '/assets/media/stock/600x600/img-11.jpg', lat: 37.4952, lng: 126.8872, loc: '구로구' },
+    { id: 305, type: 'gallery',     title: '구로 디지털 아트홀', category: '미디어 아트', image: '/assets/media/stock/600x600/img-78.jpg', lat: 37.4954, lng: 126.8874, loc: '구로구' },
+    { id: 107, type: 'art',         title: '가을의 서정', category: '회화',            image: '/assets/media/stock/600x600/img-65.jpg', lat: 37.5615, lng: 126.9750, loc: '중구' },
+    { id: 206, type: 'studio',       name: '홍대 작업실', bio: '팝아트 스튜디오',       image: '/assets/media/stock/600x600/img-33.jpg', lat: 37.5500, lng: 126.9200, loc: '마포구' },
 
     // --- 25개 신규 데이터 (ID 401~425, 경로 수정) ---
     // 종로구 (lat: 37.57, lng: 126.98)

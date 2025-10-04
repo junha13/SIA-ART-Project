@@ -11,10 +11,39 @@ public class UserController {
 	@Autowired
     private UserService userService;
 
+	/**
+     * 아이디 중복확인 API입니다.
+     * @param signupDto 클라이언트가 보낸 loginId를 담은 객체
+     * @return 사용 가능 시 'available', 중복 시 'duplicate' 문자열 응답
+     */
+    @PostMapping("/checkDuplicate")
+    public ResponseEntity<String> checkDuplicate(@RequestBody ResisterDTO user) {
+        // 서비스 계층을 통해 아이디 사용 가능 여부 확인
+        boolean isAvailable = userService.isIdAvailable(user.getUserId());
+        
+        if (isAvailable) {
+            return ResponseEntity.ok("available");
+        } else {
+            return ResponseEntity.ok("duplicate");
+        }
+    }
+
+    /**
+     * 회원가입 처리 API입니다.
+     * @param signupDto 클라이언트가 보낸 회원 정보를 담은 객체
+     * @return 회원가입 성공 시 'success', 실패 시 'fail' 문자열 응답
+     */
     @PostMapping("/register")
-    public ResponseEntity<?> signup(@RequestBody UserVO userVO) {
-        userService.signup(userVO);
-        return ResponseEntity.ok("회원가입 완료");
+    public ResponseEntity<String> signup(@RequestBody ResisterDTO user) {
+        // 서비스 계층을 통해 회원가입 로직 수행
+        boolean isSuccess = userService.signup(user);
+        
+        if (isSuccess) {
+            return ResponseEntity.ok("success");
+        } else {
+            // 중복된 아이디 또는 기타 이유로 실패 시
+            return ResponseEntity.ok("fail");
+        }
     }
     
     @PostMapping("/login")

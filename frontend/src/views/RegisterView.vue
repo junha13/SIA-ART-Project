@@ -164,9 +164,65 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import ConfirmModal from '../components/ConfirmModal.vue'
 import { useAuthStore } from '@/stores/useAuthStore' // Pinia Store Import
+import axios from 'axios'
 
 const router = useRouter()
 const authStore = useAuthStore() // AuthStore 사용
+
+
+// 회원가입 데이터
+const registrationData = ref({
+  userId: '',
+  password: '',
+  name: '',
+  nickname: '',
+  phone: '',
+  email: '',
+  userType: '1', // '1': 일반 사용자, '2': 예술가
+  selectedInterests: [] // 관심 분야
+})
+
+const register = () => {
+  if (!name.value || !email.value || !password.value || !confirmPassword.value) {
+    showModal('회원가입 오류', '모든 필수 항목을 입력해주세요.', 'error')
+    return
+  }
+  if (password.value !== confirmPassword.value) {
+    showModal('회원가입 오류', '비밀번호가 일치하지 않습니다.', 'error')
+    return
+  }
+
+  try {
+    const { data, status } = await axios.post('http://localhost:8080/api/user/register', {
+      userid: userId.value.trim(),
+      password: password.value,
+      name: name.value.trim(),
+      nickname: nickname.value.trim(),
+      phone: phone.value.trim(),
+      email: email.value.trim(),
+      userType: userType.value === 'artist' ? '2' : '1', // '1': 일반 사용자, '2': 예술가
+      selectedInterests: selectedInterests.value.join(',') // 관심 분야를 문자열로 변
+    })
+
+    if(status === 200) {
+      showModal('회원가입 완료', `환영합니다, ${nickname.value}님 🎉 이제 로그인해주세요.`, 'success', 'registerSuccess')
+    } else {
+      showModal('회원가입 실패', '서버 응답이 올바르지 않습니다.', 'error')
+    }
+  } catch (error) {
+    const msg = error?.response?.data?.error
+      || (typeof error?.response?.data === 'string' ? error.response.data : null)
+      || '회원가입 중 오류가 발생했습니다.'
+    showModal('회원가입 실패', msg, 'error')
+  }
+}
+
+const handleModalConfirm = () => {
+  isModalVisible.value = false;
+  if (modalAction.value === 'registerSuccess') {
+    router.push('/login') // 회원가입 성공 후 로그인 페이지로 이동
+  }
+}
 
 // 폼 데이터
 const userType = ref('general')
@@ -216,29 +272,6 @@ const checkPasswordMatch = () => {
 }
 
 
-const register = () => {
-  if (!name.value || !email.value || !password.value || !confirmPassword.value) {
-    showModal('회원가입 오류', '모든 필수 항목을 입력해주세요.', 'error')
-    return
-  }
-  if (password.value !== confirmPassword.value) {
-    showModal('회원가입 오류', '비밀번호가 일치하지 않습니다.', 'error')
-    return
-  }
-
-  // 등록 데이터 확인
-  console.log('회원가입 데이터:', { userType: userType.value, email: email.value, interests: selectedInterests.value })
-
-  // 성공 시 모달을 띄우고, 액션을 'registerSuccess'로 지정
-  showModal('회원가입 완료', `환영합니다, ${name.value}님 🎉 이제 로그인해주세요.`, 'success', 'registerSuccess')
-}
-
-const handleModalConfirm = () => {
-  isModalVisible.value = false;
-  if (modalAction.value === 'registerSuccess') {
-    router.push('/login') // 회원가입 성공 후 로그인 페이지로 이동
-  }
-}
 </script>
 
 <style scoped>

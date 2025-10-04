@@ -7,7 +7,7 @@
         VALUES (#{title}, #{imagePath}, #{lat}, #{lng})
     </insert>
 
-    <select id="selectAllArtworks" resultType="lx.team2.backend.feature.product.ArtworkVO">
+    <select id="selectAllArtworks" resultType="lx.team2.backend.feature.artwork.ArtworkVO">
         SELECT * FROM artwork
     </select> -->
 </mapper>

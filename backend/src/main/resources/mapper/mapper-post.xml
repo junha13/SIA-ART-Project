@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="mapper-post">
+
+<resultMap id="postMap" type="lx.team2.backend.feature.post.PostRequestDTO">
+  <id     column="post_number"  property="postNumber"/>
+  <result column="post_title"   property="title"/>
+  <result column="post_content" property="content"/>
+  <result column="create_at"    property="createdAt"  jdbcType="TIMESTAMP"/>
+  <result column="user_number"  property="userNumber"/>
+  <result column="board_number" property="boardNumber"/>
+  <result column="view_count" property="viewCount"/>
+  
+  <!-- board 컨디션 -->
+  <result column="region_name"          property="regionName"/>
+  <result column="board_category_name"  property="boardCategoryName"/>
+  <result column="post_category_name"   property="postCategoryName"/>
+  
+  <!-- user 활동명 -->
+  <result column="user_name"  property="userName"/>
+
+  <!-- 총 추천수 보기 -->
+  <result column="recommend_count"    property="recommendCount"/>
+  <!--<result column="recommended_by_me"  property="recommendedByMe"  jdbcType="BOOLEAN"/> -->
+</resultMap>
+
+	<!-- ========== post insert ========== -->
+	<insert id="insertPostDB"
+		parameterType="lx.team2.backend.feature.post.PostVO">
+		INSERT INTO tb_post (post_title, post_content, board_number, user_number, create_at, view_count)
+		VALUES (#{title}, #{content}, #{boardNumber}, #{userNumber}, now(), 0)
+	</insert>
+	
+	<!-- ========== board number select ( 게시글 insert 하려면 필요함 ) ========== -->
+	<select id="selectBoardNumber" 
+		parameterType="lx.team2.backend.feature.post.BoardVO" resultType="int">
+		Select board_number
+		from tb_board
+		where 1=1
+			and region_name = #{regionName}
+			and board_category_name = #{boardCategoryName}
+			and post_category_name = #{postCategoryName}
+		LIMIT 1
+	</select>
+	
+	<!-- ========== post list 뽑기 ========== -->
+	<select id="selectPostList" 
+		resultMap="postMap">
+		Select p.post_number, p.post_title, p.create_at, p.user_number, p.board_number, p.view_count, b.region_name, b.board_category_name, b.post_category_name
+		from tb_post p join tb_board b
+			on p.board_number = b.board_number
+		ORDER BY create_at DESC
+	</select>
+	
+	<!-- ========== post detail 뽑기 ========== -->
+	<select id="selectPostDetailByPostId" 
+		parameterType="int" resultMap="postMap">
+		Select p.post_number, p.post_title, p.post_content, p.create_at, p.user_number, p.board_number, p.view_count,
+				 b.region_name, b.board_category_name, b.post_category_name,
+				 u.user_name,
+				 COALESCE(r.cnt, 0) AS recommend_count
+		from tb_post p 
+			join tb_board b
+				on p.board_number = b.board_number
+			join tb_user u
+				on p.user_number = u.user_number
+			left join (
+				select post_number, COUNT(*) as cnt
+				from tb_post_recommend
+				group by post_number
+				) r on r.post_number = p.post_number
+		where p.post_number = #{_parameter}
+	</select>
+	
+	<!-- ========== post detail 들어갈때마다 조회수 1 증가 ========== -->
+	<update id="updateIncrementViewCount"
+		parameterType="int">
+		update tb_post
+		set view_count = view_count + 1
+		where post_number = #{_parameter}
+	</update>
+
+
+</mapper>

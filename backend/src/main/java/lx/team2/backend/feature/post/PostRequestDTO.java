@@ -4,13 +4,12 @@ import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class PostVO {
+public class PostRequestDTO {
 	private int postNumber;
 	private String title;
 	private String content;
@@ -25,11 +24,16 @@ public class PostVO {
 	
 	// DB 추가해야됨
 	private String tags;
-	
-	PostVO(String title, String content, int boardNumber, int userNumber) {
-		this.title = title;
-		this.content = content;
-		this.boardNumber = boardNumber;
-		this.userNumber = userNumber;
-	}
+
+    // board 컨디션
+    private String regionName;
+    private String boardCategoryName;
+    private String postCategoryName;
+    
+    // user name (활동명)
+    private String userName;
+    
+    // 추천
+    private int recommendCount;    // 총 추천 수
+    //private boolean recommendedByMe; // 내가 추천했는지 (viewer 기준)
 }

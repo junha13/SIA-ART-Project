@@ -14,22 +14,22 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ArtworkController {
 
-	@Autowired
-    private ArtworkService artworkService;
-
-    @PostMapping
-    public ResponseEntity<?> upload(
-            @RequestParam String title,
-            @RequestParam Double lat,
-            @RequestParam Double lng,
-            @RequestParam MultipartFile image
-    ) {
-        artworkService.saveArtwork(title, lat, lng, image);
-        return ResponseEntity.ok("업로드 완료");
-    }
-
-    @GetMapping
-    public ResponseEntity<List<ArtworkVO>> getAllArtworks() {
-        return ResponseEntity.ok(artworkService.getAllArtworks());
-    }
+//	@Autowired
+//    private ArtworkService artworkService;
+//
+//    @PostMapping
+//    public ResponseEntity<?> upload(
+//            @RequestParam String title,
+//            @RequestParam Double lat,
+//            @RequestParam Double lng,
+//            @RequestParam MultipartFile image
+//    ) {
+//        artworkService.saveArtwork(title, lat, lng, image);
+//        return ResponseEntity.ok("업로드 완료");
+//    }
+//
+//    @GetMapping
+//    public ResponseEntity<List<ArtworkVO>> getAllArtworks() {
+//        return ResponseEntity.ok(artworkService.getAllArtworks());
+//    }
 }

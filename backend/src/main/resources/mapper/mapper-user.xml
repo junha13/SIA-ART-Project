@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="mapper-user">
+<mapper namespace="lx.team2.backend.feature.user.UserMapper">
 
 	<!-- 로그인 -->
 	<!-- id와 비밀번호가 모두 DB에 있다면 결과의 userId를 뱉는다. -->
@@ -10,7 +10,7 @@
 	</select>
 
 	<!-- 회원가입 -->
-	<insert id="insertUser" parameterType="lx.team2.backend.feature.user.ResisterDTO">
+	<insert id="insertUser" parameterType="lx.team2.backend.feature.user.RegisterDTO">
 		INSERT INTO tb_user (role_number, user_name, email, mobile, id, password, activity_name, interests_list)
 		VALUES (#{userType}, #{name}, #{email}, #{phone}, #{userId}, #{password}, #{nickname}, #{selectedInterests})
 	</insert>

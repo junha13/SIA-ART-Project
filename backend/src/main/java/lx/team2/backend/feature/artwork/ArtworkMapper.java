@@ -6,6 +6,6 @@ import java.util.List;
 
 @Mapper
 public interface ArtworkMapper {
-    void insertArtwork(ArtworkVO vo);
-    List<ArtworkVO> selectAllArtworks();
+//    void insertArtwork(ArtworkVO vo);
+//    List<ArtworkVO> selectAllArtworks();
 }

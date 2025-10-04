@@ -16,9 +16,9 @@ public class UserController {
      * @return 사용 가능 시 'available', 중복 시 'duplicate' 문자열 응답
      */
     @GetMapping("/check-id")
-    public ResponseEntity<String> checkDuplicate(@RequestBody RegisterDTO user) {
-        // 서비스 계층을 통해 아이디 사용 가능 여부 확인
-        boolean isAvailable = userService.isIdAvailable(user.getUserId());
+    public ResponseEntity<String> checkDuplicate(@RequestParam("userId") String userId) {
+        // 서비스 계층을 통해 아이디 사용 가능 여부 확인 (쿼리파라미터로 userId를 받음)
+        boolean isAvailable = userService.isIdAvailable(userId);
         
         if (isAvailable) {
             return ResponseEntity.ok("available");

@@ -57,7 +57,7 @@
 
           <div class="fv-row mb-4">
             <div class="input-group">
-              <input type="text" v-model="userId" @input="onLoginIdChange"
+              <input type="text" v-model="userId" @input="onLoginIdChange" autocomplete="username"
                 class="form-control form-control-lg border-2 rounded-3" placeholder="아이디 (영어 or 숫자, 4자 이상)" required />
 
               <button type="button" class="btn btn-light-secondary rounded-3 ms-2 text-dark" @click="checkDuplicateId"
@@ -69,13 +69,13 @@
           </div>
 
           <div class="fv-row mb-4">
-            <input type="password" v-model="password" class="form-control form-control-lg border-2 rounded-3"
+            <input type="password" v-model="password" autocomplete="new-password" class="form-control form-control-lg border-2 rounded-3"
               placeholder="비밀번호 (영어 + 숫자, 8자 이상)" required />
           </div>
 
           <div class="fv-row mb-4">
             <div class="input-group">
-              <input type="password" v-model="confirmPassword" class="form-control form-control-lg border-2 rounded-3"
+              <input type="password" v-model="confirmPassword" autocomplete="new-password" class="form-control form-control-lg border-2 rounded-3"
                 placeholder="비밀번호 확인" required />
               <button class="btn btn-light-secondary rounded-3 ms-2 text-dark" type="button"
                 @click="checkPasswordMatch">
@@ -195,7 +195,8 @@ const checkDuplicateId = async () => {
   }
 
   try {
-    const response = await axios.get('http://localhost:8080/api/users/check-id', { userId: id })
+  // GET 요청은 쿼리파라미터로 보내야 하므로 axios.get의 params 옵션 사용
+  const response = await axios.get('http://localhost:8080/api/users/check-id', { params: { userId: id } })
     const result = response.data === 'available'
     isDuplicateChecked.value = true
     isIdAvailable.value = result
@@ -230,12 +231,14 @@ const register = async () => {
     nickname: nickname.value.trim(),
     phone: phone.value.trim(),
     email: email.value.trim(),
-    userType: userType.value === 'artist' ? '2' : '1',
+  // Send numeric role: 1 for general user, 2 for artist
+  userType: userType.value === 'artist' ? 2 : 1,
     selectedInterests: selectedInterests.value.join(',')
   }
 
   try {
-    const response = await axios.get('http://localhost:8080/api/users/register', registerData)
+  // 회원가입은 POST로 보냄 (서버의 UserController이 @PostMapping으로 처리)
+  const response = await axios.post('http://localhost:8080/api/users/register', registerData)
 
     if (response.data === 'success') {
       // showModal로 바꾸고 싶으면 밑의 alert 대신 showModal 호출

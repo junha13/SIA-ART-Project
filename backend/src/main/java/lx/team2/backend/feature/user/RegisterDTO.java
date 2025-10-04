@@ -22,6 +22,64 @@ public class RegisterDTO {
 	public void setUserId(String userId) {
 		this.userId = userId;
 	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getNickname() {
+		return nickname;
+	}
+
+	public void setNickname(String nickname) {
+		this.nickname = nickname;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public int getUserType() {
+		return userType;
+	}
+
+	// Setter accepting int
+	public void setUserType(int userType) {
+		this.userType = userType;
+	}
+
+	// Setter accepting String (to handle frontend sending "1"/"2")
+	public void setUserType(String userType) {
+		try {
+			this.userType = Integer.parseInt(userType);
+		} catch (NumberFormatException e) {
+			this.userType = 0;
+		}
+	}
+
+	public String getSelectedInterests() {
+		return selectedInterests;
+	}
+
+	public void setSelectedInterests(String selectedInterests) {
+		this.selectedInterests = selectedInterests;
+	}
 	
 	
     

@@ -15,29 +15,29 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ArtworkService {
 
-	@Autowired
-    private ArtworkMapper artworkMapper;
-
-    public void saveArtwork(String title, Double lat, Double lng, MultipartFile image) {
-        String uploadPath = "uploads/";
-        String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
-        File file = new File(uploadPath + fileName);
-
-        try {
-            image.transferTo(file);
-        } catch (IOException e) {
-            throw new RuntimeException("이미지 저장 실패");
-        }
-
-        ArtworkVO vo = new ArtworkVO();
-        vo.setTitle(title);
-        vo.setLat(lat);
-        vo.setLng(lng);
-        vo.setImagePath("/uploads/" + fileName);
-        artworkMapper.insertArtwork(vo);
-    }
-
-    public List<ArtworkVO> getAllArtworks() {
-        return artworkMapper.selectAllArtworks();
-    }
+//	@Autowired
+//    private ArtworkMapper artworkMapper;
+//
+//    public void saveArtwork(String title, Double lat, Double lng, MultipartFile image) {
+//        String uploadPath = "uploads/";
+//        String fileName = UUID.randomUUID() + "_" + image.getOriginalFilename();
+//        File file = new File(uploadPath + fileName);
+//
+//        try {
+//            image.transferTo(file);
+//        } catch (IOException e) {
+//            throw new RuntimeException("이미지 저장 실패");
+//        }
+//
+//        ArtworkVO vo = new ArtworkVO();
+//        vo.setTitle(title);
+//        vo.setLat(lat);
+//        vo.setLng(lng);
+//        vo.setImagePath("/uploads/" + fileName);
+//        artworkMapper.insertArtwork(vo);
+//    }
+//
+//    public List<ArtworkVO> getAllArtworks() {
+//        return artworkMapper.selectAllArtworks();
+//    }
 }

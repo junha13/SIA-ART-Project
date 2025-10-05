@@ -15,6 +15,12 @@ public interface UserMapper {
 	/*
 	 * 회원가입
 	 */
-    void insertUser(UserVO user);
+    int insertUser(RegisterDTO user);
+
+    
+    /*
+     * 중복확인
+     */
+    int checkDuplicateId(@Param("userId") String userId);
     
 }

@@ -1,83 +1,84 @@
 <template>
   <div class="app-content flex-column-fluid my-12">
     <div class="app-container-fluid">
-
+      
+      <!-- 상단 헤더: 제목 동적 변경 및 디자인 유지 -->
       <div class="d-flex align-items-center justify-content-between pt-5 pb-3 mb-5 border-bottom px-3">
-
+        
         <button class="btn btn-icon btn-active-light-primary w-30px h-30px" @click="router.back()">
           <i class="ki-duotone ki-arrow-left fs-2 text-gray-800"></i>
         </button>
-
+        
         <h1 class="page-heading d-flex flex-column justify-content-center text-dark fw-bold fs-3 m-0 position-absolute start-50 translate-middle-x">
           <span class="d-block">예술을 찾는 사람들</span>
+          <!-- 폼 제목: 수정 모드일 때 '수정하기'로 자동 변경 -->
           <span class="fs-7 fw-normal text-gray-600">게시판 글 {{ isEditMode ? '수정하기' : '등록하기' }}</span>
         </h1>
 
         <i class="ki-duotone ki-dots-vertical fs-2 text-gray-800" style="cursor: pointer;"></i>
       </div>
-
-      <div class="card card-flush shadow-sm mx-3 mb-5 write-card-bg">
+      
+      <!-- 메인 컨텐츠 영역 -->
+      <div class="card card-flush shadow-sm mx-3 mb-5">
         <div class="card-body p-5">
 
+          <!-- 지역 선택 -->
           <div class="mb-8">
-            <label class="form-label fw-bold text-gray-800">분류 선택</label>
+            <label class="form-label fw-bold text-gray-800">지역 선택</label>
             <div class="d-flex flex-wrap gap-2">
-              <button v-for="cat in categories" :key="cat"
+              <button v-for="region in regions" :key="region"
                       class="btn btn-sm fw-semibold rounded-pill"
-                      :class="postData.category === cat ? 'btn-dark text-white' : 'btn-outline-secondary text-gray-700'"
-                      @click="postData.category = cat">
+                      :class="boardData.regionName === region ? 'btn-dark text-white' : 'btn-outline-secondary text-gray-700'"
+                      @click="boardData.regionName = region">
+                {{ region }}
+              </button>
+            </div>
+          </div>
+
+          <!-- 카테고리 선택 -->
+          <div class="mb-8">
+            <label class="form-label fw-bold text-gray-800">예술 분류 선택</label>
+            <div class="d-flex flex-wrap gap-2">
+              <button v-for="cat in artCategories" :key="cat"
+                      class="btn btn-sm fw-semibold rounded-pill"
+                      :class="boardData.boardCategoryName === cat ? 'btn-dark text-white' : 'btn-outline-secondary text-gray-700'"
+                      @click="boardData.boardCategoryName = cat">
                 {{ cat }}
               </button>
             </div>
           </div>
 
+          <!-- 지역 선택 -->
+          <div class="mb-8">
+            <label class="form-label fw-bold text-gray-800">게시글 분류 선택</label>
+            <div class="d-flex flex-wrap gap-2">
+              <button v-for="cat in postCategories" :key="cat"
+                      class="btn btn-sm fw-semibold rounded-pill"
+                      :class="boardData.postCategoryName === cat ? 'btn-dark text-white' : 'btn-outline-secondary text-gray-700'"
+                      @click="boardData.postCategoryName = cat">
+                {{ cat }}
+              </button>
+            </div>
+          </div>
+
+          <!-- 제목 -->
           <div class="mb-8">
             <label class="form-label fw-bold text-gray-800">제목</label>
             <input
                 type="text"
                 class="form-control bg-white text-dark rounded-2 border border-gray-400"
                 v-model="postData.title"
-                placeholder="제목을 입력하세요"
+                placeholder="제목을 입력하세요" 
             />
           </div>
 
+          <!-- 내용 (TextArea) -->
           <div class="mb-8">
             <label class="form-label fw-bold text-gray-800">내용</label>
-            <textarea
-                class="form-control bg-white text-dark rounded-2 border border-gray-400"
-                rows="12"
-                v-model="postData.content"
-                placeholder="내용을 입력하세요"
-            ></textarea>
+            <QuillForm ref="editorRef"/>
           </div>
 
-          <div class="mb-8">
-            <label class="form-label fw-bold text-gray-800">사진 및 파일 첨부</label>
-            <div class="d-flex flex-column border border-dashed border-gray-300 rounded-2 p-5 text-center bg-gray-100">
-              <label for="file-upload" class="d-flex flex-column align-items-center justify-content-center" style="cursor: pointer;">
-                <i class="ki-duotone ki-cloud-download fs-2tx text-primary mb-3"></i>
-                <div class="fw-semibold text-gray-600">
-                  여기에 파일을 끌어놓거나 <span class="text-primary fw-bolder">버튼</span>을 클릭하세요
-                  <div v-if="postData.files.length > 0 && !uploadedFiles.length" class="text-success mt-2 fs-7">
-                    * 기존 파일 {{ postData.files.length }}개가 첨부되어 있습니다.
-                  </div>
-                </div>
-              </label>
-              <input type="file" id="file-upload" class="d-none" multiple @change="handleFileUpload" />
-            </div>
-
-            <div v-if="uploadedFiles.length > 0" class="mt-4">
-              <h6 class="fs-7 fw-bold text-gray-700 mb-2">업로드 대기 목록 ({{ uploadedFiles.length }}개):</h6>
-              <div class="d-flex flex-wrap gap-2">
-                    <span v-for="(file, index) in uploadedFiles" :key="index"
-                          class="badge bg-secondary text-white p-2 rounded-pill fs-7 fw-semibold">
-                        {{ file.name }}
-                        <i class="ki-duotone ki-cross-circle fs-5 ms-1 text-danger" style="cursor: pointer;" @click="removeFile(index)"></i>
-                    </span>
-              </div>
-            </div>
-          </div>
-
+          <!-- 태그 -->
           <div class="mb-10">
             <label class="form-label fw-bold text-gray-800">태그</label>
             <div class="d-flex flex-wrap gap-2 mb-3">
@@ -87,6 +88,7 @@
                   class="badge bg-secondary text-white p-2 rounded-pill fs-7 fw-semibold"
               >
                 #{{ tag }}
+                <!-- 태그 삭제 아이콘 색상을 text-danger로 변경하여 시인성 확보 -->
                 <i class="ki-duotone ki-cross-circle fs-5 ms-1 text-danger" style="cursor: pointer;" @click="removeTag(index)"></i>
               </span>
             </div>
@@ -99,15 +101,17 @@
             />
           </div>
 
+          <!-- 버튼: 텍스트 동적 변경 및 등록/수정 로직 호출 -->
           <div class="d-flex justify-content-end gap-3">
             <button class="btn btn-light-secondary fw-bold" @click="saveDraft">임시저장</button>
-            <button class="btn btn-dark fw-bold" @click="confirmSubmit">
+            <button class="btn btn-dark fw-bold" @click="requestAddPost()">
               {{ isEditMode ? '수정 완료' : '등록' }}
             </button>
           </div>
         </div>
       </div>
-
+      
+      <!-- Custom Modal (이하 동일) -->
       <ConfirmModal
           v-model:isVisible="isModalVisible"
           :title="modalTitle"
@@ -122,28 +126,42 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue"
-import { useRoute, useRouter } from "vue-router"
+import { ref, computed, onMounted } from "vue" 
+import { useRoute, useRouter } from "vue-router" 
 import ConfirmModal from '../components/ConfirmModal.vue'
-import { MOCK_POSTS, MOCK_ARTISTS } from '@/data/MockData.js' // 🟢 MockData Import
+import axios from 'axios'
 
 const router = useRouter()
-const route = useRoute()
-const DRAFT_STORAGE_KEY = 'board_post_draft';
+const route = useRoute() 
+const DRAFT_STORAGE_KEY = 'board_post_draft'; // localStorage 키 정의
 
-const categories = ["미술", "음악", "공예", "정보"]
+// 지역 표시 부분
+const regions = ['서울특별시','부산광역시','대구광역시','인천광역시','광주광역시',
+    '대전광역시','울산광역시','세종특별자치시','경기도','강원특별자치도',
+    '충청북도','충청남도','전라북도특별자치도','전라남도','경상북도','경상남도','제주특별자치도']
+// 예술 분야 표시 부분
+const artCategories = ['미술','음악','무용','연극','영화','문학','사진','전통예술']
+// 글 분야 표시 부분
+const postCategories = ['잡담','구인구직','정보']
+const editorRef = ref(null)
+
 const newTag = ref("")
+
+const boardData = ref({
+    regionName: "서울특별시",
+    boardCategoryName: "미술",
+    postCategoryName:"잡담",
+})
 
 // 하나의 통합된 폼 데이터 상태
 const postData = ref({
-  id: null,
-  category: "미술",
-  title: "",
-  content: "",
-  tags: [],
-  files: [] // 기존 파일 정보 (수정 모드 로드시 사용)
+    id: null,
+    title: "",
+    tags: [],
+    files: [] // 기존 파일 정보 (수정 모드 로드시 사용)
 })
 
+// 새로 업로드된 파일 객체를 저장하는 상태 (발표를 위한 핵심)
 const uploadedFiles = ref([])
 
 // isEditMode computed 속성: URL에 ID가 있으면 수정 모드
@@ -160,10 +178,10 @@ const modalConfirmText = ref('확인')
 
 // ⭐ 로드된 임시 저장 데이터를 postData에 적용하는 함수
 const loadDraftData = (draft) => {
-  postData.value.category = draft.category || '미술';
-  postData.value.title = draft.title || '';
-  postData.value.content = draft.content || '';
-  postData.value.tags = draft.tags || [];
+    postData.value.category = draft.category || '미술';
+    postData.value.title = draft.title || '';
+    postData.value.content = draft.content || '';
+    postData.value.tags = draft.tags || [];
 }
 
 // ⭐ onMounted: 수정 모드일 때 데이터 로드, 아니면 임시 저장 데이터 로드 여부 질문
@@ -210,7 +228,7 @@ const showModal = (title, message, type = 'info', action = null, confirmText = '
 
 const handleModalConfirm = () => {
   isModalVisible.value = false;
-
+  
   if (modalAction.value === 'submit') {
     // 등록 확인 모달 -> 등록 로직 실행
     submitPost()
@@ -218,19 +236,19 @@ const handleModalConfirm = () => {
     // 등록/수정 완료 모달 -> 리스트로 이동
     const targetPath = isEditMode.value ? `/board/${postData.value.id}` : "/board"
     // 등록/수정 완료 시에만 임시 저장 데이터 삭제
-    localStorage.removeItem(DRAFT_STORAGE_KEY);
+    localStorage.removeItem(DRAFT_STORAGE_KEY); 
     router.push(targetPath)
   } else if (modalAction.value === 'load_draft') {
     // ⭐ 임시 저장 불러오기 선택 시
     const savedDraft = localStorage.getItem(DRAFT_STORAGE_KEY);
     if (savedDraft) {
-      try {
-        const draft = JSON.parse(savedDraft);
-        loadDraftData(draft); // 데이터 로드 함수 호출
-      } catch (e) {
-        console.error("Failed to parse draft from localStorage", e);
-        localStorage.removeItem(DRAFT_STORAGE_KEY);
-      }
+        try {
+            const draft = JSON.parse(savedDraft);
+            loadDraftData(draft); // 데이터 로드 함수 호출
+        } catch (e) {
+            console.error("Failed to parse draft from localStorage", e);
+            localStorage.removeItem(DRAFT_STORAGE_KEY);
+        }
     }
   }
 }
@@ -249,17 +267,7 @@ const removeTag = (index) => {
   postData.value.tags.splice(index, 1)
 }
 
-// 파일 처리 핸들러: 파일 상태 업데이트 (발표를 위한 핵심)
-const handleFileUpload = (event) => {
-  const files = Array.from(event.target.files);
-  uploadedFiles.value = files;
-  event.target.value = null;
-}
-
-const removeFile = (index) => {
-  uploadedFiles.value.splice(index, 1);
-}
-
+// saveDraft 함수: 현재 글의 내용과 카테고리, 태그를 localStorage에 저장
 const saveDraft = () => {
   try {
     const draftContent = {
@@ -282,7 +290,7 @@ const confirmSubmit = () => {
     showModal('등록 오류', '제목과 내용을 모두 입력해주세요.', 'error')
     return
   }
-
+  
   if (isEditMode.value) {
     submitPost();
   } else {
@@ -294,35 +302,56 @@ const confirmSubmit = () => {
 
 const submitPost = () => {
   const finalData = {
-    ...postData.value,
-    newFiles: uploadedFiles.value.map(file => file.name)
+      ...postData.value,
+      newFiles: uploadedFiles.value.map(file => file.name) 
   }
 
   if (isEditMode.value) {
     console.log('게시글 수정 완료 (ID: ' + finalData.id + '):', finalData)
     showModal('수정 완료', "게시글이 성공적으로 수정되었습니다!", 'success', 'submitSuccess')
   } else {
-    // ⭐ 등록 로직: 게시글 목록 데이터에 새 글 추가 시뮬레이션
-    const newPost = {
-      id: MOCK_POSTS.length + 1,
-      category: finalData.category,
-      title: finalData.title,
-      content: finalData.content,
-      comments: '0',
-      author: MOCK_ARTISTS[0].name, // 현재 로그인된 사용자 (김준하)
-      authorId: MOCK_ARTISTS[0].id,
-      likes: 0,
-      views: 0,
-      date: new Date().toLocaleDateString('ko-KR'),
-      tags: finalData.tags,
-      image: finalData.newFiles.length > 0 ? 'https://placehold.co/600x300/F0F0F0/000?text=NEW+POST' : '',
-    };
-    MOCK_POSTS.unshift(newPost); // 목록 맨 앞에 추가
-
-    console.log('게시글 등록:', newPost)
+    // ⭐ 등록 로직: 게시글 목록 데이터에 새 글 추가 (시연용)
+    if (window.appData && window.appData.addPost) {
+        window.appData.addPost(finalData);
+    }
+    console.log('게시글 등록:', finalData)
     showModal('등록 완료', "게시글이 성공적으로 등록되었습니다!", 'success', 'submitSuccess')
   }
 }
+
+//===========================================================================================
+
+import QuillForm from '@/components/Editor.vue'
+
+  async function requestAddPost() {
+    const html = editorRef.value?.getContent() || ''
+
+    const params = {
+        title: postData.value.title,
+        content:html,
+        regionName:boardData.value.regionName,
+        boardCategoryName:boardData.value.boardCategoryName,
+        postCategoryName:boardData.value.postCategoryName
+    }
+    try {
+      const response = await axios.post(`http://localhost:8080/api/post/post`,
+        params,
+        {
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 5000,
+        })
+        console.log('OK', response.data)
+
+        alert(`게시글 등록이 완료되었습니다.`)
+
+        router.push("/board")
+
+    } catch (e) {
+      console.error('[Detail] load error:', e)
+    }
+  }
+
+
 </script>
 
 <style scoped>

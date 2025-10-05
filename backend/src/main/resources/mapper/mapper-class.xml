@@ -37,7 +37,6 @@
         <if test="searchKeyword != null and searchKeyword != ''">
             AND (
             t.class_name LIKE '%' || #{searchKeyword} || '%'
-
             )
         </if>
 

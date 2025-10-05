@@ -27,12 +27,13 @@
 
           <div class="mb-3">
             <input type="password" v-model="loginData.loginPw"
+                   autocomplete="current-password"
                    class="form-control form-control-lg rounded-3 border-2 shadow-none"
                    placeholder="비밀번호" required />
           </div>
 
           <div class="form-check mb-4">
-            <input class="form-check-input" type="checkbox" id="rememberMe" value="1" />
+            <input class="form-check-input" type="checkbox" id="rememberMe" value="1" v-model="rememberMe" />
             <label class="form-check-label small text-muted" for="rememberMe">
               로그인 정보 저장
             </label>
@@ -72,8 +73,6 @@ import { useAuthStore } from '@/stores/useAuthStore'
 import axios from 'axios'
 
 const router = useRouter()
-//const email = ref('')
-//const password = ref('')
 const authStore = useAuthStore()
 
 const isModalVisible = ref(false)
@@ -98,6 +97,8 @@ const showModal = (title, message, type = 'info', action = null, autoHide = true
   isModalVisible.value = true
 }
 
+const rememberMe = ref(false)
+
 const submitLogin = async () => {
   if (!loginData.value.loginId?.trim() || !loginData.value.loginPw?.trim()) {
     showModal('로그인 오류', '아이디/이메일과 비밀번호를 모두 입력해주세요.', 'error')
@@ -110,10 +111,11 @@ const submitLogin = async () => {
       loginPw: loginData.value.loginPw.trim()
     })
     if (status === 200 && typeof data?.userId === 'number') {
-      authStore.login(data.token); // 스토어를 통해 로그인 상태 업데이트
-      sessionStorage.setItem('userId', String(data.userId))
-      // 필요하다면 loginId도 저장 가능
-      // sessionStorage.setItem('loginId', loginData.value.loginId)
+      // 만들어진 최소 userData: 실제 프로젝트에서는 서버가 사용자 정보를 반환하도록 수정 권장
+      const userData = { name: loginData.value.loginId.trim(), role: '사용자', profileImage: 'assets/media/avatars/300-1.jpg' }
+      // 토큰을 서버에서 받도록 변경 권장; 현재는 임시 토큰 사용
+      const token = data?.token || null
+      authStore.login(userData, token, rememberMe.value)
       showModal('로그인 성공', '환영합니다!', 'success', 'loginSuccess')
     } else {
       showModal('로그인 실패', '서버 응답이 올바르지 않습니다.', 'error')
@@ -129,6 +131,7 @@ const submitLogin = async () => {
     loading.value = false
   }
 }
+
 
 const handleModalConfirm = () => {
   isModalVisible.value = false

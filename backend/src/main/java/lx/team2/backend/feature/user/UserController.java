@@ -5,18 +5,49 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/users")
 public class UserController {
 
 	@Autowired
     private UserService userService;
 
-    @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody UserVO userVO) {
-        userService.signup(userVO);
-        return ResponseEntity.ok("회원가입 완료");
+	/**
+     * 아이디 중복확인 API입니다.
+     * @return 사용 가능 시 'available', 중복 시 'duplicate' 문자열 응답
+     */
+    @GetMapping("/check-id")
+    public ResponseEntity<String> checkDuplicate(@RequestParam("userId") String userId) {
+        // 서비스 계층을 통해 아이디 사용 가능 여부 확인 (쿼리파라미터로 userId를 받음)
+        boolean isAvailable = userService.isIdAvailable(userId);
+        
+        if (isAvailable) {
+            return ResponseEntity.ok("available");
+        } else {
+            return ResponseEntity.ok("duplicate");
+        }
+    }
+
+    /**
+     * 회원가입 처리 API입니다.
+     * @return 회원가입 성공 시 'success', 실패 시 'fail' 문자열 응답
+     */
+    @PostMapping("/register")
+    public ResponseEntity<String> signup(@RequestBody RegisterDTO user) {
+        // 서비스 계층을 통해 회원가입 로직 수행
+        boolean isSuccess = userService.register(user);
+        
+        if (isSuccess) {
+            return ResponseEntity.ok("success");
+        } else {
+            // 중복된 아이디 또는 기타 이유로 실패 시
+            return ResponseEntity.ok("fail");
+        }
     }
     
+    /*
+     * 로그인 처리 API입니다.
+     * @return 로그인 성공 시 userId, 실패 시 401 Unauthorized 응답
+     */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO dto) {
         
@@ -24,13 +55,15 @@ public class UserController {
 		int userId = userService.getUserIdByLogin(dto);
 
 		// 인증 성공 여부 확인
-		if (userId > 0) {
-            // 성공 시 userId를 JSON으로 리턴
-            return ResponseEntity.ok().body(userId);
+        if (userId > 0) {
+            // 성공 시 { userId: <id> } 형태로 응답
+            java.util.Map<String, Integer> resp = new java.util.HashMap<>();
+            resp.put("userId", userId);
+            return ResponseEntity.ok().body(resp);
         } else {
-			// 로그인 실패 시 401 Unauthorized
-			return ResponseEntity.status(401).body("로그인 실패: 아이디 또는 비밀번호가 올바르지 않습니다.");
-		}
+            // 로그인 실패 시 401 Unauthorized
+            return ResponseEntity.status(401).body("로그인 실패: 아이디 또는 비밀번호가 올바르지 않습니다.");
+        }
 
 	}
 

@@ -26,17 +26,17 @@
           <div class="d-flex justify-content-between flex-wrap text-muted small fw-semibold">
             <!-- 작성자, 분류, 날짜 정보 (좌측) -->
             <div class="d-flex align-items-center text-gray-600 mb-2 fs-6">
-              <span class="badge badge-light-secondary fw-bold rounded-pill me-3">{{ post.category }}</span>
-              <span class="me-3">작성자: <span class="text-dark fw-semibold">{{ post.author }}</span></span>
-              <span class="text-gray-500">{{ post.date }}</span>
+              <span class="badge badge-light-secondary fw-bold rounded-pill me-3">{{ post.postCategoryName }}</span>
+              <span class="me-3">작성자: <span class="text-dark fw-semibold">{{ post.userName }}</span></span>
+              <span class="text-gray-500">{{ post.createdAt }}</span>
             </div>
             <!-- 조회수, 추천수 정보 (우측 - 아이콘 축소) -->
             <div class="d-flex align-items-center mb-2 fs-6">
               <span class="text-gray-600 me-3">
-                <i class="ki-duotone ki-eye fs-6 me-1 text-info"></i> 조회 {{ post.views }}
+                <i class="ki-duotone ki-eye fs-6 me-1 text-info"></i> 조회 {{ post.viewCount }}
               </span>
               <span class="text-gray-600">
-                <i class="ki-duotone ki-heart fs-6 me-1 text-danger"></i> 추천 {{ post.likes }}
+                <i class="ki-duotone ki-heart fs-6 me-1 text-danger"></i> 추천 {{ post.recommendCount }}
               </span>
             </div>
           </div>
@@ -44,19 +44,15 @@
 
         <!-- 본문 내용: 폰트 크기 및 줄 간격 조정 -->
         <div class="mb-5">
-          <p class="text-gray-800 fs-4 lh-lg">{{ post.content }}</p>
-          <div v-if="post.image" class="mt-5 text-center">
-            <!-- ⭐ 더미 사진 추가 -->
-            <img :src="post.image" alt="첨부 이미지" class="img-fluid rounded shadow-lg border border-gray-300" />
-          </div>
+          <p class="text-gray-800 fs-4 lh-lg" v-html="post.content"></p>
         </div>
 
-        <!-- 태그 -->
+        <!--  
         <div v-if="post.tags.length > 0" class="mb-5 border-top pt-4">
           <span v-for="tag in post.tags" :key="tag" class="badge badge-light-secondary fw-bold me-2 py-2 px-4 rounded-pill">
             #{{ tag }}
           </span>
-        </div>
+        </div>-->
 
         <!-- 버튼: 크기 축소, 정렬 우측 유지, 순서 변경 -->
         <div class="d-flex justify-content-end gap-2 pt-3 border-top">
@@ -151,18 +147,7 @@ const showModal = (title, message, type = 'info', autoHide = true) => {
 }
 
 // 임시 데이터
-const post = ref({
-  id: route.params.id || 123,
-  category: "미술",
-  title: "최종 디자인이 적용된 게시글 상세 페이지입니다.",
-  author: "김작가",
-  content: "프론트엔드 전문가의 의견을 반영하여, 제목과 본문 가독성을 높이고 버튼의 시각적 계층 구조를 강화했습니다. 추천 버튼의 섀도우를 추가하여 클릭을 유도합니다. 이것이 바로 Metronic 디자인 시스템을 활용한 최적의 커뮤니티 UI입니다.",
-  likes: 5,
-  views: 123,
-  date: "2025.09.29",
-  tags: ["미술", "UX개선", "Metronic", "Dark"],
-  image: "https://placehold.co/600x300/F5A9A9/fff?text=ATTACHED+IMAGE" // 더미 이미지
-})
+const post = ref({})
 
 const comments = ref([
   { author: "이관람", text: "디자인이 훨씬 깔끔하고 보기 좋아졌네요! 특히 댓글 영역이 마음에 듭니다.", date: "2025.09.29" },
@@ -170,9 +155,6 @@ const comments = ref([
 ])
 const newComment = ref("")
 
-onMounted(() => {
-    post.value.views++
-})
 
 const addComment = () => {
   if (newComment.value.trim() !== "") {
@@ -193,10 +175,10 @@ const removeComment = (index) => {
   showModal('댓글 삭제', '댓글이 삭제되었습니다.', 'info', true)
 }
 
-const likePost = () => {
-  post.value.likes++
-  showModal('추천 완료', '이 게시글을 추천하셨습니다.', 'success', true)
-}
+// const likePost = () => {
+//   post.value.likes++
+//   showModal('추천 완료', '이 게시글을 추천하셨습니다.', 'success', true)
+// }
 
 const editPost = () => {
   router.push(`/board/edit?id=${post.value.id}`)
@@ -210,6 +192,43 @@ const handleDelete = () => {
   router.push("/board")
   showModal('삭제 완료', '게시글이 삭제되었습니다.', 'success', true)
 }
+
+
+
+//====================================================================================
+import axios from 'axios'
+
+onMounted(() => {
+    post.value.views++
+
+    requestPostDetail(route.params.id)
+})
+
+async function requestPostDetail(id) {
+
+    try {
+      const response = await axios.post(`http://localhost:8080/api/post/getPostDetail/${id}`, 
+        {
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 5000,
+        })
+        console.log('OK', response.data)
+        post.value = response.data.result
+
+    } catch (e) {
+      console.error('[Detail] load error:', e)
+    } 
+  }
+
+
+
+
+  // 동일 컴포넌트 내에서 :id만 바뀌는 경우 대응
+  // watch(
+  //   () => route.params.id,
+  //   (newId) => requestPostDetail(newId)
+  // )
+
 </script>
 
 <style scoped>

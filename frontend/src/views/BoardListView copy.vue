@@ -26,7 +26,24 @@
               <li><a v-for="region in regions" :key="region" class="dropdown-item"  @click.prevent="searchRegion = region">{{ region }}</a></li>
             </ul>
 
+
+
           <div class="input-group w-100 mw-500px border border-gray-500 rounded-2">
+            <!-- ⭐ 검색 필터 드롭다운 -->
+            <button class="btn btn-secondary dropdown-toggle text-dark fw-bold"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    style="border-top-left-radius: .475rem; border-bottom-left-radius: .475rem;">
+              {{ getSearchFieldName(searchField) }}
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" @click.prevent="searchField = 'title'">제목</a></li>
+              <li><a class="dropdown-item" href="#" @click.prevent="searchField = 'title_content'">제목+내용</a></li>
+              <li><a class="dropdown-item" href="#" @click.prevent="searchField = 'content'">내용</a></li>
+              <li><a class="dropdown-item" href="#" @click.prevent="searchField = 'author'">글쓴이</a></li>
+              <li><a class="dropdown-item" href="#" @click.prevent="searchField = 'comment'">댓글</a></li>
+            </ul>
 
             <!-- 검색 입력 필드 -->
             <input type="text"
@@ -34,7 +51,7 @@
                    placeholder="검색어를 입력하세요"
                    v-model="searchQuery"
                    @keyup.enter="searchPosts"
-                   style="height: 40px;"/>
+                   style="height: 40px; border-top-left-radius: 0; border-bottom-left-radius: 0;"/>
           </div>
         </div>
 
@@ -42,12 +59,12 @@
         <div class="d-flex align-items-center justify-content-between mb-5">
           <!-- 카테고리 버튼 -->
           <div class="d-flex overflow-auto flex-nowrap me-3">
-            <button v-for="categorie in artCategories" :key="categorie"
+            <button v-for="cat in artCategories" :key="cat"
                     class="btn btn-sm text-nowrap rounded-pill me-2 fw-semibold"
-                    :class="selectedCategory === categorie ? 'btn-dark text-white' : 'btn-outline-secondary text-gray-700'"
-                    @click="selectedCategory = categorie"
+                    :class="selectedCategory === cat ? 'btn-dark text-white' : 'btn-outline-secondary text-gray-700'"
+                    @click="selectedCategory = cat"
                     style="border-color: #d1d1d1;">
-              {{ categorie }}
+              {{ cat }}
             </button>
           </div>
           <button class="btn btn-dark btn-sm fw-bold text-nowrap" @click="goWrite">글쓰기</button>
@@ -102,11 +119,11 @@
             </tr>
             </thead>
             <tbody>
-            <tr v-for="post in sortedAndFilteredPosts" :key="post.postNumber" @click="goDetail(post.postNumber)" style="cursor:pointer"
+            <tr v-for="post in sortedAndFilteredPosts" :key="post.id" @click="goDetail(post.id)" style="cursor:pointer"
                 :class="{ 'bg-hover-light-primary': post.category === '공지' }">
-              <td class="text-start"><span class="text-gray-600 fw-semibold d-block">{{ post.postNumber }}</span></td>
+              <td class="text-start"><span class="text-gray-600 fw-semibold d-block">{{ post.id }}</span></td>
               <td class="text-start">
-                <span class="fw-bold">{{ post.postCategoryName }}</span>
+                <span class="fw-bold">{{ post.category }}</span>
               </td>
               <td class="text-start">
                 <a href="#" class="text-gray-800 fw-bold text-hover-primary fs-6 me-2">
@@ -117,16 +134,16 @@
               <td class="text-end">
                 <span class="text-gray-600 fw-semibold d-block fs-7">
                   <i class="ki-duotone ki-heart fs-7 me-1 text-danger"></i>
-                  {{ post.recommendCount }}
+                  {{ post.likes }}
                 </span>
               </td>
               <td class="text-end">
                 <span class="text-gray-600 fw-semibold d-block fs-7">
                   <i class="ki-duotone ki-eye fs-7 me-1 text-info"></i>
-                  {{ post.viewCount }}
+                  {{ post.views }}
                 </span>
               </td>
-              <td class="text-start"><span class="text-gray-600 fw-semibold d-block fs-7">{{ post.createdAt }}</span></td>
+              <td class="text-start"><span class="text-gray-600 fw-semibold d-block fs-7">{{ post.date }}</span></td>
             </tr>
             </tbody>
           </table>
@@ -156,7 +173,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue"
+import { ref, computed } from "vue"
 import { useRouter } from "vue-router"
 import ConfirmModal from '../components/ConfirmModal.vue'
 
@@ -185,8 +202,12 @@ const modalTitle = ref('')
 const modalMessage = ref('')
 const modalType = ref('info')
 
-const posts = ref([])
-
+const posts = ref([
+  { id: 1, category: "공지", title: "게시판 규정 관련 공지사항입니다.[12]", content: "게시판 이용에 관한 주요 규정입니다. 모두 필독해주세요.", comments: "댓글 내용 1", author: "관리자", likes: 15, views: 200, date: "2025.09.27" },
+  { id: 2, category: "미술", title: "미술 빡x 요즘 미술하기 힘드네요...", content: "아이디어가 고갈되어서 힘듭니다.", comments: "아이디어가 좋네요", author: "김춘화", likes: 5, views: 120, date: "2025.09.28" },
+  { id: 3, category: "음악", title: "인기글 예시 - 조회수 높음", content: "최근 발표된 새로운 음악 트렌드 분석입니다.", comments: "노래 좋아요", author: "음악가", likes: 50, views: 500, date: "2025.09.29" },
+  { id: 4, category: "정보", title: "일반 정보글 예시", content: "유용한 웹사이트 정보를 공유합니다.", comments: "새로운 정보 감사합니다", author: "정보통", likes: 2, views: 50, date: "2025.09.20" }
+])
 
 // ⭐ 필터링 로직: 카테고리, 검색어, 게시판 타입 적용
 const filteredPosts = computed(() => {
@@ -278,35 +299,6 @@ const goDetail = (id) => {
 const goBack = () => {
   router.back()
 }
-//===========================================================================
-
-import axios from 'axios'
-
-onMounted(() => {
-  requestPostList()
-})
-
-async function requestPostList() {
-
-    try {
-      const response = await axios.post(`http://localhost:8080/api/post/getPostList`, 
-        {
-          headers: { 'Content-Type': 'application/json' },
-          timeout: 5000,
-        })
-        console.log('OK', response.data.result)
-        posts.value = response.data.result
-
-    } catch (e) {
-      console.error('[Detail] load error:', e)
-    } 
-  }
-
-  //   { id: 1, category: "공지", title: "게시판 규정 관련 공지사항입니다.[12]", content: "게시판 이용에 관한 주요 규정입니다. 모두 필독해주세요.", comments: "댓글 내용 1", author: "관리자", likes: 15, views: 200, date: "2025.09.27" },
-  // { id: 2, category: "미술", title: "미술 빡x 요즘 미술하기 힘드네요...", content: "아이디어가 고갈되어서 힘듭니다.", comments: "아이디어가 좋네요", author: "김춘화", likes: 5, views: 120, date: "2025.09.28" },
-  // { id: 3, category: "음악", title: "인기글 예시 - 조회수 높음", content: "최근 발표된 새로운 음악 트렌드 분석입니다.", comments: "노래 좋아요", author: "음악가", likes: 50, views: 500, date: "2025.09.29" },
-  // { id: 4, category: "정보", title: "일반 정보글 예시", content: "유용한 웹사이트 정보를 공유합니다.", comments: "새로운 정보 감사합니다", author: "정보통", likes: 2, views: 50, date: "2025.09.20" }
-
 </script>
 
 <style scoped>

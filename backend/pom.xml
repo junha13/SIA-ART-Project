@@ -99,6 +99,12 @@
             <artifactId>jts-core</artifactId>
             <version>1.18.2</version> <!-- Use the latest stable version -->
         </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.6.0</version> <!-- 안정적인 최신 버전으로 설정 -->
+        </dependency>
+
     </dependencies>
     <dependencyManagement>
         <dependencies>

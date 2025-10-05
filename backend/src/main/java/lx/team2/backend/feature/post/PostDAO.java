@@ -2,16 +2,18 @@ package lx.team2.backend.feature.post;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@Mapper
 public class PostDAO {
 
 	@Autowired
 	SqlSession session;
-	
+
 	/*
 	 * ========== 게시글 insert ==========
 	 */

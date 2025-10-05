@@ -1,10 +1,9 @@
 -- 처음 실행때만 주석풀고 실행
-CREATE EXTENSION postgis;
+-- CREATE EXTENSION postgis;
 
 -- 원하는 스키마 접속
 -- SET search_path TO public;
 
-1
 -- 테이블 드랍문
 -- DROP TABLE IF EXISTS
 -- tb_appreciation,
@@ -14,6 +13,9 @@ CREATE EXTENSION postgis;
 -- tb_class_category,
 -- tb_comment,
 -- tb_comment_list,
+-- tb_detail_keyword,
+-- tb_class_keyword,
+-- tb_post_recommend,
 -- tb_follow,
 -- tb_interests,
 -- tb_local_art,
@@ -58,6 +60,7 @@ CREATE TABLE tb_board
      post_category_name  VARCHAR (50) 
     ) 
 ;
+
 
 -- 1. tb_class_category (메인 카테고리)
 CREATE TABLE tb_class_category (
@@ -104,37 +107,6 @@ CREATE TABLE tb_class_keyword (
     keyword_number           INTEGER NOT NULL REFERENCES tb_detail_keyword (keyword_number),
     PRIMARY KEY (class_number, keyword_number)
 );
-
-
-INSERT INTO tb_class_category (class_category_name) VALUES
-('순수 미술'),
-('디자인 & 공예'),
-('사진 & 영상'),
-('디지털 아트'),
-('공연 예술'),
-('확장 예술');
-
-INSERT INTO tb_detail_keyword (keyword_name, main_category_number)
-VALUES
--- 1. 순수 미술
-('회화', 1), ('조각', 1), ('드로잉', 1), ('판화', 1), ('서예', 1),
-
--- 2. 디자인 & 공예
-('디자인', 2), ('공예', 2), ('건축', 2), ('메이크업', 2),
-
--- 3. 사진 & 영상
-('사진', 3), ('영화', 3), ('애니메이션', 3), ('비디오 아트', 3),
-
--- 4. 디지털 아트
-('웹툰', 4), ('게임 아트', 4), ('인터랙티브 아트', 4),
-
--- 5. 공연 예술
-('음악', 5), ('무용', 5), ('연극', 5), ('뮤지컬', 5),
-
--- 6. 확장 예술
-('설치', 6), ('문학', 6), ('요리', 6), ('조향', 6);
-
-
 
 CREATE TABLE tb_comment 
     ( 
@@ -186,7 +158,8 @@ CREATE TABLE tb_post
      post_number  SERIAL PRIMARY KEY , 
      post_title   VARCHAR (50) , 
      post_content TEXT , 
-     create_at    TIMESTAMP , 
+     create_at    TIMESTAMP ,
+	 view_count   INTEGER ,
      user_number  INTEGER , 
      board_number INTEGER 
     ) 
@@ -250,6 +223,29 @@ CREATE TABLE tb_user
      interests_list    VARCHAR (100) 
     ) 
 ;
+
+-- 게시글 추천 관련
+CREATE TABLE tb_post_recommend (
+    post_number   INTEGER NOT NULL,
+    user_number   INTEGER NOT NULL,
+    created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    -- 복합 기본키 (중복 추천 방지)
+    CONSTRAINT tb_post_recommend_pk
+        PRIMARY KEY (post_number, user_number),
+
+    -- FK: 게시글 삭제 시 해당 추천도 함께 삭제
+    CONSTRAINT tb_post_recommend_post_fk
+        FOREIGN KEY (post_number)
+        REFERENCES tb_post(post_number)
+        ON DELETE CASCADE,
+
+    -- FK: 유저 삭제 시 해당 유저의 추천도 함께 삭제
+    CONSTRAINT tb_post_recommend_user_fk
+        FOREIGN KEY (user_number)
+        REFERENCES tb_user(user_number)
+        ON DELETE CASCADE
+);
 
 CREATE TABLE tb_work_category
     ( 
@@ -478,47 +474,60 @@ ALTER TABLE tb_product
     ) 
 ;
 
+------------------------------------------------------------------------------------------------
+-- 데이터 연결
 
+-- tb_board에 (region_name × board_category_name × post_category_name) 데카르트 곱으로 삽입
+INSERT INTO tb_board (region_name, board_category_name, post_category_name)
+SELECT r.region_name, a.board_category_name, p.post_category_name
+FROM
+  unnest(ARRAY[
+    '서울특별시','부산광역시','대구광역시','인천광역시','광주광역시',
+    '대전광역시','울산광역시','세종특별자치시','경기도','강원특별자치도',
+    '충청북도','충청남도','전라북도특별자치도','전라남도','경상북도','경상남도','제주특별자치도'
+  ]) AS r(region_name)
+, unnest(ARRAY[
+    '순수 미술', '디자인 & 공예', '사진 & 영상', '디지털 아트', '공연 예술', '확장 예술'
+  ]) AS a(board_category_name)
+, unnest(ARRAY[
+    '잡담','구인구직','정보'
+  ]) AS p(post_category_name);
 
--- Oracle SQL Developer Data Modeler 요약 보고서: 
--- 
--- CREATE TABLE                            17
--- CREATE INDEX                             0
--- ALTER TABLE                             36
--- CREATE VIEW                              0
--- ALTER VIEW                               0
--- CREATE PACKAGE                           0
--- CREATE PACKAGE BODY                      0
--- CREATE PROCEDURE                         0
--- CREATE FUNCTION                          0
--- CREATE TRIGGER                           0
--- ALTER TRIGGER                            0
--- CREATE COLLECTION TYPE                   0
--- CREATE STRUCTURED TYPE                   0
--- CREATE STRUCTURED TYPE BODY              0
--- CREATE CLUSTER                           0
--- CREATE CONTEXT                           0
--- CREATE DATABASE                          0
--- CREATE DIMENSION                         0
--- CREATE DIRECTORY                         0
--- CREATE DISK GROUP                        0
--- CREATE ROLE                              0
--- CREATE ROLLBACK SEGMENT                  0
--- CREATE SEQUENCE                          0
--- CREATE MATERIALIZED VIEW                 0
--- CREATE MATERIALIZED VIEW LOG             0
--- CREATE SYNONYM                           0
--- CREATE TABLESPACE                        0
--- CREATE USER                              0
--- 
--- DROP TABLESPACE                          0
--- DROP DATABASE                            0
--- 
--- REDACTION POLICY                         0
--- 
--- ORDS DROP SCHEMA                         0
--- ORDS ENABLE SCHEMA                       0
--- ORDS ENABLE OBJECT                       0
--- 
--- ERRORS                                   0
--- WARNINGS                                 0
+-- -- user 임시 1번
+-- insert into tb_user (id)
+-- values (1)
+
+-- role 부분 insert
+INSERT INTO tb_role (role_number, role_name)
+VALUES
+    (1, '일반 사용자'),
+    (2, '예술가');
+	
+-- class 부분 insert
+INSERT INTO tb_class_category (class_category_name) VALUES
+('순수 미술'),
+('디자인 & 공예'),
+('사진 & 영상'),
+('디지털 아트'),
+('공연 예술'),
+('확장 예술');
+
+INSERT INTO tb_detail_keyword (keyword_name, main_category_number)
+VALUES
+-- 1. 순수 미술
+('회화', 1), ('조각', 1), ('드로잉', 1), ('판화', 1), ('서예', 1),
+
+-- 2. 디자인 & 공예
+('디자인', 2), ('공예', 2), ('건축', 2), ('메이크업', 2),
+
+-- 3. 사진 & 영상
+('사진', 3), ('영화', 3), ('애니메이션', 3), ('비디오 아트', 3),
+
+-- 4. 디지털 아트
+('웹툰', 4), ('게임 아트', 4), ('인터랙티브 아트', 4),
+
+-- 5. 공연 예술
+('음악', 5), ('무용', 5), ('연극', 5), ('뮤지컬', 5),
+
+-- 6. 확장 예술
+('설치', 6), ('문학', 6), ('요리', 6), ('조향', 6);

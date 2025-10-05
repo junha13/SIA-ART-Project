@@ -1,4 +1,4 @@
-package lx.team2.backend.common.handler;
+package lx.team2.backend.common.config;
 
 import org.apache.ibatis.type.BaseTypeHandler;
 import org.apache.ibatis.type.JdbcType;

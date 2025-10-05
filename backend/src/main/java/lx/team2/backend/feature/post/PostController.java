@@ -33,7 +33,7 @@ public class PostController {
 		List<PostRequestDTO> list = service.selectPostList();
 		return ResponseEntity
 				.ok()
-				.header("api", "post/post")
+				.header("api", "post/getPostList")
 				.body(Map.of("result", list));
 	}
 	
@@ -43,7 +43,7 @@ public class PostController {
 		PostRequestDTO post = service.selectPostDetailByPostId(id);
 		return ResponseEntity
 				.ok()
-				.header("api", "post/post")
+				.header("api", "post/getPostDetail/" + id)
 				.body(Map.of("result", post));
 	}
 	

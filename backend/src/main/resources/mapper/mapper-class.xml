@@ -5,8 +5,24 @@
 
 <mapper namespace="lx.team2.backend.feature.classes.ClassDAO">
 
-    <!-- ========== 클래스 목록 조회 ========== -->
-    <select id="selectClasses" parameterType="ClassVO" resultType="ClassVO">
+    <resultMap id="classMap" type="lx.team2.backend.feature.classes.ClassVO">
+        <id     column="class_number"           property="classNumber"/>
+        <result column="class_name"             property="className"/>
+        <result column="class_description"      property="classDescription"/>
+        <result column="class_image"            property="classImage"/>
+        <result column="user_number"            property="userNumber"/>
+        <result column="class_category_number"  property="classCategoryNumber"/>
+        <result column="start_date"             property="startDate" jdbcType="DATE"/>
+        <result column="end_date"               property="endDate" jdbcType="DATE"/>
+        <result column="is_daily"               property="isDaily" jdbcType="BOOLEAN"/>
+        <result column="duration_weeks"         property="durationWeeks"/>
+        <result column="class_time"             property="classTime"/>
+        <!-- typeHandler 제거, 문자열로 받음 -->
+        <result column="location"               property="location"/>
+        <result column="categoryName"           property="categoryName"/>
+    </resultMap>
+
+    <select id="selectClasses" parameterType="ClassVO" resultMap="classMap">
         SELECT DISTINCT
         t.class_number,
         t.class_name,
@@ -19,7 +35,7 @@
         t.is_daily,
         t.duration_weeks,
         t.class_time,
-        ST_AsText(t.location) AS location,  <!-- Point는 TypeHandler 필요 -->
+        ST_AsText(t.location) AS location,
         c.class_category_name AS categoryName
         FROM tb_class t
         JOIN tb_class_category c ON t.class_category_number = c.class_category_number
@@ -40,31 +56,29 @@
         ORDER BY t.class_number DESC
     </select>
 
-    <!-- ========== 클래스 추가 ========== -->
     <insert id="insertClass" parameterType="ClassVO" useGeneratedKeys="true" keyProperty="classNumber">
         INSERT INTO tb_class (
-            class_name, class_description, user_number, class_category_number, start_date, end_date,
-            class_time, location
+        class_name, class_description, user_number, class_category_number, start_date, end_date,
+        class_time, location
         )
         VALUES (
-                   #{className},
-                   #{classDescription},
-                   #{userNumber},
-                   #{classCategoryNumber},
-                   #{startDate},
-                   #{endDate},
-                   #{classTime},
-                   ST_SetSRID(#{location, typeHandler=lx.team2.backend.common.handler.JtsPointTypeHandler}, 4326)
-               )
+        #{className},
+        #{classDescription},
+        #{userNumber},
+        #{classCategoryNumber},
+        #{startDate},
+        #{endDate},
+        #{classTime},
+        <!-- 문자열을 WKT로 받음 -->
+        ST_SetSRID(ST_GeomFromText(#{location}), 4326)
+        )
     </insert>
 
-    <!-- ========== 클래스-키워드 연결 ========== -->
     <insert id="insertClassKeywordLink">
         INSERT INTO tb_class_keyword (class_number, keyword_number)
         VALUES (#{classNumber}, #{keywordNumber})
     </insert>
 
-    <!-- ========== 키워드 번호 조회 ========== -->
     <select id="selectKeywordNumberByName" parameterType="String" resultType="int">
         SELECT keyword_number FROM tb_detail_keyword WHERE keyword_name = #{keywordName}
     </select>

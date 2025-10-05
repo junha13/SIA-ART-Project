@@ -106,7 +106,7 @@ const submitLogin = async () => {
   }
   loading.value = true
   try {
-    const { data, status } = await axios.post('/api/login', {
+    const { data, status } = await axios.post('/api/users/login', {
       loginId: loginData.value.loginId.trim(),
       loginPw: loginData.value.loginPw.trim()
     })

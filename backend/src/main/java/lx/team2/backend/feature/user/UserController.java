@@ -31,7 +31,7 @@ public class UserController {
      * 회원가입 처리 API입니다.
      * @return 회원가입 성공 시 'success', 실패 시 'fail' 문자열 응답
      */
-    @PostMapping("/register")
+        @PostMapping("/register")
     public ResponseEntity<String> signup(@RequestBody RegisterDTO user) {
         // 서비스 계층을 통해 회원가입 로직 수행
         boolean isSuccess = userService.register(user);

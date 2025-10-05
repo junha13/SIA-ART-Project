@@ -11,13 +11,13 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 class ClassVO {
-    private int id;
-    private String name;
-    private String description;
-    private String image;
+    private int classNumber;
+    private String className;
+    private String classDescription;
+    private String classImage;
     private int userNumber;
     private Point location;
-    private int categoryNumber;
+    private int classCategoryNumber;
     private Date startDate;
     private Date endDate;
     private boolean isDaily;

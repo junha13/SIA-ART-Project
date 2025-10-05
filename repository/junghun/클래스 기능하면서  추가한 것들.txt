@@ -1,0 +1,24 @@
+value("순수 미술", "디자인 & 공예", "사진 & 영상", "디지털 아트", "공연 예술","확장 예술","기타")
+
+======================================
+수정사항
+
+1. maven 종속성 추가
+jts 라이브러리
+<dependency>
+    <groupId>org.locationtech.jts</groupId>
+    <artifactId>jts-core</artifactId>
+    <version>1.18.2</version>
+</dependency>
+
+2. config/SpringConfig.java 삭제
+(BackendApplication에 @MapperScan(basePackages = "lx.team2.backend.feature")추가해야함)
+
+3. tb_class 테이블에 컬럼을 추가
+
+ALTER TABLE tb_class
+ADD COLUMN start_date DATE NOT NULL DEFAULT '2000-01-01',           -- 클래스 시작 날짜
+ADD COLUMN end_date DATE NOT NULL DEFAULT '2000-01-01',            -- 클래스 종료 날짜
+ADD COLUMN is_daily BOOLEAN DEFAULT FALSE, -- 일일 클래스 여부 (기본값: 다회차)
+ADD COLUMN duration_weeks INTEGER DEFAULT 1, -- 총 몇 주차로 구성되는지 (기본값: 1주)
+ADD COLUMN class_time VARCHAR (50);     -- 클래스 진행 시간대 정보 (예: '14:00 ~ 16:00')

@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class ClassService {
 
     private final ClassDAO classDAO;
-    private final RestTemplate restTemplate; // <<얘 때문에 RestTemplateConfig생김 알아서 인식못해서 config에서 bin으로 인식시켜줘야함
+    private final RestTemplate naverRestTemplate; // <<얘 때문에 RestTemplateConfig생김 알아서 인식못해서 config에서 bin으로 인식시켜줘야함
 
     // application.properties에서 설정한 Naver API 키 주입
     @Value("${naver.api.clientId}")
@@ -71,53 +71,59 @@ public class ClassService {
      */
     private String reverseGeocode(Point point) {
         if (point == null) {
+            log.warn("[Geocoding] Point가 null입니다.");
             return "위치 정보 없음";
         }
 
         // Naver Reverse Geocoding API URL
-        String apiUrl = "https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc";
+        String apiUrl = "https://maps.apigw.ntruss.com/map-reversegeocode/v2/gc";
 
-        // URL과 파라미터 생성
+        // URL과 파라미터 생성 (⚠ 경도, 위도 순서)
         URI uri = UriComponentsBuilder.fromUriString(apiUrl)
-                .queryParam("coords", point.getX() + "," + point.getY()) // 경도,위도 순서
+                .queryParam("coords", point.getX() + "," + point.getY()) // 경도, 위도
                 .queryParam("output", "json")
                 .queryParam("orders", "roadaddr") // 도로명 주소 우선
                 .build(true)
                 .toUri();
 
-        // HTTP 헤더에 Naver API 인증 정보 추가
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("X-NCP-APIGW-API-KEY-ID", naverClientId);
-        headers.set("X-NCP-APIGW-API-KEY", naverClientSecret);
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
+        log.info("[Geocoding] 요청 URI: {}", uri);
 
         try {
-            log.info("[Geocoding] Naver API 호출: {}", uri);
-            // API 호출 및 응답 받기
-            ResponseEntity<JsonNode> response = restTemplate.exchange(uri, HttpMethod.GET, entity, JsonNode.class);
+            // 인터셉터에서 Key를 붙이므로 HttpEntity 불필요
+            ResponseEntity<JsonNode> response = naverRestTemplate.getForEntity(uri, JsonNode.class);
+            log.info("[Geocoding] HTTP 상태 코드: {}", response.getStatusCode());
 
-            if (response.getStatusCode() == HttpStatus.OK && response.getBody() != null) {
-                JsonNode results = response.getBody().path("results");
-                if (results.isArray() && results.size() > 0) {
-                    // 응답받은 JSON에서 주소 정보 추출
-                    JsonNode region = results.get(0).path("region");
-                    String area1 = region.path("area1").path("name").asText(); // 시/도
-                    String area2 = region.path("area2").path("name").asText(); // 시/군/구
-
-                    // 도로명 주소가 있는 경우 도로명 + 건물번호 사용
-                    JsonNode land = results.get(0).path("land");
-                    String roadName = land.path("name").asText();
-                    String buildingNumber = land.path("number1").asText();
-
-                    String address = String.format("%s %s %s %s", area1, area2, roadName, buildingNumber).trim();
-                    log.info("[Geocoding] 변환 성공: {} -> {}", point.toText(), address);
-                    return address;
-                }
+            JsonNode body = response.getBody();
+            if (body == null) {
+                log.error("[Geocoding] API 응답이 null입니다.");
+                return "주소 변환 실패";
             }
-        } catch (Exception e) {
-            log.error("[Geocoding] API 호출 중 에러 발생: {}", e.getMessage(), e);
-        }
 
-        return "주소 변환 실패";
+            log.debug("[Geocoding] API 응답 JSON:\n{}", body.toPrettyString());
+
+            JsonNode results = body.path("results");
+            if (!results.isArray() || results.size() == 0) {
+                log.warn("[Geocoding] results 배열이 비어있거나 잘못됨.");
+                return "주소 변환 실패";
+            }
+
+            JsonNode firstResult = results.get(0);
+            JsonNode region = firstResult.path("region");
+            String area1 = region.path("area1").path("name").asText(""); // 시/도
+            String area2 = region.path("area2").path("name").asText(""); // 시/군/구
+
+            JsonNode land = firstResult.path("land");
+            String roadName = land.path("name").asText("");             // 도로명
+            String buildingNumber = land.path("number1").asText("");     // 건물번호
+
+            String address = String.format("%s %s %s %s", area1, area2, roadName, buildingNumber).trim();
+            log.info("[Geocoding] 변환 성공: {} -> {}", point.toText(), address);
+            return address;
+
+        } catch (Exception e) {
+            log.error("[Geocoding] API 호출 중 예외 발생: {}", e.getMessage(), e);
+            return "주소 변환 실패";
+        }
     }
+
 }

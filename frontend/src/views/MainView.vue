@@ -71,7 +71,7 @@
           <div class="card-item artist-card mb-3" style="height: 180px;" @click="goTo('/artist/list')">
             <span class="card-text">예술가</span>
           </div>
-          <div class="card-item class-card mb-3" style="height: 180px;" @click="goTo('/classes')">
+          <div class="card-item class-card mb-3" style="height: 180px;" @click="goTo('/class')">
             <span class="card-text">클래스</span>
           </div>
           <div class="card-item community-card" style="height: 180px;" @click="goTo('/board')">

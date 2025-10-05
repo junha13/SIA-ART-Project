@@ -68,28 +68,36 @@ CREATE TABLE tb_class_category (
     class_category_name       VARCHAR (50) NOT NULL UNIQUE
 );
 
--- 2. tb_class (클래스 메인 정보)
+-- 2. tb_class (클래스 메인 정보 - 모든 컬럼 추가 버전)
 CREATE TABLE tb_class (
-     -- 식별자 (PRIMARY KEY)
-    class_number           SERIAL PRIMARY KEY,
+    -- 기본 정보
+    class_number          SERIAL PRIMARY KEY,
+    class_name            VARCHAR(100) NOT NULL,
+    subtitle              VARCHAR(255),
+    class_description     TEXT,
+    class_image           TEXT,
+    user_number           INTEGER, -- 강사(사용자)의 ID
+    instructor            VARCHAR(50), -- 강사 이름
+    instructor_avatar     TEXT, -- 강사 프로필 이미지 URL
 
-    -- 핵심 정보 (이름, 설명, 이미지)
-	
-    class_name             VARCHAR (50),
-    class_description      TEXT,
-    class_image            TEXT,
+    -- 상세 정보
+    level                 VARCHAR(50), -- 예: 초급, 중급, 고급
+    capacity              INTEGER DEFAULT 1, -- 수강 정원
+    price                 INTEGER DEFAULT 0, -- 수강료
+    materials_included    BOOLEAN DEFAULT FALSE, -- 재료비 포함 여부
+    curriculum            TEXT, -- 커리큘럼 (줄바꿈 문자로 주차별 내용 구분)
 
-    -- 일정/기간 상세 정보 (새로 추가된 필드)
-    start_date             DATE NOT NULL DEFAULT '2000-01-01',
-    end_date               DATE NOT NULL DEFAULT '2000-01-01',
-    class_time             VARCHAR (50),
-    duration_weeks         INTEGER DEFAULT 1,
-    is_daily               BOOLEAN DEFAULT FALSE,
+    -- 일정/기간 정보
+    start_date            DATE,
+    end_date              DATE,
+    class_time            VARCHAR(50), -- 예: 14:00 ~ 16:00
+    days                  VARCHAR(50), -- 예: 토, 일
+    duration_weeks        INTEGER DEFAULT 1,
+    is_daily              BOOLEAN DEFAULT FALSE,
 
-    -- 외래 키 및 공간 데이터 (참조/특수 데이터 타입)
-    user_number            INTEGER,
-    class_category_number  INTEGER,
-    location               geography(Point, 4326)
+    -- 외래 키 및 공간 데이터
+    class_category_number INTEGER REFERENCES tb_class_category(class_category_number),
+    location              GEOGRAPHY(Point, 4326)
 );
 
 -- 3. tb_detail_keyword (상세 키워드: 회화, 조각 등)
@@ -497,37 +505,55 @@ FROM
 -- insert into tb_user (id)
 -- values (1)
 
+읽는
 -- role 부분 insert
 INSERT INTO tb_role (role_number, role_name)
 VALUES
     (1, '일반 사용자'),
     (2, '예술가');
+
+
 	
--- class 부분 insert
+/* * --------------------------------------------------
+ * class 부분 insert - 순서가 매우 중요!
+ * --------------------------------------------------
+*/
+
+-- STEP 1: 부모 테이블인 카테고리 정보 먼저 삽입
 INSERT INTO tb_class_category (class_category_name) VALUES
-('순수 미술'),
-('디자인 & 공예'),
-('사진 & 영상'),
-('디지털 아트'),
-('공연 예술'),
-('확장 예술');
+('순수 미술'), ('디자인 & 공예'), ('사진 & 영상'),
+('디지털 아트'), ('공연 예술'), ('확장 예술');
 
-INSERT INTO tb_detail_keyword (keyword_name, main_category_number)
-VALUES
--- 1. 순수 미술
+-- STEP 2: 카테고리를 참조하는 상세 키워드 정보 삽입
+INSERT INTO tb_detail_keyword (keyword_name, main_category_number) VALUES
 ('회화', 1), ('조각', 1), ('드로잉', 1), ('판화', 1), ('서예', 1),
-
--- 2. 디자인 & 공예
 ('디자인', 2), ('공예', 2), ('건축', 2), ('메이크업', 2),
-
--- 3. 사진 & 영상
 ('사진', 3), ('영화', 3), ('애니메이션', 3), ('비디오 아트', 3),
-
--- 4. 디지털 아트
 ('웹툰', 4), ('게임 아트', 4), ('인터랙티브 아트', 4),
-
--- 5. 공연 예술
 ('음악', 5), ('무용', 5), ('연극', 5), ('뮤지컬', 5),
-
--- 6. 확장 예술
 ('설치', 6), ('문학', 6), ('요리', 6), ('조향', 6);
+
+-- STEP 3: 이제 카테고리(ID=1)가 존재하므로 클래스 정보 삽입 가능
+INSERT INTO tb_class (
+    class_name, subtitle, class_description, class_image, user_number, instructor, instructor_avatar,
+    level, capacity, price, materials_included, curriculum,
+    start_date, end_date, class_time, days, duration_weeks,
+    class_category_number, location
+) VALUES (
+    '유화 마스터',
+    '전문가를 위한 고급 유화 기법',
+    '이 강좌는 유화의 깊이 있는 이해를 돕고, 자신만의 독창적인 스타일을 개발할 수 있도록 설계되었습니다. 색채 이론부터 복잡한 질감 표현까지, 전문적인 유화 기법을 마스터하게 됩니다.',
+    'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?q=80&w=1944&auto=format&fit=crop',
+    1,
+    '허지서',
+    'https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop',
+    '고급', 5, 200000, TRUE,
+    '1주차: 색채의 이해와 고급 혼합 기법\n2주차: 다양한 질감 표현과 나이프 페인팅\n3주차: 인물화와 구성의 원리\n4주차: 개인 프로젝트 및 작품 발표',
+    '2025-11-01', '2025-11-22', '14:00 ~ 16:00', '매주 토요일', 4,
+    1, -- '순수 미술' 카테고리 참조
+    ST_SetSRID(ST_MakePoint(126.886369, 37.485294), 4326)
+);
+
+-- (선택) 방금 만든 클래스와 키워드를 연결
+-- '유화 마스터' 클래스(class_number=1)와 '회화' 키워드(keyword_number=1) 연결
+INSERT INTO tb_class_keyword (class_number, keyword_number) VALUES (1, 1);

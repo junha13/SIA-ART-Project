@@ -68,7 +68,7 @@ const router = createRouter({
             component: ProductRegistrationView
         },
         {
-            path: "/classes", name: "classes",
+            path: "/class", name: "classes",
             component: ClassListView
         },
         {

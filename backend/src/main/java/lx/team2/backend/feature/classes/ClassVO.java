@@ -10,20 +10,37 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-class ClassVO {
+public class ClassVO {
+    // 기본 정보
     private int classNumber;
     private String className;
+    private String subtitle;
     private String classDescription;
     private String classImage;
     private int userNumber;
-    private Point location;
-    private int classCategoryNumber;
+    private String instructor;
+    private String instructorAvatar;
+
+    // 상세 정보
+    private String level;
+    private int capacity;
+    private int price;
+    private boolean materialsIncluded;
+    private String curriculum;
+
+    // 일정/기간 정보
     private Date startDate;
     private Date endDate;
-    private boolean isDaily;
-    private int durationWeeks;
     private String classTime;
-    // ✨ 검색/필터링을 위한 필드
-    private String categoryName; // 카테고리 이름 필터링 (tb_class_category 조인 필요)
-    private String searchKeyword; // 검색어 (제목, 위치 등에 사용)
+    private String days;
+    private int durationWeeks;
+    private boolean isDaily;
+
+    // 외래 키 및 공간 데이터
+    private int classCategoryNumber;
+    private Point location;
+
+    // --- MyBatis 조인 결과 또는 검색 파라미터를 위한 필드 ---
+    private String categoryName; // JOIN 결과
+    private String searchKeyword; // 검색 파라미터
 }

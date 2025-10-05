@@ -1,63 +1,66 @@
 import { ref, computed } from 'vue';
 import { defineStore } from 'pinia';
-import { useApi } from '@/data/useApi'; // 🟢 useApi 임포트
+import { useApi } from '@/data/useApi';
 
 export const useClassStore = defineStore('class', () => {
-    // 1. 상태 (State)
+    /**
+     * 상태 (State)
+     */
     const classes = ref([]);
     const classDetail = ref(null);
     const classesLoading = ref(false);
     const classesError = ref(null);
 
-    // 2. 액션 (Actions)
-
     /**
-     * 클래스 목록을 서버에서 가져옵니다.
-     * @param {object} params - 검색 조건 (category, searchQuery, page 등)
+     * 액션 (Actions)
      */
+
+        // 클래스 목록 조회
     const fetchClasses = async (params = {}) => {
-        const { execute, loading, error } = useApi('get', 'classes'); // API 선언
-        classesLoading.value = true;
+            const { execute } = useApi('get', 'classes');
+            classesLoading.value = true;
+            classesError.value = null; // 이전 에러 초기화
 
-        try {
-            // GET 요청 시 params가 쿼리 파라미터로 전달됨
-            const responseData = await execute(params);
+            try {
+                const responseData = await execute(params);
+                // 👈 [수정 1] responseData 자체가 백엔드에서 보낸 배열이므로 .data를 제거합니다.
+                classes.value = responseData;
+                return true;
+            } catch (err) {
+                classesError.value = err;
+                console.error('클래스 목록 조회 실패:', err);
+                // 👈 [수정 2] 에러 발생 시 목록을 빈 배열로 초기화하여 화면 오류를 방지합니다.
+                classes.value = [];
+                return false;
+            } finally {
+                classesLoading.value = false;
+            }
+        };
 
-            // ⭐ Store 상태 업데이트
-            classes.value = responseData.data; // 서버 응답 구조에 따라 조정 필요
-
-            classesLoading.value = false;
-            classesError.value = null;
-
-            return true; // 성공 반환
-        } catch (err) {
-            classesError.value = err;
-            classesLoading.value = false;
-            console.error('클래스 목록 조회 실패:', err);
-            return false; // 실패 반환
-        }
-    };
-
-    /**
-     * 특정 클래스 상세 정보를 서버에서 가져옵니다.
-     * @param {number} id - 클래스 번호
-     */
+    // 클래스 상세 정보 조회
     const fetchClassDetail = async (id) => {
-        const { execute, loading, error } = useApi('get', `classes/${id}`); // 동적 URL 사용
+        const { execute } = useApi('get', `classes/${id}`);
+        // 👈 [개선 1] 상세 정보 조회 시에도 로딩과 에러 상태를 관리합니다.
+        classesLoading.value = true;
+        classesError.value = null;
+        classDetail.value = null; // 이전 상세 데이터 초기화
 
         try {
-            const data = await execute();
-
-            // ⭐ Store 상태 업데이트
-            classDetail.value = data;
+            const responseData = await execute();
+            classDetail.value = responseData;
             return true;
         } catch (err) {
+            classesError.value = err;
             console.error(`클래스 상세 조회 (ID: ${id}) 실패:`, err);
             return false;
+        } finally {
+            classesLoading.value = false;
         }
     };
 
-    // 3. 게터 (Getters)
+    /**
+     * 게터 (Getters)
+     */
     const getClassList = computed(() => classes.value);
     const getIsClassesLoading = computed(() => classesLoading.value);
 

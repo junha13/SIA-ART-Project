@@ -24,36 +24,51 @@
 
     <select id="selectClasses" parameterType="ClassVO" resultMap="classMap">
         SELECT DISTINCT
-        t.class_number,
-        t.class_name,
-        t.class_description,
-        t.class_image,
-        t.user_number,
-        t.class_category_number,
-        t.start_date,
-        t.end_date,
-        t.is_daily,
-        t.duration_weeks,
-        t.class_time,
+        t.class_number, t.class_name, t.subtitle, t.class_description, t.class_image,
+        t.user_number, t.instructor, t.instructor_avatar, t.level, t.capacity,
+        t.price, t.materials_included, t.curriculum, t.start_date, t.end_date,
+        t.class_time, t.days, t.duration_weeks, t.is_daily, t.class_category_number,
         ST_AsText(t.location) AS location,
         c.class_category_name AS categoryName
-        FROM tb_class t
-        JOIN tb_class_category c ON t.class_category_number = c.class_category_number
-        <if test="detailKeywordName != null and detailKeywordName != ''">
-            JOIN tb_class_keyword tk ON t.class_number = tk.class_number
-            JOIN tb_detail_keyword dk ON tk.keyword_number = dk.keyword_number
-        </if>
+        FROM
+        tb_class t
+        LEFT JOIN
+        tb_class_category c ON t.class_category_number = c.class_category_number
         WHERE 1=1
         <if test="categoryName != null and categoryName != '' and categoryName != '전체'">
             AND c.class_category_name = #{categoryName}
         </if>
-        <if test="detailKeywordName != null and detailKeywordName != ''">
-            AND dk.keyword_name = #{detailKeywordName}
-        </if>
         <if test="searchKeyword != null and searchKeyword != ''">
-            AND t.class_name LIKE '%' || #{searchKeyword} || '%'
+            AND (
+            t.class_name LIKE '%' || #{searchKeyword} || '%' OR
+            t.subtitle LIKE '%' || #{searchKeyword} || '%' OR
+            t.instructor LIKE '%' || #{searchKeyword} || '%'
+            )
         </if>
         ORDER BY t.class_number DESC
+    </select>
+
+    <select id="selectClassDetail" parameterType="int" resultMap="classMap">
+        SELECT
+            t.class_number,
+            t.class_name,
+            t.class_description,
+            t.class_image,
+            t.user_number,
+            t.class_category_number,
+            t.start_date,
+            t.end_date,
+            t.is_daily,
+            t.duration_weeks,
+            t.class_time,
+            ST_AsText(t.location) AS location, -- Point 타입을 Text로 변환
+            c.class_category_name AS categoryName
+        FROM
+            tb_class t
+                LEFT JOIN
+            tb_class_category c ON t.class_category_number = c.class_category_number
+        WHERE
+            t.class_number = #{classNumber}
     </select>
 
     <insert id="insertClass" parameterType="ClassVO" useGeneratedKeys="true" keyProperty="classNumber">

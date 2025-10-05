@@ -4,36 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.context.ApplicationContext;
+
 
 @Slf4j
 @SpringBootApplication
 @MapperScan(basePackages = "lx.team2.backend.feature")
 public class BackendApplication  {
-
-
-   /*
-   implements CommandLineRunner
-
-   private final ApplicationContext context;
-
-    public BackendApplication(ApplicationContext context) {
-        this.context = context;
-    }
-
-    @Override
-    public void run(String... args) {
-        System.out.println("===== 스프링 부트 Bean 목록 =====");
-        String[] beanNames = context.getBeanDefinitionNames();
-
-        // Bean 이름 순서 정렬
-        java.util.Arrays.sort(beanNames);
-
-        for (String name : beanNames) {
-            System.out.println(name + " : " + context.getBean(name).getClass().getName());
-        }
-    }*/
 
     public static void main(String[] args) {
         SpringApplication.run(BackendApplication.class, args);

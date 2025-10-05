@@ -31,10 +31,8 @@ public class ClassDTO {
         private List<String> curriculum; // DB에 추가 필요 (별도 테이블 또는 TEXT)
 
         // ClassDTO.java 파일 내부의 from 메서드
-        public static DetailResponse from(ClassVO vo) {
+        public static DetailResponse from(ClassVO vo,String address) {
             log.info("DetailResponse 호출됨");
-            // Point 객체를 WKT 문자열로 변환
-            String locationStr = (vo.getLocation() != null) ? vo.getLocation().toText() : "위치 정보 없음";
 
             // curriculum 필드를 줄바꿈 기준으로 분리하여 List<String>으로 변환
             List<String> curriculumList = (vo.getCurriculum() != null && !vo.getCurriculum().isEmpty())
@@ -51,7 +49,7 @@ public class ClassDTO {
                     .level(vo.getLevel()) // 임시값 제거
                     .instructor(vo.getInstructor()) // 임시값 제거
                     .instructorAvatar(vo.getInstructorAvatar()) // 임시값 제거
-                    .location(locationStr)
+                    .location(address)
                     .days(vo.getDays()) // 임시값 제거
                     .capacity(vo.getCapacity()) // 임시값 제거
                     .price(vo.getPrice()) // 임시값 제거
@@ -77,9 +75,8 @@ public class ClassDTO {
         private String location; // WKT 문자열로 전달
 
         // VO를 ListResponse DTO로 변환하는 정적 팩토리 메서드
-        public static ListResponse from(ClassVO vo) {
+        public static ListResponse from(ClassVO vo,String address) {
             log.info("ListResponse 호출됨");
-            String locationStr = (vo.getLocation() != null) ? vo.getLocation().toText() : "위치 정보 없음";
 
             return ListResponse.builder()
                     .classNumber(vo.getClassNumber())
@@ -88,7 +85,7 @@ public class ClassDTO {
                     .subtitle(vo.getSubtitle())
                     .instructor(vo.getInstructor())
                     .durationWeeks(vo.getDurationWeeks())
-                    .location(locationStr)
+                    .location(address)
                     .build();
         }
     }

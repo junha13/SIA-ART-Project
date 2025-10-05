@@ -78,150 +78,161 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import ConfirmModal from '../components/ConfirmModal.vue'
-import { MOCK_MAP_DATA } from '@/data/MockData.js'; // 🟢 MockData Import
-import { useLocationStore } from '@/stores/useLocationStore'; // 🟢 Location Store Import
+import { ref, onMounted, computed, watch, toRaw } from 'vue';
+import { useRouter } from 'vue-router';
+import ConfirmModal from '../components/ConfirmModal.vue';
+import { MOCK_MAP_DATA } from '@/data/MockData.js';
+import { useLocationStore } from '@/stores/useLocationStore';
 
-
-const router = useRouter()
-const locationStore = useLocationStore(); // Store 초기화
-const naverMap = ref(null)
-const markerClustering = ref(null)
-const markers = ref([])
-const activeFilter = ref('art')
-const searchQuery = ref(locationStore.currentLocation.name) // Store의 현재 위치를 기본 검색어로 사용
+const router = useRouter();
+const locationStore = useLocationStore();
+const naverMap = ref(null);
+const markerClustering = ref(null);
+const markers = ref([]);
+const activeFilter = ref('art');
+const searchQuery = ref(locationStore.currentLocation.name);
 
 // Modal State
-const isModalVisible = ref(false)
-const modalTitle = ref('')
-const modalMessage = ref('')
-const modalType = ref('info')
+const isModalVisible = ref(false);
+const modalTitle = ref('');
+const modalMessage = ref('');
+const modalType = ref('info');
 const showModal = (title, message, type = 'info') => {
-  modalTitle.value = title
-  modalMessage.value = message
-  modalType.value = type
-  isModalVisible.value = true
-}
+  modalTitle.value = title;
+  modalMessage.value = message;
+  modalType.value = type;
+  isModalVisible.value = true;
+};
 
-// 필터 (예술작품, 클래스, 갤러리/전시회)
+
+// 필터
 const filters = [
   { key: 'art', label: '예술작품' },
   { key: 'studio', label: '클래스' },
   { key: 'gallery', label: '갤러리' },
 ]
 
-// --- 🟢 MOCK_MAP_DATA에서 데이터 로드 ---
+// Mock Data
 const allData = ref(MOCK_MAP_DATA);
-// --- 데이터 로드 끝 ---
 
 // --- Map & Clustering Logic ---
-
 const createMarkers = () => {
-  // ⭐ [오류 수정 후 로직]: 지도의 현재 경계를 얻어와 필터링에 활용
   if (!naverMap.value) return;
   const bounds = naverMap.value.getBounds();
 
-  // 1. 기존 클러스터링 인스턴스 정리
+  // 1. 기존 클러스터 인스턴스 정리
   if (markerClustering.value) {
     markerClustering.value.setMap(null);
   }
-  markers.value = []
+  markers.value = [];
 
-  // 2. 현재 활성 필터 + 검색 키워드 + 지도 경계 내 데이터만 선택
+  // 2. 지도 경계 내에 표시할 데이터 필터링
   const dataToMap = filteredList.value.filter(item => {
-    // 🟢 지리적 경계 필터링: item의 좌표가 현재 지도 경계 내에 있는지 확인
     const latLng = new window.naver.maps.LatLng(item.lat, item.lng);
     return bounds.hasLatLng(latLng);
   });
 
+  // 3. Vue의 반응형 배열(markers.value)에 마커 임시 추가
   dataToMap.forEach(item => {
     const marker = new window.naver.maps.Marker({
       position: new window.naver.maps.LatLng(item.lat, item.lng),
       title: item.title || item.name,
-    })
-
-    // 마커 클릭 이벤트: 단일 마커 클릭 시 해당 마커 위치로 지도를 이동하고 하단 뷰는 그대로 유지
+    });
     window.naver.maps.Event.addListener(marker, 'click', () => {
       naverMap.value.setCenter(marker.getPosition());
-    })
+    });
+    marker.dataId = item.id;
+    markers.value.push(marker);
+  });
 
-    // 클러스터링을 위해 마커 객체 자체에 원본 데이터 ID 속성 추가
-    marker.dataId = item.id
-    markers.value.push(marker)
-  })
-
-  // 3. MarkerClustering 인스턴스 생성 및 설정
+  // 4. 클러스터링 생성
   if (naverMap.value && markers.value.length > 0) {
     if (window.MarkerClustering) {
-      markerClustering.value = new window.MarkerClustering({
-        map: naverMap.value,
-        markers: markers.value,
-        maxZoom: 14,
-        minClusterSize: 2,
-        styles: [{
-          // ⭐ [오류 수정]: 템플릿 리터럴(백틱)을 사용하여 SVG 문자열 구문 오류 해결
-          icon: {
-            content: `<div style="color:white; font-size:12px; font-weight:bold; width:30px; height:40px; line-height:30px; text-align:center; background-image:url('data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 40 50\'><path fill=\'red\' d=\'M20,0 C9,0 0,9 0,20 C0,30 20,50 20,50 C20,50 40,30 40,20 C40,9 31,0 20,0 Z\'/><circle fill=\'white\' cx=\'20\' cy=\'20\' r=\'8\'/></svg>\'); background-size:contain; background-repeat:no-repeat;"></div>`,
-            size: new window.naver.maps.Size(40, 50),
-            anchor: new window.naver.maps.Point(20, 50)
-          },
-        },
-          {
-            icon: {
-              content: '<div style="background:#000; color:#fff; font-size:14px; font-weight:bold; border-radius:50%; width:40px; height:40px; line-height:40px; text-align:center;">{text}</div>',
-              size: new window.naver.maps.Size(40, 40),
+      try {
+        // --- 👇 [핵심 수정] ---
+        // Vue의 프록시를 완전히 제거하기 위해, 순수한 새 마커 배열을 '깊은 복사'하여 생성합니다.
+        const rawMarkers = markers.value.map(proxyMarker => {
+          const originalMarker = toRaw(proxyMarker);
+          const newMarker = new window.naver.maps.Marker({
+            position: originalMarker.getPosition(),
+            title: originalMarker.getTitle(),
+          });
+          // 필요한 사용자 정의 데이터가 있다면 같이 복사합니다.
+          newMarker.dataId = originalMarker.dataId;
+          return newMarker;
+        });
+
+        markerClustering.value = new window.MarkerClustering({
+          map: toRaw(naverMap.value),
+          markers: rawMarkers, // 👈 복제된 '순수 배열'을 라이브러리에 전달
+          maxZoom: 14,
+          minClusterSize: 2,
+          icons: [
+            {
+              content: `<div style="background:rgba(0,128,255,0.6);color:white;
+                 border-radius:50%;width:40px;height:40px;display:flex;
+                 align-items:center;justify-content:center;">{text}</div>`,
+              size: new naver.maps.Size(40, 40),
+              anchor: new naver.maps.Point(20, 20)
+            },
+            {
+              content: `<div style="background:rgba(255,0,0,0.6);color:white;
+                 border-radius:50%;width:50px;height:50px;display:flex;
+                 align-items:center;justify-content:center;">{text}</div>`,
+              size: new naver.maps.Size(50, 50),
+              anchor: new naver.maps.Point(25, 25)
+            }
+          ],
+          styles: [
+            { // 클러스터 마커 개수가 10개 미만일 때 (파란색 원)
+              content: '<div style="cursor:pointer; width:40px; height:40px; line-height:42px; font-size:14px; color:white; text-align:center; font-weight:bold; background:rgba(0, 123, 255, 0.8); border-radius:50%;"><span>{text}</span></div>',
               anchor: new window.naver.maps.Point(20, 20)
             },
-            size: new window.naver.maps.Size(40, 40),
-            textColor: '#ffffff',
-            fontWeight: 'bold'
-          }
-        ],
-        listener: (event) => {
-          const cluster = event.overlay
-          naverMap.value.fitBounds(cluster.getBounds())
-        }
-      })
+            { // 클러스터 마커 개수가 10개 이상 100개 미만일 때 (초록색 원)
+              content: '<div style="cursor:pointer; width:50px; height:50px; line-height:52px; font-size:16px; color:white; text-align:center; font-weight:bold; background:rgba(40, 167, 69, 0.8); border-radius:50%;"><span>{text}</span></div>',
+              anchor: new window.naver.maps.Point(25, 25)
+            },
+          ],
+        });
+        console.log('[createMarkers] MarkerClustering 생성 성공!');
+        // --- 核心 수정 끝 ---
+
+      } catch (e) {
+        console.error('[createMarkers] MarkerClustering 생성 중 에러 발생!', e);
+      }
     } else {
+      // 클러스터링 라이브러리가 없을 경우, 원본 마커를 지도에 표시
       markers.value.forEach(m => m.setMap(naverMap.value));
-      console.warn("MarkerClustering 라이브러리가 로드되지 않았습니다. 일반 마커로 표시합니다.");
+      console.warn("MarkerClustering 라이브러리가 로드되지 않았습니다.");
     }
   }
-}
-
+};
 const initMap = () => {
-  if (!window.naver) return
+  console.log('[initMap] 함수 실행 시작');
+  if (!window.naver || !window.naver.maps) {
+    console.error('[initMap] naver.maps 객체가 존재하지 않아 함수를 중단합니다.');
+    return;
+  }
 
-  // 🟢 Store의 현재 위치를 지도 중앙 좌표로 사용
   const centerLat = locationStore.currentLocation.lat;
   const centerLng = locationStore.currentLocation.lng;
 
+  console.log('[initMap] 지도 객체 생성 시도...');
   naverMap.value = new window.naver.maps.Map('archiveMap', {
-    center: new window.naver.maps.LatLng(centerLat, centerLng), // Store 값 사용
+    center: new window.naver.maps.LatLng(centerLat, centerLng),
     zoom: 13,
-    minZoom: 9,
-    maxZoom: 18,
-    logoControl: false,
-    mapDataControl: false,
-    zoomControl: true,
-    scaleControl: true,
-    mapTypeControl: false,
-  })
+  });
+  console.log('[initMap] 지도 객체 생성 완료:', naverMap.value);
 
-  // ⭐ [핵심 수정]: 지도 이동/줌 정지 시마다 마커 재생성 (Zoom Level 반영)
-  window.naver.maps.Event.addListener(naverMap.value, 'idle', createMarkers);
-
-  createMarkers() // 마커 및 클러스터링 초기화
-}
-
+  // 'idle' 이벤트는 지도가 처음 준비되었을 때, 그리고 이동이 멈췄을 때 발생합니다.
+  window.naver.maps.Event.addListener(naverMap.value, 'idle', () => {
+    console.log('[idle Event] 지도 idle 이벤트 발생 -> createMarkers() 호출');
+    createMarkers();
+  });
+};
 
 const performSearch = () => {
-  // 1) 검색어에 맞춰 필터링된 리스트를 기준으로 마커 재생성
   createMarkers()
-
-  // 2) 결과가 있으면 해당 핀들을 모두 담는 bounds로 화면 이동
   if (naverMap.value && filteredList.value.length > 0) {
     const bounds = new window.naver.maps.LatLngBounds()
     filteredList.value.forEach(it => bounds.extend(new window.naver.maps.LatLng(it.lat, it.lng)))
@@ -231,61 +242,38 @@ const performSearch = () => {
   }
 }
 
-const goBack = () => {
-  router.go(-1)
-}
-
 const viewDetail = (item) => {
   showModal('상세 보기', `${item.title || item.name}의 상세 페이지로 이동합니다.`, 'info')
 }
 
-
 onMounted(() => {
-  // Naver Map SDK 로드 확인 후 초기화
-  if (window.naver) {
-    setTimeout(() => {
-      initMap();
-    }, 500);
-  } else {
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        if (window.naver) initMap();
-      }, 500);
-    });
-  }
-})
+  console.log('[onMounted] 컴포넌트 마운트됨 -> initMap() 호출');
+  initMap();
+});
 
 // --- 지도 검색 필터 ---
-
 const extractAreaKeyword = (raw) => {
   if (!raw) return ''
   const s = String(raw).trim()
   const tokens = s.split(/\s+/)
   const bySuffix = tokens.find(t => /[가-힣A-Za-z0-9]+(구|군|시)$/.test(t))
   if (bySuffix) return bySuffix.replace(/[^가-힣A-Za-z0-9]/g, '')
-
   return tokens[0].replace(/[^가-힣A-Za-z0-9]/g, '')
 }
 
 const areaKeyword = computed(() => extractAreaKeyword(searchQuery.value))
 
-// 1) 타입 필터 + 2) 지역 키워드(부분 일치)까지 반영된 최종 리스트 (지리적 경계 필터링은 createMarkers에서 분리됨)
 const filteredList = computed(() => {
   const kw = areaKeyword.value
   return allData.value.filter(item => {
     const typeOk = item.type === activeFilter.value
-
-    // 🟢 검색어(kw)가 없으면 지역 필터링을 건너뛰고 타입만 확인 (전체 지역 데이터 표시)
     if (!kw || kw.length < 2) {
       return typeOk
     }
-
-    // 검색어(kw)가 있으면 지역 일치 여부를 확인
     return typeOk && String(item.loc).includes(kw)
   })
 })
 
-// 하단 카드 뷰는 filteredList에서 지도 경계 내의 항목만 다시 필터링하여 사용
 const currentDetailList = computed(() => {
   if (!naverMap.value) return [];
   const bounds = naverMap.value.getBounds();
@@ -294,7 +282,6 @@ const currentDetailList = computed(() => {
     return bounds.hasLatLng(latLng);
   });
 })
-
 </script>
 
 <style scoped>

@@ -5,30 +5,34 @@
 
 <mapper namespace="lx.team2.backend.feature.classes.ClassDAO">
 
-    <resultMap id="classMap" type="lx.team2.backend.feature.classes.ClassVO">
+    <resultMap id="classMap" type="ClassVO">
         <id     column="class_number"           property="classNumber"/>
         <result column="class_name"             property="className"/>
+        <result column="subtitle"               property="subtitle"/>
         <result column="class_description"      property="classDescription"/>
         <result column="class_image"            property="classImage"/>
         <result column="user_number"            property="userNumber"/>
-        <result column="class_category_number"  property="classCategoryNumber"/>
-        <result column="start_date"             property="startDate" jdbcType="DATE"/>
-        <result column="end_date"               property="endDate" jdbcType="DATE"/>
-        <result column="is_daily"               property="isDaily" jdbcType="BOOLEAN"/>
-        <result column="duration_weeks"         property="durationWeeks"/>
+        <result column="instructor"             property="instructor"/>
+        <result column="instructor_avatar"      property="instructorAvatar"/>
+        <result column="level"                  property="level"/>
+        <result column="capacity"               property="capacity"/>
+        <result column="price"                  property="price"/>
+        <result column="materials_included"     property="materialsIncluded"/>
+        <result column="curriculum"             property="curriculum"/>
+        <result column="start_date"             property="startDate"/>
+        <result column="end_date"               property="endDate"/>
         <result column="class_time"             property="classTime"/>
-        <!-- typeHandler 제거, 문자열로 받음 -->
+        <result column="days"                   property="days"/>
+        <result column="duration_weeks"         property="durationWeeks"/>
+        <result column="is_daily"               property="isDaily"/>
+        <result column="class_category_number"  property="classCategoryNumber"/>
         <result column="location"               property="location"/>
         <result column="categoryName"           property="categoryName"/>
     </resultMap>
 
     <select id="selectClasses" parameterType="ClassVO" resultMap="classMap">
-        SELECT DISTINCT
-        t.class_number, t.class_name, t.subtitle, t.class_description, t.class_image,
-        t.user_number, t.instructor, t.instructor_avatar, t.level, t.capacity,
-        t.price, t.materials_included, t.curriculum, t.start_date, t.end_date,
-        t.class_time, t.days, t.duration_weeks, t.is_daily, t.class_category_number,
-        ST_AsText(t.location) AS location,
+        SELECT
+        t.*, -- tb_class의 모든 컬럼 선택
         c.class_category_name AS categoryName
         FROM
         tb_class t
@@ -50,18 +54,7 @@
 
     <select id="selectClassDetail" parameterType="int" resultMap="classMap">
         SELECT
-            t.class_number,
-            t.class_name,
-            t.class_description,
-            t.class_image,
-            t.user_number,
-            t.class_category_number,
-            t.start_date,
-            t.end_date,
-            t.is_daily,
-            t.duration_weeks,
-            t.class_time,
-            ST_AsText(t.location) AS location, -- Point 타입을 Text로 변환
+            t.*, -- tb_class의 모든 컬럼 선택
             c.class_category_name AS categoryName
         FROM
             tb_class t

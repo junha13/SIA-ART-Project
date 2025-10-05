@@ -1,11 +1,13 @@
 package lx.team2.backend.feature.classes;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor // final 필드에 대한 생성자를 자동으로 만들어줍니다.
 public class ClassService {
@@ -18,6 +20,7 @@ public class ClassService {
      * @return 클래스 상세 정보 DTO
      */
     public ClassDTO.DetailResponse getClassDetail(int classNumber) {
+        log.info("getClassDetail 호출됨");
         // 1. DAO를 통해 DB에서 ClassVO 객체를 가져옵니다.
         ClassVO classVO = classDAO.selectClassDetail(classNumber);
 
@@ -38,6 +41,7 @@ public class ClassService {
      * @return 클래스 목록 DTO 리스트
      */
     public List<ClassDTO.ListResponse> getAllClasses(String category, String query) {
+        log.info("getAllClasses 호출됨: category={}, query={}", category, query);
         // 1. 검색 조건을 담을 VO 객체 생성
         ClassVO params = new ClassVO();
         params.setCategoryName(category); // Mybatis Mapper에서 사용할 카테고리 이름
@@ -46,9 +50,14 @@ public class ClassService {
         // 2. DAO를 통해 데이터베이스에서 List<ClassVO>를 가져옴
         List<ClassVO> voList = classDAO.selectClasses(params);
 
-        // 3. Stream API를 사용해 List<ClassVO>를 List<ClassDTO.ListResponse>로 변환
-        return voList.stream()
-                .map(ClassDTO.ListResponse::from)
+        // Stream을 사용해 DTO 리스트로 변환
+        List<ClassDTO.ListResponse> dtoList = voList.stream()
+                .map(ClassDTO.ListResponse::from) // 여기서 각 DTO의 from이 호출됨
                 .collect(Collectors.toList());
+
+        // 👇 DTO 변환이 끝난 후, 결과 리스트의 크기를 한 번만 로그로 남긴다.
+        log.info("{}개의 클래스 DTO 변환 완료.", dtoList.size());
+
+        return dtoList;
     }
 }

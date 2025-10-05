@@ -3,11 +3,10 @@ package lx.team2.backend.feature.classes;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
 import lombok.Getter;
-import org.locationtech.jts.geom.Point;
-
-import java.util.Date;
+import lombok.extern.slf4j.Slf4j;
 import java.util.List;
 
+@Slf4j
 public class ClassDTO {
 
     @Getter
@@ -33,6 +32,7 @@ public class ClassDTO {
 
         // ClassDTO.java 파일 내부의 from 메서드
         public static DetailResponse from(ClassVO vo) {
+            log.info("DetailResponse 호출됨");
             // Point 객체를 WKT 문자열로 변환
             String locationStr = (vo.getLocation() != null) ? vo.getLocation().toText() : "위치 정보 없음";
 
@@ -78,6 +78,7 @@ public class ClassDTO {
 
         // VO를 ListResponse DTO로 변환하는 정적 팩토리 메서드
         public static ListResponse from(ClassVO vo) {
+            log.info("ListResponse 호출됨");
             String locationStr = (vo.getLocation() != null) ? vo.getLocation().toText() : "위치 정보 없음";
 
             return ListResponse.builder()

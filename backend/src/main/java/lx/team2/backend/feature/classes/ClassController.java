@@ -1,10 +1,12 @@
 package lx.team2.backend.feature.classes;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List; // List import 추가
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/classes")
@@ -18,6 +20,7 @@ public class ClassController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<ClassDTO.DetailResponse> getClassDetail(@PathVariable int id) {
+        log.info("getClassDetail 호출됨");
         ClassDTO.DetailResponse responseDTO = classService.getClassDetail(id);
 
         if (responseDTO == null) {
@@ -34,7 +37,7 @@ public class ClassController {
     public ResponseEntity<List<ClassDTO.ListResponse>> getAllClasses(
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String query) {
-
+        log.info("getAllClasses 호출됨");
         // 👇 ClassDTO.ClassDTO.ListResponse -> ClassDTO.ListResponse 로 수정
         List<ClassDTO.ListResponse> dtoList = classService.getAllClasses(category, query);
         return ResponseEntity.ok(dtoList);

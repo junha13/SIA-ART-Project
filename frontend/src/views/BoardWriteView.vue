@@ -338,6 +338,7 @@ import QuillForm from '@/components/Editor.vue'
         params,
         {
           headers: { 'Content-Type': 'application/json' },
+          withCredentials: true,
           timeout: 5000,
         })
         console.log('OK', response.data)

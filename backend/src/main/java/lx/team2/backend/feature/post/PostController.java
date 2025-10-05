@@ -38,13 +38,23 @@ public class PostController {
 	}
 	
 	// ========== 각 게시글 디테일 화면 보여주기 ==========
-	@RequestMapping("/getPostDetail/{id}")
-	public ResponseEntity<?> selectPostDetail(@PathVariable int id) {
-		PostRequestDTO post = service.selectPostDetailByPostId(id);
+	@RequestMapping("/getPostDetail/{postNumber}")
+	public ResponseEntity<?> selectPostDetail(@PathVariable int postNumber ) {
+		PostRequestDTO post = service.selectPostDetailByPostId(postNumber);
 		return ResponseEntity
 				.ok()
-				.header("api", "post/getPostDetail/" + id)
+				.header("api", "post/getPostDetail/" + postNumber)
 				.body(Map.of("result", post));
+	}
+	
+	// ========== 게시글 추천 api  ==========
+	@RequestMapping("/recommend")
+	public ResponseEntity<?> insertPostRecommend(@RequestBody PostRecommendRequestDTO dto) {
+		Map<String, Object> map = service.insertPostRecommend(dto);
+		return ResponseEntity
+				.ok()
+				.header("api", "post/recommend")
+				.body(Map.of("result", map));
 	}
 	
 

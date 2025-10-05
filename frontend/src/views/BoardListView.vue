@@ -113,7 +113,7 @@
                   {{ post.title }}
                 </a>
               </td>
-              <td class="text-start"><span class="text-gray-600 fw-semibold d-block fs-7">{{ post.author }}</span></td>
+              <td class="text-start"><span class="text-gray-600 fw-semibold d-block fs-7">{{ post.userActivityName }}</span></td>
               <td class="text-end">
                 <span class="text-gray-600 fw-semibold d-block fs-7">
                   <i class="ki-duotone ki-heart fs-7 me-1 text-danger"></i>
@@ -271,8 +271,8 @@ const goWrite = () => {
   router.push("/board/write")
 }
 
-const goDetail = (id) => {
-  router.push(`/board/${id}`)
+const goDetail = (postNumber) => {
+  router.push(`/board/${postNumber}`)
 }
 
 const goBack = () => {

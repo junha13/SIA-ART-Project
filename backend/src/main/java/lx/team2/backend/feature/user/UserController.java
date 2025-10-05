@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpSession;
+
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
@@ -49,7 +51,7 @@ public class UserController {
      * @return 로그인 성공 시 userId, 실패 시 401 Unauthorized 응답
      */
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginDTO dto) {
+    public ResponseEntity<?> login(@RequestBody LoginDTO dto, HttpSession session) {
         
 		// 서비스 계층의 로그인 메서드를 호출하여 사용자 인증을 시도
 		int userId = userService.getUserIdByLogin(dto);
@@ -57,6 +59,7 @@ public class UserController {
 		// 인증 성공 여부 확인
         if (userId > 0) {
             // 성공 시 { userId: <id> } 형태로 응답
+        	session.setAttribute("userNumber", userId);
             java.util.Map<String, Integer> resp = new java.util.HashMap<>();
             resp.put("userId", userId);
             return ResponseEntity.ok().body(resp);

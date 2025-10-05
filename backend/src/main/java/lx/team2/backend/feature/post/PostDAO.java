@@ -48,4 +48,37 @@ public class PostDAO {
 	public int updateIncrementViewCount(int PostNumber) {
 		return session.update("updateIncrementViewCount", PostNumber);
 	}
+	
+	/*
+	 * ========== 유저 로그인아이디로 유저 pk뽑기 ==========
+	 */
+	public int selectUserNumberByUserLoginId(String userLoginId) {
+		return session.selectOne("selectUserNumberByUserLoginId", userLoginId);
+	}
+	
+	/*
+	 * ========== 보는 사람이 추천 햇는지 안햇는지 보기 ==========
+	 */
+	public boolean selectPostRecommendByMe(PostRecommendRequestDTO recommendDto) {
+		return session.selectOne("selectPostRecommendByMe", recommendDto);
+	}
+	
+	/*
+	 * ========== 추천수 올리기 ==========
+	 */
+	public int insertPostRecommend(PostRecommendRequestDTO recommendDto) {
+		return session.insert("insertPostRecommend", recommendDto);
+	}
+	/*
+	 * ========== 추천수 내리기 ==========
+	 */
+	public int deletePostRecommend(PostRecommendRequestDTO recommendDto) {
+		return session.insert("deletePostRecommend", recommendDto);
+	}
+	/*
+	 * ========== 추천수 보기 ==========
+	 */
+	public int selectRecommendCount(PostRecommendRequestDTO recommendDto) {
+		return session.selectOne("selectRecommendCount", recommendDto);
+	}
 }

@@ -14,5 +14,3 @@
 
 4. application.properties에서 mybatis.type-aliases-package=lx.team2.backend.feature.** 작성해줌으로써 mapper-*.xml파일에서 parameterType을 굳이 패키지 전체를 하실 필요없습니다.
 이 설정은 MyBatis에게 VO나 DTO 클래스들이 어디에 있는지 알려주고, 그 클래스들을 클래스명만 작성하게 해줍니다.
-
-5. 

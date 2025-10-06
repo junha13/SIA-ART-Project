@@ -27,7 +27,7 @@
             <!-- 작성자, 분류, 날짜 정보 (좌측) -->
             <div class="d-flex align-items-center text-gray-600 mb-2 fs-6">
               <span class="badge badge-light-secondary fw-bold rounded-pill me-3">{{ post.postCategoryName }}</span>
-              <span class="me-3">작성자: <span class="text-dark fw-semibold">{{ post.userName }}</span></span>
+              <span class="me-3">작성자: <span class="text-dark fw-semibold">{{ post.userActivityName }}</span></span>
               <span class="text-gray-500">{{ post.createdAt }}</span>
             </div>
             <!-- 조회수, 추천수 정보 (우측 - 아이콘 축소) -->
@@ -57,8 +57,11 @@
         <!-- 버튼: 크기 축소, 정렬 우측 유지, 순서 변경 -->
         <div class="d-flex justify-content-end gap-2 pt-3 border-top">
           <!-- 1. 추천 버튼 (크기: btn-sm, 텍스트 크기: fs-6) -->
-          <button class="btn btn-dark btn-sm fw-bold shadow-sm d-flex align-items-center justify-content-start ps-3 pe-4" @click="likePost">
-            <i class="ki-duotone ki-heart fs-6 me-1 text-danger"></i> <span class="text-white fs-6">추천 ({{ post.likes }})</span>
+          <button v-if="!recommendedByMe" class="btn btn-dark btn-sm fw-bold shadow-sm d-flex align-items-center justify-content-start ps-3 pe-4" @click="requestRecommendPost(post.postNumber)">
+            <i class="ki-duotone ki-heart fs-6 me-1 text-danger"></i> <span class="text-white fs-6">추천 ({{ recommendCount }})</span>
+          </button>
+          <button v-if="recommendedByMe" class="btn btn-dark btn-sm fw-bold shadow-sm d-flex align-items-center justify-content-start ps-3 pe-4" @click="requestRecommendPost(post.postNumber)">
+            <i class="ki-duotone ki-heart fs-6 me-1 text-danger"></i> <span class="text-white fs-6">추천취소 ({{ recommendCount }})</span>
           </button>
           <!-- 2. 수정 버튼 (크기: btn-sm, 텍스트 크기: fs-6) -->
           <button class="btn btn-dark btn-sm fw-bold d-flex align-items-center justify-content-start ps-3 pe-4" @click="editPost">
@@ -84,9 +87,9 @@
                 type="text"
                 class="form-control me-3 form-control-solid rounded-2 border border-gray-300"
                 placeholder="댓글을 입력하세요"
-                @keyup.enter="addComment"
+                @keyup.enter="requestAddComment(post.postNumber)"
             />
-            <button class="btn btn-dark fw-bold text-nowrap" @click="addComment">등록</button>
+            <button class="btn btn-dark fw-bold text-nowrap" @click="requestAddComment(post.postNumber)">등록</button>
           </div>
 
           <!-- 댓글 리스트 -->
@@ -94,11 +97,11 @@
             <li v-for="(comment, index) in comments" :key="index"
                 class="list-group-item d-flex justify-content-between align-items-start border-bottom py-4 px-0">
               <div class="d-flex flex-column">
-                <span class="text-dark fw-bolder mb-1">{{ comment.author }}</span>
-                <span class="text-gray-800">{{ comment.text }}</span>
+                <span class="text-dark fw-bolder mb-1">{{ comment.activityName }}</span>
+                <span class="text-gray-800">{{ comment.commentContent }}</span>
               </div>
               <div class="d-flex flex-column align-items-end">
-                  <small class="text-muted fs-7 mb-2">{{ comment.date }}</small>
+                  <small class="text-muted fs-7 mb-2">{{ comment.createAt }}</small>
                   <!-- 댓글 삭제 버튼도 Dark 스타일로 변경 -->
                   <button class="btn btn-sm btn-dark fw-semibold" @click="removeComment(index)">
                     <span class="text-white">삭제</span>
@@ -156,19 +159,19 @@ const comments = ref([
 const newComment = ref("")
 
 
-const addComment = () => {
-  if (newComment.value.trim() !== "") {
-    comments.value.push({
-      author: "나",
-      text: newComment.value.trim(),
-      date: "방금"
-    })
-    newComment.value = ""
-    showModal('댓글 등록', '댓글이 성공적으로 등록되었습니다.', 'success', true)
-  } else {
-    showModal('댓글 오류', '내용을 입력해주세요.', 'error', true)
-  }
-}
+// const addComment = () => {
+//   if (newComment.value.trim() !== "") {
+//     comments.value.push({
+//       author: "나",
+//       text: newComment.value.trim(),
+//       date: "방금"
+//     })
+//     newComment.value = ""
+//     showModal('댓글 등록', '댓글이 성공적으로 등록되었습니다.', 'success', true)
+//   } else {
+//     showModal('댓글 오류', '내용을 입력해주세요.', 'error', true)
+//   }
+// }
 
 const removeComment = (index) => {
   comments.value.splice(index, 1)
@@ -198,22 +201,30 @@ const handleDelete = () => {
 //====================================================================================
 import axios from 'axios'
 
+const recommendedByMe = ref()
+const recommendCount = ref()
+
 onMounted(() => {
     post.value.views++
 
-    requestPostDetail(route.params.id)
+    requestPostDetail(route.params.postNumber)
 })
 
-async function requestPostDetail(id) {
+async function requestPostDetail(postNumber) {
 
     try {
-      const response = await axios.post(`http://localhost:8080/api/post/getPostDetail/${id}`, 
+      const response = await axios.post(`http://localhost:8080/api/post/getPostDetail/${postNumber}`, 
+      null,
         {
           headers: { 'Content-Type': 'application/json' },
+          withCredentials: true,
           timeout: 5000,
         })
         console.log('OK', response.data)
-        post.value = response.data.result
+        post.value = response.data.result.result
+        recommendedByMe.value = response.data.result.result.recommendedByMe
+        recommendCount.value = response.data.result.result.recommendCount
+        comments.value = response.data.result.commentList
 
     } catch (e) {
       console.error('[Detail] load error:', e)
@@ -221,6 +232,53 @@ async function requestPostDetail(id) {
   }
 
 
+  // 아직 안함
+async function requestAddComment(postNumber) {
+  const comment = {
+    postNumber:postNumber,
+    commentContent:newComment.value
+  }
+
+    try {
+      const response = await axios.post(`http://localhost:8080/api/post/addComment`,
+      comment,
+        {
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true,
+          timeout: 5000,
+        })
+        console.log('OK', response.data)
+        comments.value = response.data.result.commentList
+        newComment.value = ""
+
+    } catch (e) {
+      console.error('[Detail] load error:', e)
+    } 
+}
+
+async function requestRecommendPost(postNumber) {
+
+  const recommend = {
+    postNumber:postNumber,
+    recommendedByMe:post.recommendedByMe
+  }
+
+  try {
+      const response = await axios.post(`http://localhost:8080/api/post/recommend`,
+      recommend,
+        {
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true,
+          timeout: 5000,
+        })
+        console.log('OK', response.data)
+        recommendedByMe.value = response.data.result.recommendedByMe
+        recommendCount.value = response.data.result.recommendCount
+
+    } catch (e) {
+      console.error('[Detail] load error:', e)
+    } 
+}
 
 
   // 동일 컴포넌트 내에서 :id만 바뀌는 경우 대응

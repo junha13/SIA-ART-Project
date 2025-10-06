@@ -31,9 +31,12 @@ public class PostRequestDTO {
     private String postCategoryName;
     
     // user name (활동명)
-    private String userName;
+    private String userActivityName;
     
     // 추천
     private int recommendCount;    // 총 추천 수
-    //private boolean recommendedByMe; // 내가 추천했는지 (viewer 기준)
+    private boolean recommendedByMe; // 내가 추천했는지 (viewer 기준)
+    
+    // 댓글 내용
+    private String commentContent;
 }

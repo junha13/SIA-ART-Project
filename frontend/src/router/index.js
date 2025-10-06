@@ -116,7 +116,7 @@ const router = createRouter({
             component: BoardWriteView
         },
         {
-            path: "/board/:id", name: "board-detail",
+            path: "/board/:postNumber", name: "board-detail",
             component: BoardDetailView, props: true
         },
         {

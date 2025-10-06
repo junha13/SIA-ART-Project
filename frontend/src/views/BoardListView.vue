@@ -113,7 +113,7 @@
                   {{ post.title }}
                 </a>
               </td>
-              <td class="text-start"><span class="text-gray-600 fw-semibold d-block fs-7">{{ post.author }}</span></td>
+              <td class="text-start"><span class="text-gray-600 fw-semibold d-block fs-7">{{ post.userActivityName }}</span></td>
               <td class="text-end">
                 <span class="text-gray-600 fw-semibold d-block fs-7">
                   <i class="ki-duotone ki-heart fs-7 me-1 text-danger"></i>
@@ -271,8 +271,8 @@ const goWrite = () => {
   router.push("/board/write")
 }
 
-const goDetail = (id) => {
-  router.push(`/board/${id}`)
+const goDetail = (postNumber) => {
+  router.push(`/board/${postNumber}`)
 }
 
 const goBack = () => {
@@ -302,11 +302,24 @@ async function requestPostList() {
     } 
   }
 
-  //   { id: 1, category: "공지", title: "게시판 규정 관련 공지사항입니다.[12]", content: "게시판 이용에 관한 주요 규정입니다. 모두 필독해주세요.", comments: "댓글 내용 1", author: "관리자", likes: 15, views: 200, date: "2025.09.27" },
-  // { id: 2, category: "미술", title: "미술 빡x 요즘 미술하기 힘드네요...", content: "아이디어가 고갈되어서 힘듭니다.", comments: "아이디어가 좋네요", author: "김춘화", likes: 5, views: 120, date: "2025.09.28" },
-  // { id: 3, category: "음악", title: "인기글 예시 - 조회수 높음", content: "최근 발표된 새로운 음악 트렌드 분석입니다.", comments: "노래 좋아요", author: "음악가", likes: 50, views: 500, date: "2025.09.29" },
-  // { id: 4, category: "정보", title: "일반 정보글 예시", content: "유용한 웹사이트 정보를 공유합니다.", comments: "새로운 정보 감사합니다", author: "정보통", likes: 2, views: 50, date: "2025.09.20" }
+async function requestPostListByCondition() {
+  const condition = {
+    
+  }
 
+  try {
+    const response = await axios.post(`http://localhost:8080/api/post/getPostListByCondition`,
+    condition,
+      {
+        headers: { 'Content-Type': 'application/json' },
+        timeout: 5000,
+      })
+      console.log('OK', response.data.result)
+
+  } catch (e) {
+      console.error('[Detail] load error:', e)
+  }
+}
 </script>
 
 <style scoped>

@@ -27,6 +27,7 @@
     </header>
 
     <main class="flex-grow-1 overflow-auto" style="margin-top: 130px;">
+      <!-- 지도 -->
       <div
           id="archiveMap"
           style="height: 45vh; width: 100%; border: 1px solid gray; border-radius: 1rem;"
@@ -38,6 +39,8 @@
       </div>
 
 
+
+      <!-- ▼▼ 카드 스크롤 래퍼: relative로 만들어 버튼을 안에 겹친다 ▼▼ -->
       <div class="px-1 pb-5 cards-wrap">
         <div class="d-flex overflow-auto gap-3 card-scroll" style="border-radius: 1rem;">
           <div v-for="item in currentDetailList" :key="item.id + item.type"
@@ -61,6 +64,8 @@
         </div>
 
 
+
+        <!-- ★ 여기로 버튼 이동: 카드 영역 우하단에 겹친다 -->
         <button
             class="btn btn-lg btn-light rounded-circle shadow-lg fab-add"
             @click="router.push('/product/register')"
@@ -73,30 +78,33 @@
     </main>
 
 
+
+
     <ConfirmModal v-model:isVisible="isModalVisible" :title="modalTitle" :message="modalMessage" :type="modalType" :autoHide="true"/>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch, toRaw } from 'vue';
-import { useRouter } from 'vue-router';
-import ConfirmModal from '../components/ConfirmModal.vue';
-import { MOCK_MAP_DATA } from '@/data/MockData.js';
+import { ref, onMounted, computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import ConfirmModal from '../components/ConfirmModal.vue'
+import axios from 'axios'
 import { useLocationStore } from '@/stores/useLocationStore';
 
-const router = useRouter();
+
+const router = useRouter()
 const locationStore = useLocationStore();
-const naverMap = ref(null);
-const markerClustering = ref(null);
-const markers = ref([]);
-const activeFilter = ref('art');
+const naverMap = ref(null)
+const markerClustering = ref(null)
+const markers = ref([])
+const activeFilter = ref('art')
 const searchQuery = ref(locationStore.currentLocation.name);
 
 // Modal State
-const isModalVisible = ref(false);
-const modalTitle = ref('');
-const modalMessage = ref('');
-const modalType = ref('info');
+const isModalVisible = ref(false)
+const modalTitle = ref('')
+const modalMessage = ref('')
+const modalType = ref('info')
 const showModal = (title, message, type = 'info') => {
   modalTitle.value = title;
   modalMessage.value = message;
@@ -104,18 +112,22 @@ const showModal = (title, message, type = 'info') => {
   isModalVisible.value = true;
 };
 
-
-// 필터
+// 필터 (예술작품, 클래스, 갤러리/전시회)
 const filters = [
   { key: 'art', label: '예술작품' },
   { key: 'studio', label: '클래스' },
   { key: 'gallery', label: '갤러리' },
 ]
 
-// Mock Data
-const allData = ref(MOCK_MAP_DATA);
+// --- 더미 데이터 확장 (총 21개: art 8, studio 6, gallery 7) ---
+///--- 하드코딩 지우고 백엔드 가져오기--
+const allData = ref([])
+///--- 로딩-----
+const isDataLoading = ref(true)
+// --- 더미 데이터 확장 끝 ---
 
 // --- Map & Clustering Logic ---
+
 const createMarkers = () => {
   if (!naverMap.value) return;
   const bounds = naverMap.value.getBounds();
@@ -246,6 +258,7 @@ const viewDetail = (item) => {
   showModal('상세 보기', `${item.title || item.name}의 상세 페이지로 이동합니다.`, 'info')
 }
 
+
 onMounted(() => {
   console.log('[onMounted] 컴포넌트 마운트됨 -> initMap() 호출');
   initMap();
@@ -261,8 +274,10 @@ const extractAreaKeyword = (raw) => {
   return tokens[0].replace(/[^가-힣A-Za-z0-9]/g, '')
 }
 
+// 현재 검색어에서 키워드 추출 (ex: '구로구 구로동' -> '구로구')
 const areaKeyword = computed(() => extractAreaKeyword(searchQuery.value))
 
+// 1) 타입 필터 + 2) 지역 키워드(부분 일치)까지 반영된 최종 리스트
 const filteredList = computed(() => {
   const kw = areaKeyword.value
   return allData.value.filter(item => {

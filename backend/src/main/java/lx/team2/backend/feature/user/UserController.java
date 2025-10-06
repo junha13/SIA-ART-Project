@@ -21,7 +21,7 @@ public class UserController {
     public ResponseEntity<String> checkDuplicate(@RequestParam("userId") String userId) {
         // 서비스 계층을 통해 아이디 사용 가능 여부 확인 (쿼리파라미터로 userId를 받음)
         boolean isAvailable = userService.isIdAvailable(userId);
-        
+
         if (isAvailable) {
             return ResponseEntity.ok("available");
         } else {
@@ -37,7 +37,7 @@ public class UserController {
     public ResponseEntity<String> signup(@RequestBody RegisterDTO user) {
         // 서비스 계층을 통해 회원가입 로직 수행
         boolean isSuccess = userService.register(user);
-        
+
         if (isSuccess) {
             return ResponseEntity.ok("success");
         } else {
@@ -45,14 +45,14 @@ public class UserController {
             return ResponseEntity.ok("fail");
         }
     }
-    
+
     /*
      * 로그인 처리 API입니다.
      * @return 로그인 성공 시 userId, 실패 시 401 Unauthorized 응답
      */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO dto, HttpSession session) {
-        
+
 		// 서비스 계층의 로그인 메서드를 호출하여 사용자 인증을 시도
 		int userId = userService.getUserIdByLogin(dto);
 

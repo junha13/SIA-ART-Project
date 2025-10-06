@@ -1,13 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="mapper-artwork">
-
-    <insert id="insertArtwork" parameterType="lx.team2.backend.feature.product.ArtworkVO">
-        INSERT INTO artwork (title, image_path, lat, lng)
-        VALUES (#{title}, #{imagePath}, #{lat}, #{lng})
+     <resultMap id="artworkCoordinate" type="lx.team2.backend.feature.artwork.ArtworkVO">
+       <!-- ==================== 
+     좌표를 가져오는 함수 때문에 생긴 위도,경도들은, 마이바티스의 자동 글자 규칙에 안 맞아서 
+     lat,lng 필드랑 연결이 안되기 떄문에 수동으로 지정 필수 
+     ==================== -->
+        <result property="lat" column="latitude"/>
+        <result property="lng" column="longitude"/>
+    </resultMap>
+    <!-- ==================== 
+     useGeneratedKeys="true": INSERT 후 DB가 자동 생성한 ID를 돌려받는 기능을 켭니다.
+     keyProperty="artworkNumber": 돌려받은 ID 값을 ArtworkVO 객체의 artworkNumber 필드에 저장하라고 지정합니다.
+     keyColumn="artwork_number": 자동 생성되는 키가 DB 테이블의 artwork_number 컬럼이라는 것을 명시적으로 알려줍니다.
+     왜 필요한가?->새 데이터를 저장하고 나서, "방금 저장한 거 몇 번이야?"라고 DB에 다시 물어보지 않고 바로 그 ID를 알기 위해 필요
+      ==================== -->
+    
+     <insert id="insertArtwork" parameterType="lx.team2.backend.feature.artwork.ArtworkVO"
+            useGeneratedKeys="true" keyProperty="artworkNumber" keyColumn="artwork_number">
+    
+        INSERT INTO tb_artwork (
+            artwork_title, artwork_description, artwork_image, year_of_artwork,
+            user_number, work_category_number, location
+        ) VALUES (
+            #{artworkTitle}, #{artworkDescription}, #{artworkImage}, #{yearOfArtwork},
+            #{userNumber}, #{workCategoryNumber},
+            ST_SetSRID(ST_MakePoint(#{lng}, #{lat}), 4326)
+        )
     </insert>
-
-    <select id="selectAllArtworks" resultType="lx.team2.backend.feature.product.ArtworkVO">
-        SELECT * FROM artwork
+<!-- ====================  지도의 마커 표시 ==================== -->
+<select id="selectMarker" parameterType="map" resultMap="artworkCoordinate">
+        SELECT
+            artwork_number,
+            artwork_title,
+            artwork_image,
+            ST_Y(location::geometry) AS latitude,
+            ST_X(location::geometry) AS longitude
+        FROM
+            tb_artwork
+        WHERE
+            ST_DWithin(location, ST_SetSRID(ST_MakePoint(#{lng}, #{lat}), 4326), #{radius})
     </select>
+<!-- ====================  작품상세정보 ==================== -->
+
+<select id="selectArtwork" parameterType="long" resultMap="artworkCoordinate">
+        SELECT
+            artwork_number,
+            artwork_title,
+            artwork_description,
+            artwork_image,
+            year_of_artwork,
+            user_number,
+            work_category_number,
+            ST_Y(location::geometry) AS latitude,
+            ST_X(location::geometry) AS longitude
+        FROM
+            tb_artwork
+        WHERE
+            artwork_number = #{artworkNumber}
+    </select>
+<!-- ====================  작품정보수정 ==================== -->
+
+<update id="updateArtwork" parameterType="lx.team2.backend.feature.artwork.ArtworkVO">
+        UPDATE tb_artwork
+        <set>
+            <if test="artworkTitle != null and artworkTitle != ''">artwork_title = #{artworkTitle},</if>
+            <if test="artworkDescription != null">artwork_description = #{artworkDescription},</if>
+            <if test="artworkImage != null">artwork_image = #{artworkImage},</if>
+            <if test="yearOfArtwork != null">year_of_artwork = #{yearOfArtwork},</if>
+            <if test="workCategoryNumber != null">work_category_number = #{workCategoryNumber},</if>
+            <if test="lat != null and lng != null">
+                location = ST_SetSRID(ST_MakePoint(#{lng}, #{lat}), 4326),
+            </if>
+        </set>
+        WHERE
+            artwork_number = #{artworkNumber}
+    </update>
+<!-- ====================  작품정보삭제 ==================== -->
+<delete id="deleteArtwork" parameterType="long">
+        DELETE FROM tb_artwork
+        WHERE artwork_number = #{artworkNumber}
+    </delete>
+
 </mapper>

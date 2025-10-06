@@ -4,9 +4,13 @@ import lombok.Data;
 
 @Data
 public class ArtworkVO {
-    private Long id;
-    private String title;
-    private String imagePath;
+    private Long artworkNumber;
+    private String artworkTitle;
+    private String artworkDescription;
+    private String artworkImage;
+    private Integer yearOfArtwork;
+    private Long userNumber;
+    private Integer workCategoryNumber;
     private Double lat;
     private Double lng;
 }

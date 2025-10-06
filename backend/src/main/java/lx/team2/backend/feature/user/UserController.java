@@ -18,15 +18,15 @@ public class UserController {
         userService.signup(userVO);
         return ResponseEntity.ok("회원가입 완료");
     }
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest req) {
-        UserVO user = userMapper.findByUsername(req.getUsername());
-        if (user == null || !passwordEncoder.matches(req.getPassword(), user.getPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-        }
+   // @PostMapping("/login")
+   // public ResponseEntity<?> login(@RequestBody LoginRequest req) {
+        //UserVO user = userMapper.findByUsername(req.getUsername());
+       // if (user == null || !passwordEncoder.matches(req.getPassword(), user.getPassword())) {
+           //return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+       // }
 
-        String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
-        return ResponseEntity.ok(Map.of("token", token));
+       // String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
+        //return ResponseEntity.ok(Map.of("token", token));
     }
 
-}
+//}

@@ -17,7 +17,7 @@ public class PostController {
 	@Autowired
 	PostService service;
 	
-	// ========== db insert ==========
+	// ========== 게시글 db insert ==========
 	@RequestMapping("/post")
 	public ResponseEntity<?> insertPostDB(@RequestBody PostRequestDTO dto) {
 		boolean result = service.insertPostDB(dto);
@@ -40,11 +40,11 @@ public class PostController {
 	// ========== 각 게시글 디테일 화면 보여주기 ==========
 	@RequestMapping("/getPostDetail/{postNumber}")
 	public ResponseEntity<?> selectPostDetail(@PathVariable int postNumber ) {
-		PostRequestDTO post = service.selectPostDetailByPostId(postNumber);
+		Map<String, Object> map = service.selectPostDetailByPostId(postNumber);
 		return ResponseEntity
 				.ok()
 				.header("api", "post/getPostDetail/" + postNumber)
-				.body(Map.of("result", post));
+				.body(Map.of("result", map));
 	}
 	
 	// ========== 게시글 추천 api  ==========
@@ -54,6 +54,16 @@ public class PostController {
 		return ResponseEntity
 				.ok()
 				.header("api", "post/recommend")
+				.body(Map.of("result", map));
+	}
+	
+	// ========== 게시글 댓글 추가 api ==========
+	@RequestMapping("/addComment")
+	public ResponseEntity<?> insertPostCommentDB(@RequestBody PostCommentRequestDTO dto) {
+		Map<String, Object> map = service.insertPostCommentDB(dto);
+		return ResponseEntity
+				.ok()
+				.header("api", "post/comment")
 				.body(Map.of("result", map));
 	}
 	

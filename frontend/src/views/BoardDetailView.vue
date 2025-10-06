@@ -97,11 +97,11 @@
             <li v-for="(comment, index) in comments" :key="index"
                 class="list-group-item d-flex justify-content-between align-items-start border-bottom py-4 px-0">
               <div class="d-flex flex-column">
-                <span class="text-dark fw-bolder mb-1">{{ comment.author }}</span>
-                <span class="text-gray-800">{{ comment.text }}</span>
+                <span class="text-dark fw-bolder mb-1">{{ comment.activityName }}</span>
+                <span class="text-gray-800">{{ comment.commentContent }}</span>
               </div>
               <div class="d-flex flex-column align-items-end">
-                  <small class="text-muted fs-7 mb-2">{{ comment.date }}</small>
+                  <small class="text-muted fs-7 mb-2">{{ comment.createAt }}</small>
                   <!-- 댓글 삭제 버튼도 Dark 스타일로 변경 -->
                   <button class="btn btn-sm btn-dark fw-semibold" @click="removeComment(index)">
                     <span class="text-white">삭제</span>
@@ -221,9 +221,10 @@ async function requestPostDetail(postNumber) {
           timeout: 5000,
         })
         console.log('OK', response.data)
-        post.value = response.data.result
-        recommendedByMe.value = response.data.result.recommendedByMe
-        recommendCount.value = response.data.result.recommendCount
+        post.value = response.data.result.result
+        recommendedByMe.value = response.data.result.result.recommendedByMe
+        recommendCount.value = response.data.result.result.recommendCount
+        comments.value = response.data.result.commentList
 
     } catch (e) {
       console.error('[Detail] load error:', e)
@@ -233,16 +234,22 @@ async function requestPostDetail(postNumber) {
 
   // 아직 안함
 async function requestAddComment(postNumber) {
+  const comment = {
+    postNumber:postNumber,
+    commentContent:newComment.value
+  }
 
     try {
-      const response = await axios.post(`http://localhost:8080/api/post/addComment/${postNumber}`,
-      newComment,
+      const response = await axios.post(`http://localhost:8080/api/post/addComment`,
+      comment,
         {
           headers: { 'Content-Type': 'application/json' },
           withCredentials: true,
           timeout: 5000,
         })
         console.log('OK', response.data)
+        comments.value = response.data.result.commentList
+        newComment.value = ""
 
     } catch (e) {
       console.error('[Detail] load error:', e)
@@ -251,14 +258,14 @@ async function requestAddComment(postNumber) {
 
 async function requestRecommendPost(postNumber) {
 
-  const recomment = {
+  const recommend = {
     postNumber:postNumber,
     recommendedByMe:post.recommendedByMe
   }
 
   try {
       const response = await axios.post(`http://localhost:8080/api/post/recommend`,
-      recomment,
+      recommend,
         {
           headers: { 'Content-Type': 'application/json' },
           withCredentials: true,

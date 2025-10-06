@@ -81,4 +81,16 @@ public class PostDAO {
 	public int selectRecommendCount(PostRecommendRequestDTO recommendDto) {
 		return session.selectOne("selectRecommendCount", recommendDto);
 	}
+	/*
+	 * ========== 댓글 insert 하기 ==========
+	 */
+	public int insertPostCommentDB(PostCommentRequestDTO commentDto) {
+		return session.insert("insertPostCommentDB", commentDto);
+	}
+	/*
+	 * ========== 댓글 list 뽑기 ==========
+	 */
+	public List<PostCommentRequestDTO> selectCommentList(int postNumber) {
+		return session.selectList("selectCommentList", postNumber);
+	}
 }

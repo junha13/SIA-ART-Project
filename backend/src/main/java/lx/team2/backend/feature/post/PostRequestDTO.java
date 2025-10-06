@@ -36,4 +36,7 @@ public class PostRequestDTO {
     // 추천
     private int recommendCount;    // 총 추천 수
     private boolean recommendedByMe; // 내가 추천했는지 (viewer 기준)
+    
+    // 댓글 내용
+    private String commentContent;
 }

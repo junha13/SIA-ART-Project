@@ -21,6 +21,8 @@
 
         <result column="recommend_count"    property="recommendCount"/>
         <result property="recommendedByMe"  column="recommended_by_me" jdbcType="BOOLEAN"/>
+        
+        <result property="commentContent"  column="comment_content"/>
     </resultMap>
     <!-- ========== 게시글 목록 조회 ========== -->
     <select id="selectPostList" resultMap="postMap">
@@ -128,6 +130,20 @@
     <select id="selectRecommendCount" parameterType="PostRecommendRequestDTO" resultType="int">
 		SELECT COUNT(*)
 		FROM tb_post_recommend
+		WHERE post_number = #{postNumber}
+    </select>
+    
+    <!-- ========== 게시글에 댓글 쓰는거임 ========== -->
+    <insert id="insertPostCommentDB" parameterType="PostCommentRequestDTO">
+        insert into tb_comment (comment_content, create_at, user_number, post_number)
+        VALUES (#{commentContent}, now(), #{userNumber}, #{postNumber})
+    </insert>
+    
+    <!-- ========== 댓글 리스트 뽑기 ========== -->
+    <select id="selectCommentList" parameterType="int" resultType="PostCommentRequestDTO">
+		select c.comment_content, c.create_at, c.user_number, c.post_number, u.activity_name
+		FROM tb_comment c join tb_user u
+			on c.user_number = u.user_number
 		WHERE post_number = #{postNumber}
     </select>
 

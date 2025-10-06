@@ -52,7 +52,9 @@ public class PostService {
 	
 	// ========== 게시글 id(number)로 상세정보 뽑기 (detail view) ==========	
 	@Transactional
-	public PostRequestDTO selectPostDetailByPostId(int postNumber) {
+	public Map<String, Object> selectPostDetailByPostId(int postNumber) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		
 		// 세션 보면서 같은 사람은 30분에 한번씩 올라가도록 하면 좋을듯
 		
 		// 클릭할때마다 조회수 증가 dao
@@ -68,8 +70,9 @@ public class PostService {
 		recommendDto.setPostNumber(postNumber);
 		recommendDto.setUserNumber((Integer) session.getAttribute("userNumber"));
 		dto.setRecommendedByMe(dao.selectPostRecommendByMe(recommendDto));
-		
-		return dto;
+		map.put("result", dto);
+		map.put("commentList", dao.selectCommentList(dto.getPostNumber()));
+		return map;
 	}
 	
 	// ========== 게시글 추천 api ==========
@@ -92,6 +95,21 @@ public class PostService {
 		dao.insertPostRecommend(dto);
 		map.put("recommendedByMe", true);
 		map.put("recommendCount", dao.selectRecommendCount(dto));
+		return map;
+	}
+	
+	// ========== 댓글 쓰는 기능임 db insert ==========	
+	@Transactional
+	public Map<String, Object> insertPostCommentDB(PostCommentRequestDTO dto) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		// 유저 번호 넣기
+		dto.setUserNumber((Integer) session.getAttribute("userNumber"));
+		
+		int num = dao.insertPostCommentDB(dto);
+		map.put("result", num == 1); // 1이면 true 들어감
+		
+		map.put("commentList", dao.selectCommentList(dto.getPostNumber()));
 		return map;
 	}
 	
